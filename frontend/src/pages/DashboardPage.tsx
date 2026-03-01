@@ -5,9 +5,18 @@ import { SeverityBadge } from '../components/SeverityBadge';
 import { ThreatMap } from '../components/ThreatMap';
 import { AIAnalysisPanel } from '../components/AIAnalysisPanel';
 import { SignalTimeline, SeverityPieChart, SourceBarChart } from '../components/AnalyticsCharts';
-import { Shield, FolderOpen, Rss, AlertTriangle, TrendingUp, MapPin, Download } from 'lucide-react';
+import {
+  Shield, FolderOpen, Rss, AlertTriangle, TrendingUp, MapPin, Download,
+  Plane, Satellite, Flame, Sun, Telescope, Wifi,
+} from 'lucide-react';
 import * as api from '../api';
 import type { Analytics } from '../types';
+import {
+  fetchAirTraffic,
+  fetchNasaEvents,
+  fetchSpaceWeather,
+  fetchNearEarthObjects,
+} from '../services/advancedLayers';
 
 export function DashboardPage() {
   const signals = useStore((s) => s.signals);
@@ -20,11 +29,36 @@ export function DashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'map' | 'analytics'>('overview');
 
+  // Live data layer counts
+  const [liveFeeds, setLiveFeeds] = useState<{ flights: number; nasaEvents: number; spaceWeather: number; neos: number; hazardousNeos: number }>({
+    flights: 0, nasaEvents: 0, spaceWeather: 0, neos: 0, hazardousNeos: 0,
+  });
+
   useEffect(() => {
     loadSignals();
     loadCases();
     loadSources();
     api.fetchAnalytics(30).then(setAnalytics).catch(() => {});
+
+    // Fetch live layer counts
+    Promise.allSettled([
+      fetchAirTraffic(),
+      fetchNasaEvents({ days: 7, limit: 100 }),
+      fetchSpaceWeather(7),
+      fetchNearEarthObjects(),
+    ]).then(([flights, events, sw, neoResult]) => {
+      const flightData = flights.status === 'fulfilled' ? flights.value : [];
+      const eventData = events.status === 'fulfilled' ? events.value : [];
+      const swData = sw.status === 'fulfilled' ? sw.value : [];
+      const neoData = neoResult.status === 'fulfilled' ? neoResult.value : [];
+      setLiveFeeds({
+        flights: flightData.length,
+        nasaEvents: eventData.length,
+        spaceWeather: swData.length,
+        neos: neoData.length,
+        hazardousNeos: neoData.filter(n => n.is_potentially_hazardous).length,
+      });
+    });
   }, [loadSignals, loadCases, loadSources]);
 
   const { newCount, critCount, openCases } = useMemo(() => ({
@@ -116,6 +150,37 @@ export function DashboardPage() {
           <div className="space-y-4">
             {/* AI Analysis Panel */}
             <AIAnalysisPanel />
+
+            {/* Live Intelligence Feeds */}
+            <div>
+              <h2 className="text-[10px] font-display tracking-[0.15em] text-amber/50 uppercase mb-3 flex items-center gap-2">
+                <Wifi className="h-3 w-3 text-tactical-green animate-pulse" />
+                LIVE INTELLIGENCE FEEDS
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                {[
+                  { label: 'FLIGHTS TRACKED', value: liveFeeds.flights, icon: Plane, color: 'text-sky-400', to: '/airspace' },
+                  { label: 'NASA EVENTS', value: liveFeeds.nasaEvents, icon: Satellite, color: 'text-emerald-400', to: '/surveillance' },
+                  { label: 'SPACE WEATHER', value: liveFeeds.spaceWeather, icon: Sun, color: 'text-yellow-400', to: '/surveillance' },
+                  { label: 'NEAR-EARTH OBJ', value: liveFeeds.neos, icon: Telescope, color: 'text-purple-400', to: '/surveillance' },
+                  { label: 'FIRE HOTSPOTS', value: liveFeeds.hazardousNeos, icon: Flame, color: 'text-orange-400', to: '/surveillance' },
+                ].map((feed) => (
+                  <a
+                    key={feed.label}
+                    href={feed.to}
+                    className="hud-border bg-surface-card p-3 hover:border-amber/30 transition-all group cursor-pointer block"
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <feed.icon className={`h-3.5 w-3.5 ${feed.color}`} />
+                      <span className="text-[9px] font-mono text-gray-600 tracking-wider uppercase group-hover:text-gray-400 transition-colors">{feed.label}</span>
+                    </div>
+                    <div className={`text-xl font-display font-bold tabular-nums ${feed.color}`}>
+                      {feed.value}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
 
             {/* Recent signals + quick chart */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

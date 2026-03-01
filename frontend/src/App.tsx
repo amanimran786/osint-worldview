@@ -15,6 +15,8 @@ const RulesPage = lazy(() => import('./pages/RulesPage').then(m => ({ default: m
 const SourcesPage = lazy(() => import('./pages/SourcesPage').then(m => ({ default: m.SourcesPage })));
 const MapPage = lazy(() => import('./pages/MapPage').then(m => ({ default: m.MapPage })));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const AirspacePage = lazy(() => import('./pages/AirspacePage').then(m => ({ default: m.AirspacePage })));
+const SurveillancePage = lazy(() => import('./pages/SurveillancePage').then(m => ({ default: m.SurveillancePage })));
 
 function PageLoader() {
   return (
@@ -74,6 +76,8 @@ export default function App() {
             <Route path="/rules" element={<RulesPage />} />
             <Route path="/sources" element={<SourcesPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/airspace" element={<AirspacePage />} />
+            <Route path="/surveillance" element={<SurveillancePage />} />
           </Routes>
         </Suspense>
         <HUDOverlay />

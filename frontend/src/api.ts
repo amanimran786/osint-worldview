@@ -198,3 +198,32 @@ export async function fetchWeather(): Promise<WeatherData[]> {
 export async function fetchDisasters(): Promise<DisasterEvent[]> {
   return fetchDisastersDirect();
 }
+
+/* ================================================================
+   ADVANCED DATA LAYERS — re-export for convenience
+   ================================================================ */
+export {
+  fetchAirTraffic,
+  fetchFlightTrack,
+  fetchNasaEvents,
+  fetchSpaceWeather,
+  fetchFireHotspots,
+  fetchAPOD,
+  fetchEpicImages,
+  fetchNearEarthObjects,
+  getPublicWebcams,
+  fetchAllAdvancedData,
+} from './services/advancedLayers';
+
+export type {
+  FlightVector,
+  FlightWaypoint,
+  NasaEvent,
+  SpaceWeatherEvent,
+  FireHotspot,
+  NasaAPOD,
+  EpicImage,
+  NearEarthObject,
+  PublicWebcam,
+  AllAdvancedData,
+} from './services/advancedLayers';

@@ -8,6 +8,8 @@ import {
   Map,
   BarChart3,
   Radio,
+  Plane,
+  Camera,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -15,6 +17,8 @@ const links = [
   { to: '/', label: 'Dashboard', icon: Activity },
   { to: '/signals', label: 'Signals', icon: Shield },
   { to: '/map', label: 'World View', icon: Map },
+  { to: '/airspace', label: 'Airspace', icon: Plane },
+  { to: '/surveillance', label: 'Surveillance', icon: Camera },
   { to: '/cases', label: 'Cases', icon: FolderOpen },
   { to: '/rules', label: 'Rules', icon: BookOpen },
   { to: '/sources', label: 'Sources', icon: Rss },
