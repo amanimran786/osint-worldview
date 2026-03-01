@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
 import type { DataLayerKey, DataLayerState, EarthquakeFeature, WeatherData, CyberThreat, DisasterEvent } from '../types';
+import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent } from '../services/advancedLayers';
 import * as api from '../api';
 import {
+  fetchAirTraffic,
+  fetchNasaEvents,
+  fetchFireHotspots,
+  fetchSpaceWeather,
+} from '../services/advancedLayers';
+import {
   Activity, Cloud, Shield, AlertTriangle,
-  Zap, Loader2,
+  Zap, Loader2, Plane, Satellite, Flame, Sun,
 } from 'lucide-react';
 
 const LAYER_META: Record<DataLayerKey, { label: string; icon: typeof Activity; color: string }> = {
@@ -12,6 +19,10 @@ const LAYER_META: Record<DataLayerKey, { label: string; icon: typeof Activity; c
   weather: { label: 'Weather Intel', icon: Cloud, color: '#3b82f6' },
   cyber: { label: 'Cyber Threats', icon: Zap, color: '#a855f7' },
   disasters: { label: 'Disasters', icon: AlertTriangle, color: '#f97316' },
+  flights: { label: 'Air Traffic', icon: Plane, color: '#38bdf8' },
+  nasaEvents: { label: 'NASA Events', icon: Satellite, color: '#34d399' },
+  fires: { label: 'Fire Hotspots', icon: Flame, color: '#fb923c' },
+  spaceWeather: { label: 'Space Weather', icon: Sun, color: '#fbbf24' },
 };
 
 export interface LayerData {
@@ -19,6 +30,10 @@ export interface LayerData {
   weather: WeatherData[];
   cyber: CyberThreat[];
   disasters: DisasterEvent[];
+  flights: FlightVector[];
+  nasaEvents: NasaEvent[];
+  fires: FireHotspot[];
+  spaceWeather: SpaceWeatherEvent[];
 }
 
 interface DataLayerPanelProps {
@@ -97,6 +112,10 @@ export function useDataLayers() {
     { key: 'weather', label: 'Weather Intel', enabled: true, count: 0, color: '#3b82f6' },
     { key: 'cyber', label: 'Cyber Threats', enabled: false, count: 0, color: '#a855f7' },
     { key: 'disasters', label: 'Disasters', enabled: true, count: 0, color: '#f97316' },
+    { key: 'flights', label: 'Air Traffic', enabled: false, count: 0, color: '#38bdf8' },
+    { key: 'nasaEvents', label: 'NASA Events', enabled: false, count: 0, color: '#34d399' },
+    { key: 'fires', label: 'Fire Hotspots', enabled: false, count: 0, color: '#fb923c' },
+    { key: 'spaceWeather', label: 'Space Weather', enabled: false, count: 0, color: '#fbbf24' },
   ]);
 
   const [data, setData] = useState<LayerData>({
@@ -104,6 +123,10 @@ export function useDataLayers() {
     weather: [],
     cyber: [],
     disasters: [],
+    flights: [],
+    nasaEvents: [],
+    fires: [],
+    spaceWeather: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -117,25 +140,46 @@ export function useDataLayers() {
   const refresh = async () => {
     setLoading(true);
     try {
-      const [eq, wx, cy, dis] = await Promise.allSettled([
+      const [eq, wx, cy, dis, fl, nasa, fire, sw] = await Promise.allSettled([
         api.fetchEarthquakes({ period: 'day', min_magnitude: 2.5 }),
         api.fetchWeather(),
         api.fetchCyberThreats({ limit: 50 }),
         api.fetchDisasters(),
+        fetchAirTraffic(),
+        fetchNasaEvents({ days: 7, limit: 100 }),
+        fetchFireHotspots({ days: 1 }),
+        fetchSpaceWeather(7),
       ]);
 
       const eqData = eq.status === 'fulfilled' ? eq.value : [];
       const wxData = wx.status === 'fulfilled' ? wx.value : [];
       const cyData = cy.status === 'fulfilled' ? cy.value : [];
       const disData = dis.status === 'fulfilled' ? dis.value : [];
+      const flData = fl.status === 'fulfilled' ? fl.value : [];
+      const nasaData = nasa.status === 'fulfilled' ? nasa.value : [];
+      const fireData = fire.status === 'fulfilled' ? fire.value : [];
+      const swData = sw.status === 'fulfilled' ? sw.value : [];
 
-      setData({ earthquakes: eqData, weather: wxData, cyber: cyData, disasters: disData });
+      setData({
+        earthquakes: eqData,
+        weather: wxData,
+        cyber: cyData,
+        disasters: disData,
+        flights: flData,
+        nasaEvents: nasaData,
+        fires: fireData,
+        spaceWeather: swData,
+      });
       setLayers(prev => prev.map(l => {
         switch (l.key) {
           case 'earthquakes': return { ...l, count: eqData.length };
           case 'weather': return { ...l, count: wxData.length };
           case 'cyber': return { ...l, count: cyData.length };
           case 'disasters': return { ...l, count: disData.length };
+          case 'flights': return { ...l, count: flData.length };
+          case 'nasaEvents': return { ...l, count: nasaData.length };
+          case 'fires': return { ...l, count: fireData.length };
+          case 'spaceWeather': return { ...l, count: swData.length };
           default: return l;
         }
       }));

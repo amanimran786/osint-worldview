@@ -158,6 +158,22 @@ export function MapPage() {
             <span className="text-orange-400 tabular-nums text-right">
               {layers.find(l => l.key === 'disasters')?.count ?? 0}
             </span>
+            <span className="text-gray-600">Flights</span>
+            <span className="text-sky-400 tabular-nums text-right">
+              {layers.find(l => l.key === 'flights')?.count ?? 0}
+            </span>
+            <span className="text-gray-600">NASA Events</span>
+            <span className="text-emerald-400 tabular-nums text-right">
+              {layers.find(l => l.key === 'nasaEvents')?.count ?? 0}
+            </span>
+            <span className="text-gray-600">Fires</span>
+            <span className="text-orange-300 tabular-nums text-right">
+              {layers.find(l => l.key === 'fires')?.count ?? 0}
+            </span>
+            <span className="text-gray-600">Space Wx</span>
+            <span className="text-yellow-400 tabular-nums text-right">
+              {layers.find(l => l.key === 'spaceWeather')?.count ?? 0}
+            </span>
           </div>
         </div>
       </div>

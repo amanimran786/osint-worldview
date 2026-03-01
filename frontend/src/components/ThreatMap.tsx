@@ -79,6 +79,55 @@ const disasterIcon = L.divIcon({
   iconAnchor: [6, 6],
 });
 
+/* ---- Flight icon (small plane triangle) ---- */
+function flightIcon(heading: number | null, onGround: boolean) {
+  const color = onGround ? '#64748b' : '#38bdf8';
+  const rot = heading ?? 0;
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:10px;height:10px;
+      transform:rotate(${rot}deg);
+    "><svg viewBox="0 0 24 24" fill="${color}" width="10" height="10"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>`,
+    iconSize: [10, 10],
+    iconAnchor: [5, 5],
+  });
+}
+
+/* ---- NASA event icon ---- */
+function nasaEventIcon(category: string) {
+  const colors: Record<string, string> = {
+    'Wildfires': '#ef4444', 'Severe Storms': '#8b5cf6', 'Volcanoes': '#dc2626',
+    'Sea and Lake Ice': '#67e8f9', 'Floods': '#3b82f6', 'Drought': '#fbbf24',
+  };
+  const color = colors[category] ?? '#34d399';
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:10px;height:10px;border-radius:50%;
+      background:${color};border:1.5px solid ${color}80;
+      box-shadow:0 0 6px ${color};
+    "></div>`,
+    iconSize: [10, 10],
+    iconAnchor: [5, 5],
+  });
+}
+
+/* ---- Fire hotspot icon ---- */
+function fireIcon(confidence: string) {
+  const color = confidence === 'high' ? '#dc2626' : confidence === 'nominal' ? '#f97316' : '#fbbf24';
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:8px;height:8px;border-radius:50%;
+      background:radial-gradient(circle,${color} 0%,${color}00 70%);
+      border:1px solid ${color}60;
+    "></div>`,
+    iconSize: [8, 8],
+    iconAnchor: [4, 4],
+  });
+}
+
 interface ThreatMapProps {
   layers?: DataLayerState[];
   layerData?: LayerData;
@@ -224,6 +273,67 @@ export function ThreatMap({ layers, layerData, flyTo, signalCount }: ThreatMapPr
                   <p className="font-bold text-purple-400 mb-1">🛡 {c.malware}</p>
                   <p className="text-amber/70">{c.ip}:{c.port}</p>
                   <p className="text-amber/40 mt-1">{c.country} · {c.status}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+        {/* Air Traffic layer */}
+        {isLayerOn('flights') && layerData?.flights
+          ?.filter(f => f.latitude != null && f.longitude != null)
+          .slice(0, 500)
+          .map((f, i) => (
+            <Marker
+              key={`fl-${i}`}
+              position={[f.latitude!, f.longitude!]}
+              icon={flightIcon(f.true_track, f.on_ground)}
+            >
+              <Popup>
+                <div className="min-w-[180px] text-[11px] font-mono">
+                  <p className="font-bold text-sky-400 mb-1">✈ {f.callsign ?? f.icao24}</p>
+                  <p className="text-amber/70">{f.origin_country}</p>
+                  <p className="text-amber/40 mt-1">
+                    {f.baro_altitude ? `${Math.round(f.baro_altitude * 3.28084).toLocaleString()} ft` : 'Ground'}
+                    {f.velocity ? ` · ${Math.round(f.velocity * 1.944)} kts` : ''}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+        {/* NASA EONET events layer */}
+        {isLayerOn('nasaEvents') && layerData?.nasaEvents
+          ?.filter(e => e.latitude != null && e.longitude != null)
+          .map((e, i) => (
+            <Marker
+              key={`nasa-${i}`}
+              position={[e.latitude!, e.longitude!]}
+              icon={nasaEventIcon(e.category)}
+            >
+              <Popup>
+                <div className="min-w-[180px] text-[11px] font-mono">
+                  <p className="font-bold text-emerald-400 mb-1">🛰 {e.title}</p>
+                  <p className="text-amber/70">{e.category}</p>
+                  <p className="text-amber/40 mt-1">{e.source} · {new Date(e.date).toLocaleDateString()}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+        {/* Fire hotspots layer */}
+        {isLayerOn('fires') && layerData?.fires
+          ?.slice(0, 300)
+          .map((f, i) => (
+            <Marker
+              key={`fire-${i}`}
+              position={[f.latitude, f.longitude]}
+              icon={fireIcon(f.confidence)}
+            >
+              <Popup>
+                <div className="min-w-[160px] text-[11px] font-mono">
+                  <p className="font-bold text-orange-400 mb-1">🔥 Fire Hotspot</p>
+                  <p className="text-amber/70">Brightness: {f.brightness.toFixed(0)}K</p>
+                  <p className="text-amber/40 mt-1">Confidence: {f.confidence}</p>
                 </div>
               </Popup>
             </Marker>

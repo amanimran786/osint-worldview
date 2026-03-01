@@ -173,7 +173,9 @@ export interface DisasterEvent {
 
 export type VisualMode = 'normal' | 'crt' | 'nvg' | 'flir' | 'noir' | 'snow';
 
-export type DataLayerKey = 'earthquakes' | 'weather' | 'cyber' | 'disasters' | 'signals';
+export type DataLayerKey =
+  | 'signals' | 'earthquakes' | 'weather' | 'cyber' | 'disasters'
+  | 'flights' | 'nasaEvents' | 'fires' | 'spaceWeather';
 
 export interface DataLayerState {
   key: DataLayerKey;

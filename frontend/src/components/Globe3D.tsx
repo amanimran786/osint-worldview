@@ -106,36 +106,57 @@ function Atmosphere() {
 /* ---- Continent outlines from simplified GeoJSON ---- */
 const CONTINENT_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson';
 
+/* ---- Country borders from Natural Earth ---- */
+const COUNTRIES_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+
+/* ---- US States / Major Admin-1 boundaries ---- */
+const STATES_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_1_states_provinces_lines.geojson';
+
+/** Shared helper: parse polygon rings from a GeoJSON feature into Vector3 line geometries */
+function parseGeoJSONRings(
+  features: Array<{ geometry: { type: string; coordinates: any } }>,
+  altitude: number,
+): THREE.BufferGeometry[] {
+  const geometries: THREE.BufferGeometry[] = [];
+  for (const feature of features) {
+    const { type, coordinates } = feature.geometry;
+    let rings: number[][][] = [];
+
+    if (type === 'Polygon') {
+      rings = coordinates as number[][][];
+    } else if (type === 'MultiPolygon') {
+      rings = (coordinates as number[][][][]).flat();
+    } else if (type === 'LineString') {
+      rings = [coordinates as number[][]];
+    } else if (type === 'MultiLineString') {
+      rings = coordinates as number[][][];
+    }
+
+    for (const ring of rings) {
+      const pts: THREE.Vector3[] = [];
+      for (const coord of ring) {
+        const lng = coord[0];
+        const lat = coord[1];
+        if (typeof lat === 'number' && typeof lng === 'number') {
+          pts.push(latLngToVec3(lat, lng, altitude));
+        }
+      }
+      if (pts.length > 1) {
+        geometries.push(new THREE.BufferGeometry().setFromPoints(pts));
+      }
+    }
+  }
+  return geometries;
+}
+
 function ContinentOutlines() {
   const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
 
   useEffect(() => {
     fetch(CONTINENT_URL)
       .then(r => r.json())
-      .then((geojson: { features: Array<{ geometry: { type: string; coordinates: number[][][] | number[][][][] } }> }) => {
-        const geometries: THREE.BufferGeometry[] = [];
-
-        for (const feature of geojson.features) {
-          const coords = feature.geometry.type === 'MultiPolygon'
-            ? (feature.geometry.coordinates as number[][][][]).flat()
-            : (feature.geometry.coordinates as number[][][]);
-
-          for (const ring of coords) {
-            const pts: THREE.Vector3[] = [];
-            for (const coord of ring) {
-              const lng = coord[0];
-              const lat = coord[1];
-              if (typeof lat === 'number' && typeof lng === 'number') {
-                pts.push(latLngToVec3(lat, lng, 0.003));
-              }
-            }
-            if (pts.length > 2) {
-              const geo = new THREE.BufferGeometry().setFromPoints(pts);
-              geometries.push(geo);
-            }
-          }
-        }
-        setLines(geometries);
+      .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
+        setLines(parseGeoJSONRings(geojson.features, 0.003));
       })
       .catch(() => {});
   }, []);
@@ -148,6 +169,62 @@ function ContinentOutlines() {
           object={new THREE.Line(
             geo,
             new THREE.LineBasicMaterial({ color: '#f0a030', transparent: true, opacity: 0.25 })
+          )}
+        />
+      ))}
+    </group>
+  );
+}
+
+/* ---- Country borders ---- */
+function CountryBorders() {
+  const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
+
+  useEffect(() => {
+    fetch(COUNTRIES_URL)
+      .then(r => r.json())
+      .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
+        setLines(parseGeoJSONRings(geojson.features, 0.004));
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <group>
+      {lines.map((geo, i) => (
+        <primitive
+          key={i}
+          object={new THREE.Line(
+            geo,
+            new THREE.LineBasicMaterial({ color: '#4ade80', transparent: true, opacity: 0.15 })
+          )}
+        />
+      ))}
+    </group>
+  );
+}
+
+/* ---- State / Province borders ---- */
+function StateBorders() {
+  const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
+
+  useEffect(() => {
+    fetch(STATES_URL)
+      .then(r => r.json())
+      .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
+        setLines(parseGeoJSONRings(geojson.features, 0.0045));
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <group>
+      {lines.map((geo, i) => (
+        <primitive
+          key={i}
+          object={new THREE.Line(
+            geo,
+            new THREE.LineBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.10 })
           )}
         />
       ))}
@@ -298,6 +375,8 @@ function GlobeScene({ points, arcs }: { points: PointData[]; arcs: ArcData[] }) 
         <GlobeSphere />
         <Atmosphere />
         <ContinentOutlines />
+        <CountryBorders />
+        <StateBorders />
         <DataColumns points={points} />
         <AnimatedArcs arcs={arcs} />
       </group>
@@ -400,6 +479,55 @@ export function Globe3D({ signals, layers, layerData }: Globe3DProps) {
           size: 0.9,
           label: d.title,
           sublabel: d.description?.slice(0, 60),
+        });
+      });
+    }
+
+    // Air Traffic (flights)
+    if (isLayerOn('flights') && layerData?.flights) {
+      layerData.flights
+        .filter(f => f.latitude != null && f.longitude != null)
+        .slice(0, 300) // cap for 3D performance
+        .forEach(f => {
+          result.push({
+            lat: f.latitude!,
+            lng: f.longitude!,
+            color: f.on_ground ? '#64748b' : '#38bdf8',
+            size: 0.4,
+            label: f.callsign ?? f.icao24,
+            sublabel: `${f.origin_country} · ${f.baro_altitude ? Math.round(f.baro_altitude * 3.28084).toLocaleString() + ' ft' : 'GND'}`,
+          });
+        });
+    }
+
+    // NASA EONET Events
+    if (isLayerOn('nasaEvents') && layerData?.nasaEvents) {
+      layerData.nasaEvents.filter(e => e.latitude != null && e.longitude != null).forEach(e => {
+        const catColor: Record<string, string> = {
+          'Wildfires': '#ef4444', 'Severe Storms': '#8b5cf6', 'Volcanoes': '#dc2626',
+          'Sea and Lake Ice': '#67e8f9', 'Floods': '#3b82f6', 'Drought': '#fbbf24',
+        };
+        result.push({
+          lat: e.latitude!,
+          lng: e.longitude!,
+          color: catColor[e.category] ?? '#34d399',
+          size: 0.8,
+          label: e.title,
+          sublabel: `${e.category} · ${e.source}`,
+        });
+      });
+    }
+
+    // Fire Hotspots
+    if (isLayerOn('fires') && layerData?.fires) {
+      layerData.fires.slice(0, 200).forEach(f => {
+        result.push({
+          lat: f.latitude,
+          lng: f.longitude,
+          color: f.confidence === 'high' ? '#dc2626' : f.confidence === 'nominal' ? '#f97316' : '#fbbf24',
+          size: Math.min(1.2, f.brightness / 350),
+          label: `${f.brightness.toFixed(0)}K`,
+          sublabel: `VIIRS · ${f.confidence}`,
         });
       });
     }
