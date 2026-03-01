@@ -1,14 +1,14 @@
 """Add performance indexes to signals table
 
 Revision ID: 0002_add_indexes
-Revises: 0001_init
+Revises: 0001
 Create Date: 2026-03-01
 """
 from alembic import op
 
 # revision identifiers
 revision = "0002_add_indexes"
-down_revision = "0001_init"
+down_revision = "0001"
 branch_labels = None
 depends_on = None
 
