@@ -196,48 +196,29 @@ osint-worldview/
 | Database | PostgreSQL 16 (prod), SQLite (dev) |
 | Ingest | feedparser (RSS), httpx, USGS API, ReliefWeb API, abuse.ch, OpenWeatherMap |
 | Auth | python-jose (JWT), passlib (bcrypt) |
-| Deploy | Docker, Fly.io (free), Render.com (free), GitHub Actions CI/CD |
+| Deploy | Docker, Render.com (free forever), GitHub Actions CI/CD |
 
 ## Deploy to Production
 
-### Option 1: Fly.io ⭐ (recommended — free, fastest)
+### Option 1: Render.com ⭐ (recommended — permanently free)
 
-Fly.io gives you 3 free shared VMs, ~2s cold starts, persistent volumes for SQLite.
+Render.com free tier: no credit card, no trial, no expiry. 750 hrs/month.
 
-```bash
-# 1. Install Fly CLI
-curl -L https://fly.io/install.sh | sh
+1. Go to [render.com](https://render.com) → Sign up with GitHub
+2. Click **"New Web Service"** → Connect `amanimran786/osint-worldview`
+3. Render auto-detects the `render.yaml` blueprint — click **"Apply"**
+4. Wait ~3 min for build → your app is live at `https://osint-worldview.onrender.com`
 
-# 2. Sign up (free, no credit card for hobby plan)
-fly auth signup
+**Auto-deploy:** Every push to `main` auto-deploys (Render watches the repo).
 
-# 3. Launch (one-time setup — creates app + volume)
-cd osint-worldview
-fly launch --no-deploy
-fly volumes create osint_data --region sjc --size 1
+**Optional GitHub Actions deploy hook:**
+1. In Render dashboard → your service → Settings → Deploy Hook → copy URL
+2. GitHub repo → Settings → Secrets → add `RENDER_DEPLOY_HOOK`
+3. Pushes now also trigger via `.github/workflows/deploy.yml`
 
-# 4. Set secrets
-fly secrets set SECRET_KEY=$(openssl rand -hex 32)
+> ⚠️ Free tier sleeps after 15min idle (~30s cold start on first request)
 
-# 5. Deploy!
-fly deploy
-
-# 6. Open your live app
-fly open
-```
-
-**Auto-deploy from GitHub:** Add `FLY_API_TOKEN` secret to your repo → every push to `main` triggers deploy via `.github/workflows/deploy.yml`.
-
-Get your token: `fly tokens create deploy -x 999999h`
-
-### Option 2: Render.com (free, zero config)
-
-1. Go to [render.com](https://render.com) → "New Web Service"
-2. Connect `amanimran786/osint-worldview`
-3. The `render.yaml` blueprint auto-configures everything
-4. ⚠️ Free tier sleeps after 15min idle (~30s cold start)
-
-### Option 3: Docker (self-hosted)
+### Option 2: Docker (self-hosted)
 
 ```bash
 # Full stack with Postgres + Redis + Celery
@@ -254,7 +235,7 @@ docker run -p 8000:8000 \
 
 ### CI/CD
 
-`.github/workflows/deploy.yml` auto-deploys to Fly.io on every push to `main`.
+`.github/workflows/deploy.yml` auto-deploys to Render on every push to `main`.
 
 ## License
 
