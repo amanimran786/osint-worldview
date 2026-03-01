@@ -27,6 +27,14 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     ai_enabled: bool = False  # set True + provide key to enable AI features
 
+    # Claude (Anthropic) — backend analysis engine
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-4-20250514"
+
+    # Gemini (Google) — frontend chat / UI assistant
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
+
     model_config = {"env_file": str(_ENV_FILE), "env_file_encoding": "utf-8"}
 
 

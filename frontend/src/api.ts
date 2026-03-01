@@ -196,24 +196,24 @@ export async function fetchEarthquakes(params?: {
   period?: 'hour' | 'day' | 'week' | 'month';
 }): Promise<EarthquakeFeature[]> {
   const { data } = await api.get('/layers/earthquakes', { params });
-  return data;
+  return data.features ?? [];
 }
 
 export async function fetchCyberThreats(params?: {
   limit?: number;
 }): Promise<CyberThreat[]> {
   const { data } = await api.get('/layers/cyber-threats', { params });
-  return data;
+  return data.threats ?? [];
 }
 
 export async function fetchWeather(): Promise<WeatherData[]> {
   const { data } = await api.get('/layers/weather');
-  return data;
+  return data.weather ?? [];
 }
 
 export async function fetchDisasters(): Promise<DisasterEvent[]> {
   const { data } = await api.get('/layers/disasters');
-  return data;
+  return data.disasters ?? [];
 }
 
 export default api;

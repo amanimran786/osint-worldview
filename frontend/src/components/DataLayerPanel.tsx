@@ -93,10 +93,10 @@ export function DataLayerPanel({ layers, onToggle, onRefresh, loading }: DataLay
 export function useDataLayers() {
   const [layers, setLayers] = useState<DataLayerState[]>([
     { key: 'signals', label: 'OSINT Signals', enabled: true, count: 0, color: '#f0a030' },
-    { key: 'earthquakes', label: 'Earthquakes', enabled: false, count: 0, color: '#ef4444' },
-    { key: 'weather', label: 'Weather Intel', enabled: false, count: 0, color: '#3b82f6' },
+    { key: 'earthquakes', label: 'Earthquakes', enabled: true, count: 0, color: '#ef4444' },
+    { key: 'weather', label: 'Weather Intel', enabled: true, count: 0, color: '#3b82f6' },
     { key: 'cyber', label: 'Cyber Threats', enabled: false, count: 0, color: '#a855f7' },
-    { key: 'disasters', label: 'Disasters', enabled: false, count: 0, color: '#f97316' },
+    { key: 'disasters', label: 'Disasters', enabled: true, count: 0, color: '#f97316' },
   ]);
 
   const [data, setData] = useState<LayerData>({

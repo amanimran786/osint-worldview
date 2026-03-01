@@ -38,6 +38,10 @@ htmlcov/
 # Build artifacts
 *.egg-info/
 build/
+*.tsbuildinfo
 
 # SQLite databases
 *.db
+
+# Production build artifacts (served by backend in prod)
+backend/static/

@@ -1,12 +1,14 @@
 # OSINT Worldview
 
-Compliance-first OSINT Threat Detection & Triage platform for a corporate team.
+Compliance-first OSINT Threat Detection & Triage platform — a Palantir-style retro-futuristic intelligence dashboard.
 
 ![stack](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
 ![stack](https://img.shields.io/badge/React_18-61DAFB?style=flat&logo=react&logoColor=black)
 ![stack](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![stack](https://img.shields.io/badge/Three.js-000000?style=flat&logo=threedotjs&logoColor=white)
 ![stack](https://img.shields.io/badge/Celery-37814A?style=flat&logo=celery&logoColor=white)
 ![stack](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
+![stack](https://img.shields.io/badge/Claude_AI-7C3AED?style=flat&logoColor=white)
 
 ---
 
@@ -30,12 +32,18 @@ Compliance-first OSINT Threat Detection & Triage platform for a corporate team.
 
 | Area | What |
 |------|------|
+| **3D Globe** | Interactive Three.js globe with continent outlines, data columns, animated arcs, atmosphere glow |
+| **Live Data Layers** | Real-time earthquakes (USGS), weather alerts, cyber threats (abuse.ch), natural disasters (ReliefWeb) |
+| **Visual Modes** | 6 display modes: Normal, CRT, NVG, FLIR, Noir, Snow — retro-futuristic amber/CRT aesthetic |
+| **AI Analysis** | Multi-provider: Claude (Anthropic) primary, OpenAI fallback — signal summarization & threat analysis |
 | **Ingest** | RSS feed polling (every 15 min via Celery Beat), on-demand poll via API |
 | **Scoring** | Keyword-match rules with severity weighting, allowlist/denylist, dedup by URL+title hash |
 | **Triage** | Status workflow: New → In Review → Escalated / Dismissed → Closed |
 | **Cases** | Group signals into cases, add notes, assign analysts |
 | **Rules** | CRUD detection rules with category, severity, keyword lists |
 | **Sources** | Manage RSS/JSON/HTML sources, enable/disable, poll individually |
+| **Search** | Full-text search across signals with geo filtering |
+| **Export** | CSV/JSON export of signals and cases |
 | **Retention** | Auto-cleanup of stale "New" signals older than configurable retention period |
 | **Auth** | JWT stub (ready for full RBAC: Analyst, Lead, Admin) |
 
@@ -181,13 +189,60 @@ osint-worldview/
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Zustand, Axios, Lucide icons |
-| Backend | FastAPI, Pydantic v1, SQLAlchemy 2.0 (sync), Alembic |
-| Worker | Celery 5.3 + Redis broker/backend |
-| Database | PostgreSQL 16 |
-| Ingest | feedparser (RSS), requests, httpx |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Three.js, @react-three/fiber, Zustand, Axios, Lucide icons, Recharts |
+| Backend | FastAPI, Pydantic v2, SQLAlchemy 2.0 (sync), Alembic |
+| AI | Claude (Anthropic), OpenAI, Google Gemini — multi-provider with automatic fallback |
+| Worker | Celery 5.4 + Redis broker/backend |
+| Database | PostgreSQL 16 (prod), SQLite (dev) |
+| Ingest | feedparser (RSS), httpx, USGS API, ReliefWeb API, abuse.ch, OpenWeatherMap |
 | Auth | python-jose (JWT), passlib (bcrypt) |
-| Deploy | Docker Compose, nginx reverse proxy |
+| Deploy | Docker, Railway / Render.com, GitHub Actions CI/CD |
+
+## Deploy to Production
+
+### Option 1: Railway (recommended)
+
+1. **Create Railway account** at [railway.app](https://railway.app)
+2. **Connect GitHub repo:**
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select `amanimran786/osint-worldview`
+3. **Set environment variables** in Railway dashboard:
+   ```
+   ENV=production
+   DATABASE_URL=sqlite:////app/osint_worldview.db
+   SECRET_KEY=<generate-a-random-string>
+   CORS_ORIGINS=https://your-app.railway.app
+   AI_ENABLED=false
+   ```
+4. Railway auto-detects the `Dockerfile` and deploys.
+5. Enable **auto-deploy** — every push to `main` triggers a new build.
+
+### Option 2: Render.com (free tier)
+
+1. **Create Render account** at [render.com](https://render.com)
+2. **New Web Service** → Connect your GitHub repo
+3. **Blueprint**: The `render.yaml` file auto-configures everything
+4. Or manually: Docker runtime, Dockerfile path = `./Dockerfile`
+
+### Option 3: Docker (self-hosted)
+
+```bash
+# Full stack with Postgres + Redis + Celery
+docker compose up --build -d
+
+# Or standalone production build
+docker build -t osint-worldview .
+docker run -p 8000:8000 \
+  -e ENV=production \
+  -e DATABASE_URL=sqlite:////app/osint_worldview.db \
+  -e SECRET_KEY=change-me \
+  osint-worldview
+```
+
+### CI/CD with GitHub Actions
+
+The `.github/workflows/deploy.yml` auto-deploys to Railway on every push to `main`.
+Add the `RAILWAY_TOKEN` secret in your GitHub repo settings.
 
 ## License
 

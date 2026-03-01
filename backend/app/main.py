@@ -1,12 +1,19 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.core.config import settings
 from app.api.router import api_router
 
 logger = logging.getLogger(__name__)
+
+# In production, frontend is built into /app/static
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
 
 @asynccontextmanager
@@ -40,9 +47,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── API routes (must be registered BEFORE the static catch-all) ──
 app.include_router(api_router, prefix=settings.api_prefix)
 
 
-@app.get("/")
-def root():
-    return {"service": settings.app_name, "status": "ok"}
+@app.get("/api/health/ping")
+def health_ping():
+    """Lightweight health-check for Railway / load-balancers."""
+    return {"status": "ok"}
+
+
+# ── Serve frontend static files in production ──
+if STATIC_DIR.is_dir():
+    logger.info("Production mode: serving frontend from %s", STATIC_DIR)
+
+    # Mount /assets for Vite hashed files
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    # Use a custom 404 handler to implement SPA fallback:
+    # Any non-API, non-asset 404 serves index.html for client-side routing
+    _index_html = (STATIC_DIR / "index.html").read_text()
+
+    @app.exception_handler(StarletteHTTPException)
+    async def spa_fallback(request, exc):
+        # Only catch 404s for non-API routes
+        if exc.status_code == 404 and not request.url.path.startswith("/api"):
+            return HTMLResponse(_index_html, status_code=200)
+        # Re-raise other HTTP errors as JSON
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            {"detail": exc.detail},
+            status_code=exc.status_code,
+        )
+
+    # Mount all static files at root (serves index.html, favicon, etc.)
+    app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="spa")
+
+else:
+    # Dev mode — no static files, Vite dev server handles frontend
+    @app.get("/")
+    def root():
+        return {"service": settings.app_name, "status": "ok", "env": settings.env}

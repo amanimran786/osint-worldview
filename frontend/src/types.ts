@@ -133,18 +133,23 @@ export interface EarthquakeFeature {
   magnitude: number;
   latitude: number;
   longitude: number;
-  depth: number;
-  time: string;
+  depth_km: number;
+  time: number;
   url: string;
+  tsunami: number;
+  severity: string;
 }
 
 export interface CyberThreat {
   ip: string;
   port: number;
   status: string;
+  malware: string;
   first_seen: string;
   last_online: string | null;
-  malware: string | null;
+  country: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface WeatherData {

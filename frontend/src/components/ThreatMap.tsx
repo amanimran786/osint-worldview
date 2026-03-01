@@ -55,6 +55,18 @@ function weatherIcon(severity: string) {
   });
 }
 
+/* ---- Cyber threat icon ---- */
+const cyberIcon = L.divIcon({
+  className: '',
+  html: `<div style="
+    width:8px;height:8px;border-radius:50%;
+    background:#a855f7;border:1px solid #a855f780;
+    box-shadow:0 0 6px #a855f7;
+  "></div>`,
+  iconSize: [8, 8],
+  iconAnchor: [4, 4],
+});
+
 /* ---- Disaster icon ---- */
 const disasterIcon = L.divIcon({
   className: '',
@@ -157,7 +169,7 @@ export function ThreatMap({ layers, layerData, flyTo, signalCount }: ThreatMapPr
               <div className="min-w-[180px] text-[11px] font-mono">
                 <p className="font-bold text-red-400 mb-1">🌍 M{eq.magnitude.toFixed(1)}</p>
                 <p className="text-amber/70">{eq.title}</p>
-                <p className="text-amber/40 mt-1">Depth: {eq.depth}km</p>
+                <p className="text-amber/40 mt-1">Depth: {eq.depth_km}km</p>
               </div>
             </Popup>
           </Marker>
@@ -193,6 +205,25 @@ export function ThreatMap({ layers, layerData, flyTo, signalCount }: ThreatMapPr
                 <div className="min-w-[180px] text-[11px] font-mono">
                   <p className="font-bold text-orange-400 mb-1">⚠ {d.title}</p>
                   <p className="text-amber/60 line-clamp-2">{d.description}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+        {/* Cyber threats layer */}
+        {isLayerOn('cyber') && layerData?.cyber
+          .filter(c => c.latitude && c.longitude)
+          .map((c, i) => (
+            <Marker
+              key={`cyber-${i}`}
+              position={[c.latitude, c.longitude]}
+              icon={cyberIcon}
+            >
+              <Popup>
+                <div className="min-w-[180px] text-[11px] font-mono">
+                  <p className="font-bold text-purple-400 mb-1">🛡 {c.malware}</p>
+                  <p className="text-amber/70">{c.ip}:{c.port}</p>
+                  <p className="text-amber/40 mt-1">{c.country} · {c.status}</p>
                 </div>
               </Popup>
             </Marker>

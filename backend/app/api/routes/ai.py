@@ -1,4 +1,7 @@
-"""AI-powered analysis endpoints."""
+"""AI-powered analysis endpoints.
+
+Backend analysis uses Claude (Anthropic) as primary, OpenAI as fallback.
+"""
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +15,7 @@ from app.services.ai_analysis import (
     analyze_signals,
     generate_fallback_summary,
     summarize_signal,
+    _active_provider,
 )
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -19,10 +23,18 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 
 @router.get("/status")
 def ai_status():
-    """Check whether AI features are enabled."""
+    """Check whether AI features are enabled and which providers are active."""
+    provider = _active_provider() if settings.ai_enabled else "disabled"
     return {
         "ai_enabled": settings.ai_enabled,
-        "model": settings.openai_model if settings.ai_enabled else None,
+        "backend_provider": provider,
+        "backend_model": (
+            settings.anthropic_model if provider == "claude"
+            else settings.openai_model if provider == "openai"
+            else None
+        ),
+        "gemini_enabled": bool(settings.gemini_api_key),
+        "gemini_model": settings.gemini_model if settings.gemini_api_key else None,
     }
 
 
