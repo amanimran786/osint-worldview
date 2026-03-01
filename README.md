@@ -1,6 +1,6 @@
 # OSINT Worldview
 
-Compliance-first OSINT Threat Detection & Triage platform for a corporate GSOC team.
+Compliance-first OSINT Threat Detection & Triage platform for a corporate team.
 
 ![stack](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
 ![stack](https://img.shields.io/badge/React_18-61DAFB?style=flat&logo=react&logoColor=black)
