@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List, Optional
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
 
@@ -86,6 +86,15 @@ class Signal(TimestampMixin, Base):
     status: Mapped[str] = mapped_column(String(50), default="New")
     case_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("cases.id"))
     dedupe_key: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+
+    # Geospatial fields (extracted from text)
+    latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    location_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    country_code: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+
+    # AI summary
+    ai_summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     case: Mapped[Optional[Case]] = relationship(back_populates="signals")
     notes: Mapped[List[Note]] = relationship(back_populates="signal")

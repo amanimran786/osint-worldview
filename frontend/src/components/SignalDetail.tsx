@@ -2,7 +2,9 @@ import type { Signal } from '../types';
 import { SeverityBadge } from './SeverityBadge';
 import { StatusBadge } from './StatusBadge';
 import { useStore } from '../store';
-import { ExternalLink, X } from 'lucide-react';
+import { ExternalLink, X, MapPin, Brain, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import * as api from '../api';
 
 interface Props {
   signal: Signal;
@@ -13,6 +15,23 @@ const statusOptions = ['New', 'In Review', 'Escalated', 'Dismissed', 'Closed'];
 
 export function SignalDetail({ signal, onClose }: Props) {
   const patchSignal = useStore((s) => s.patchSignal);
+  const [aiSummary, setAiSummary] = useState<string | null>(signal.ai_summary);
+  const [summarizing, setSummarizing] = useState(false);
+
+  const handleSummarize = async () => {
+    setSummarizing(true);
+    try {
+      const results = await api.summarizeSignals([signal.id]);
+      const first = results[0];
+      if (first) {
+        setAiSummary(first.summary);
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setSummarizing(false);
+    }
+  };
 
   return (
     <div className="flex h-full flex-col border-l border-gray-700/50 bg-surface-card">
@@ -63,6 +82,55 @@ export function SignalDetail({ signal, onClose }: Props) {
             <span className="text-xs text-gray-500">Category</span>
             <div className="mt-1 text-gray-300">{signal.category ?? '—'}</div>
           </div>
+        </div>
+
+        {/* Location info */}
+        {signal.location_name && (
+          <div className="rounded-lg border border-gray-700/50 bg-surface p-3">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
+              <MapPin className="h-3 w-3" />
+              Geolocation
+            </div>
+            <p className="text-sm text-gray-300">
+              {signal.location_name}
+              {signal.country_code ? ` (${signal.country_code})` : ''}
+            </p>
+            {signal.latitude && signal.longitude && (
+              <p className="text-xs text-gray-500 mt-0.5">
+                {signal.latitude.toFixed(4)}, {signal.longitude.toFixed(4)}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* AI Summary */}
+        <div className="rounded-lg border border-gray-700/50 bg-surface p-3">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <Brain className="h-3 w-3" />
+              AI Summary
+            </div>
+            {!aiSummary && !summarizing && (
+              <button
+                onClick={handleSummarize}
+                className="rounded bg-purple-600/20 px-2 py-0.5 text-xs text-purple-400 hover:bg-purple-600/30"
+              >
+                Generate
+              </button>
+            )}
+          </div>
+          {summarizing && (
+            <div className="flex items-center gap-2 text-xs text-gray-400 py-1">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Generating summary…
+            </div>
+          )}
+          {aiSummary && (
+            <p className="text-sm text-gray-300 leading-relaxed">{aiSummary}</p>
+          )}
+          {!aiSummary && !summarizing && (
+            <p className="text-xs text-gray-500">Click "Generate" to get an AI summary.</p>
+          )}
         </div>
 
         {/* Status changer */}

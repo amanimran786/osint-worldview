@@ -1,5 +1,8 @@
 import axios from 'axios';
-import type { Signal, Rule, Source, Case, Note } from './types';
+import type {
+  Signal, Rule, Source, Case, Note,
+  Analytics, AIAnalysis, AISummary, GeoSignal, HeatmapEntry,
+} from './types';
 
 const api = axios.create({
   baseURL: '/api',
@@ -118,6 +121,72 @@ export async function addNote(
 export async function healthCheck(): Promise<{ status: string }> {
   const { data } = await api.get('/health/live');
   return data;
+}
+
+/* ---- Analytics ---- */
+export async function fetchAnalytics(days = 30): Promise<Analytics> {
+  const { data } = await api.get('/analytics/', { params: { days } });
+  return data;
+}
+
+/* ---- AI ---- */
+export async function getAIStatus(): Promise<{ ai_enabled: boolean; model: string | null }> {
+  const { data } = await api.get('/ai/status');
+  return data;
+}
+
+export async function summarizeSignals(signalIds: number[]): Promise<AISummary[]> {
+  const { data } = await api.post('/ai/summarize', { signal_ids: signalIds });
+  return data;
+}
+
+export async function analyzeSignals(limit = 20): Promise<AIAnalysis> {
+  const { data } = await api.post('/ai/analyze', null, { params: { limit } });
+  return data;
+}
+
+/* ---- Search ---- */
+export async function searchSignals(params: {
+  q: string;
+  status?: string;
+  source?: string;
+  min_severity?: number;
+  max_severity?: number;
+  category?: string;
+  country_code?: string;
+  has_location?: boolean;
+  limit?: number;
+}): Promise<Signal[]> {
+  const { data } = await api.get('/search/', { params });
+  return data;
+}
+
+/* ---- Geo ---- */
+export async function fetchGeoSignals(params?: {
+  min_severity?: number;
+  status?: string;
+  limit?: number;
+}): Promise<GeoSignal[]> {
+  const { data } = await api.get('/geo/signals', { params });
+  return data;
+}
+
+export async function fetchHeatmap(): Promise<HeatmapEntry[]> {
+  const { data } = await api.get('/geo/heatmap');
+  return data;
+}
+
+/* ---- Export ---- */
+export function getExportUrl(format: 'csv' | 'json', params?: {
+  status?: string;
+  source?: string;
+  min_severity?: number;
+}): string {
+  const searchParams = new URLSearchParams();
+  if (params?.status) searchParams.set('status', params.status);
+  if (params?.source) searchParams.set('source', params.source);
+  if (params?.min_severity !== undefined) searchParams.set('min_severity', String(params.min_severity));
+  return `/api/export/signals/${format}?${searchParams.toString()}`;
 }
 
 export default api;

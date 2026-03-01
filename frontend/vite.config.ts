@@ -6,6 +6,10 @@ export default defineConfig({
   server: {
     port: 5174,
     proxy: {
+      '/api/ws': {
+        target: 'ws://localhost:8001',
+        ws: true,
+      },
       '/api': {
         target: 'http://localhost:8001',
         changeOrigin: true,
@@ -20,6 +24,8 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           state: ['zustand', 'axios'],
           ui: ['lucide-react', 'clsx', 'date-fns'],
+          charts: ['recharts'],
+          map: ['leaflet', 'react-leaflet'],
         },
       },
     },

@@ -9,6 +9,7 @@ from app.tasks.celery_app import celery
 from app.db.session import SessionLocal
 from app.models.entities import Source, Signal, Rule, Detection
 from app.services.scoring import apply_rules, canonical_key
+from app.services.geolocation import extract_location
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,15 @@ def _ingest_entries(
 
         result = apply_rules(sig, rules)
         sig.severity = result.score
+
+        # Extract geolocation from signal text
+        geo = extract_location(sig.title, sig.snippet)
+        if geo:
+            sig.latitude = geo["latitude"]
+            sig.longitude = geo["longitude"]
+            sig.location_name = geo["location_name"]
+            sig.country_code = geo["country_code"]
+
         db.add(sig)
         db.flush()  # get sig.id
 

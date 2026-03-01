@@ -5,15 +5,19 @@ import {
   Rss,
   FolderOpen,
   BookOpen,
+  Map,
+  BarChart3,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const links = [
   { to: '/', label: 'Dashboard', icon: Activity },
   { to: '/signals', label: 'Signals', icon: Shield },
+  { to: '/map', label: 'Threat Map', icon: Map },
   { to: '/cases', label: 'Cases', icon: FolderOpen },
   { to: '/rules', label: 'Rules', icon: BookOpen },
   { to: '/sources', label: 'Sources', icon: Rss },
+  { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ];
 
 export function Sidebar() {
@@ -51,7 +55,7 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="border-t border-gray-700/50 px-4 py-3 text-xs text-gray-500">
-        v0.1.0 &middot; GSOC
+        v0.2.0 &middot; GSOC
       </div>
     </aside>
   );

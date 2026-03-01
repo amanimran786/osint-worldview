@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     db_pool_timeout: int = 30
     db_pool_recycle: int = 1800
 
+    # AI / LLM settings
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    ai_enabled: bool = False  # set True + provide key to enable AI features
+
     model_config = {"env_file": str(_ENV_FILE), "env_file_encoding": "utf-8"}
 
 

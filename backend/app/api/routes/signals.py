@@ -6,6 +6,7 @@ from app.db.session import get_db
 from app.models.entities import Signal, Rule, Detection
 from app.schemas.schemas import SignalCreate, SignalOut, SignalUpdate
 from app.services.scoring import apply_rules, canonical_key
+from app.services.geolocation import extract_location
 
 router = APIRouter(prefix="/signals", tags=["signals"])
 
@@ -52,6 +53,17 @@ def ingest_signal(payload: SignalCreate, db: Session = Depends(get_db)):
     result = apply_rules(sig, rules)
     sig.severity = result.score
 
+    # Extract geolocation from signal text
+    geo = extract_location(sig.title, sig.snippet)
+    if geo:
+        sig.latitude = geo["latitude"]
+        sig.longitude = geo["longitude"]
+        sig.location_name = geo["location_name"]
+        sig.country_code = geo["country_code"]
+
+    db.add(sig)
+    db.flush()  # Flush to get sig.id before creating detections
+
     # Create Detection rows for each triggered rule
     for rule_id in result.triggered_rules:
         det = Detection(
@@ -62,7 +74,6 @@ def ingest_signal(payload: SignalCreate, db: Session = Depends(get_db)):
         )
         db.add(det)
 
-    db.add(sig)
     db.commit()
     db.refresh(sig)
     return sig
