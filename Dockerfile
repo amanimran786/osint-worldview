@@ -21,7 +21,10 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    ENV=production
+    ENV=production \
+    DATABASE_URL=sqlite:////app/osint_worldview.db \
+    CORS_ORIGINS="*" \
+    AI_ENABLED=false
 
 # Install Python deps (cached layer)
 COPY backend/requirements.txt .
