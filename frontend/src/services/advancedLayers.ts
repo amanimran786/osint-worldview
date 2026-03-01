@@ -15,6 +15,24 @@
 const TIMEOUT = 15_000;
 const NASA_KEY = 'DEMO_KEY'; // Free, 30 req/hr per IP — enough for demo
 
+/* ---- CORS proxy helpers with fallback chain ---- */
+const CORS_PROXIES = [
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
+
+async function fetchWithCorsProxy(url: string, timeout = TIMEOUT): Promise<Response> {
+  for (const makeProxy of CORS_PROXIES) {
+    try {
+      const proxyUrl = makeProxy(url);
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(timeout) });
+      if (resp.ok) return resp;
+    } catch { /* try next proxy */ }
+  }
+  throw new Error(`All CORS proxies failed for ${url}`);
+}
+
 /* ================================================================
    ✈️ AIR TRAFFIC — OpenSky Network
    Anonymous: 400 credits/day, 10s resolution
@@ -38,17 +56,15 @@ export interface FlightVector {
 export async function fetchAirTraffic(params?: {
   bounds?: { lamin: number; lomin: number; lamax: number; lomax: number };
 }): Promise<FlightVector[]> {
-  // OpenSky blocks browser CORS — use allorigins proxy
+  // OpenSky blocks browser CORS — use proxy chain with fallbacks
   let url = 'https://opensky-network.org/api/states/all';
   if (params?.bounds) {
     const { lamin, lomin, lamax, lomax } = params.bounds;
     url += `?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`;
   }
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
   try {
-    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(TIMEOUT) });
-    if (!resp.ok) throw new Error(`OpenSky ${resp.status}`);
+    const resp = await fetchWithCorsProxy(url, TIMEOUT);
     const data = await resp.json();
 
     if (!data.states) return [];
@@ -72,7 +88,7 @@ export async function fetchAirTraffic(params?: {
         category: s[17] ?? 0,
       }));
   } catch (e) {
-    console.warn('[AirTraffic] Fetch failed:', e);
+    console.warn('[AirTraffic] All proxies failed:', e);
     return [];
   }
 }
@@ -89,11 +105,9 @@ export interface FlightWaypoint {
 
 export async function fetchFlightTrack(icao24: string): Promise<FlightWaypoint[]> {
   const url = `https://opensky-network.org/api/tracks/all?icao24=${icao24}&time=0`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
   try {
-    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(TIMEOUT) });
-    if (!resp.ok) return [];
+    const resp = await fetchWithCorsProxy(url, TIMEOUT);
     const data = await resp.json();
     return (data.path ?? []).map((p: any[]): FlightWaypoint => ({
       time: p[0],
@@ -347,11 +361,9 @@ export async function fetchFireHotspots(params?: {
   const area = params?.area ?? 'world';
   const days = params?.days ?? 1;
   const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${mapKey}/VIIRS_SNPP_NRT/${area}/${days}`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
   try {
-    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(TIMEOUT) });
-    if (!resp.ok) throw new Error(`FIRMS ${resp.status}`);
+    const resp = await fetchWithCorsProxy(url, TIMEOUT);
     const text = await resp.text();
 
     const lines = text.trim().split('\n');
@@ -406,11 +418,12 @@ export interface PublicWebcam {
   lastUpdate: string;
 }
 
-// Curated list of publicly-accessible live camera feeds
-// These are official government/transit feeds — no privacy issues
+// Massive curated list of publicly-accessible live camera feeds
+// Using verified long-running YouTube Live streams, DOT cams, and EarthCam feeds
 export function getPublicWebcams(): PublicWebcam[] {
   const now = new Date().toISOString();
   return [
+    // ======== NORTH AMERICA ========
     {
       id: 'cam-nyc-ts', title: 'Times Square, NYC', location: 'New York City', country: 'US',
       latitude: 40.758, longitude: -73.9855,
@@ -418,6 +431,14 @@ export function getPublicWebcams(): PublicWebcam[] {
       streamUrl: null,
       embedUrl: 'https://www.earthcam.com/usa/newyork/timessquare/?cam=tsrobo3',
       category: 'landmark', source: 'EarthCam', lastUpdate: now,
+    },
+    {
+      id: 'cam-nyc-4k', title: 'New York City 4K Skyline', location: 'New York City', country: 'US',
+      latitude: 40.7128, longitude: -74.006,
+      thumbnailUrl: 'https://img.youtube.com/vi/1-iS7LArMPA/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/1-iS7LArMPA?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=1-iS7LArMPA',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
     },
     {
       id: 'cam-dc-mall', title: 'National Mall, Washington DC', location: 'Washington DC', country: 'US',
@@ -428,44 +449,12 @@ export function getPublicWebcams(): PublicWebcam[] {
       category: 'landmark', source: 'EarthCam', lastUpdate: now,
     },
     {
-      id: 'cam-tokyo-shibuya', title: 'Shibuya Crossing, Tokyo', location: 'Tokyo', country: 'JP',
-      latitude: 35.6595, longitude: 139.7004,
-      thumbnailUrl: 'https://img.youtube.com/vi/--P0h2LRYF0/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/--P0h2LRYF0?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=--P0h2LRYF0',
-      category: 'city', source: 'YouTube Live', lastUpdate: now,
-    },
-    {
-      id: 'cam-iss', title: 'ISS — Earth from Space', location: 'Low Earth Orbit', country: 'INTL',
-      latitude: 0, longitude: 0,
-      thumbnailUrl: 'https://img.youtube.com/vi/P9C25Un7xaM/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/P9C25Un7xaM?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=P9C25Un7xaM',
-      category: 'landmark', source: 'NASA ISS Live', lastUpdate: now,
-    },
-    {
-      id: 'cam-venice', title: 'St. Mark\'s Square, Venice', location: 'Venice', country: 'IT',
-      latitude: 45.4341, longitude: 12.3388,
-      thumbnailUrl: 'https://img.youtube.com/vi/vPl84Pe_5r0/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/vPl84Pe_5r0?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=vPl84Pe_5r0',
-      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
-    },
-    {
-      id: 'cam-dubai-skyline', title: 'Dubai Skyline & Burj Khalifa', location: 'Dubai', country: 'AE',
-      latitude: 25.1972, longitude: 55.2744,
-      thumbnailUrl: 'https://img.youtube.com/vi/VDjCGBtGZKE/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/VDjCGBtGZKE?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=VDjCGBtGZKE',
-      category: 'city', source: 'YouTube Live', lastUpdate: now,
-    },
-    {
-      id: 'cam-london-abbey', title: 'Abbey Road Crossing, London', location: 'London', country: 'GB',
-      latitude: 51.5320, longitude: -0.1779,
-      thumbnailUrl: 'https://img.youtube.com/vi/5g0gRzmFBHc/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/5g0gRzmFBHc?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=5g0gRzmFBHc',
-      category: 'traffic', source: 'YouTube Live', lastUpdate: now,
+      id: 'cam-miami-beach', title: 'Miami Beach Live', location: 'Miami', country: 'US',
+      latitude: 25.7907, longitude: -80.1300,
+      thumbnailUrl: 'https://img.youtube.com/vi/JDwrfCFdGxw/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/JDwrfCFdGxw?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=JDwrfCFdGxw',
+      category: 'weather', source: 'YouTube Live', lastUpdate: now,
     },
     {
       id: 'cam-jackson-hole', title: 'Jackson Hole Town Square', location: 'Wyoming', country: 'US',
@@ -476,20 +465,77 @@ export function getPublicWebcams(): PublicWebcam[] {
       category: 'weather', source: 'EarthCam', lastUpdate: now,
     },
     {
-      id: 'cam-narita-airport', title: 'Narita Airport, Tokyo', location: 'Narita', country: 'JP',
-      latitude: 35.7720, longitude: 140.3929,
-      thumbnailUrl: 'https://img.youtube.com/vi/IG0NJ25ZXWo/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/IG0NJ25ZXWo?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=IG0NJ25ZXWo',
-      category: 'airport', source: 'YouTube Live', lastUpdate: now,
+      id: 'cam-la-hollywood', title: 'Hollywood Sign & LA Skyline', location: 'Los Angeles', country: 'US',
+      latitude: 34.1341, longitude: -118.3215,
+      thumbnailUrl: 'https://img.youtube.com/vi/gTi39ToFrDc/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/gTi39ToFrDc?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=gTi39ToFrDc',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
     },
     {
-      id: 'cam-miami-beach', title: 'Miami Beach Live', location: 'Miami', country: 'US',
-      latitude: 25.7907, longitude: -80.1300,
-      thumbnailUrl: 'https://img.youtube.com/vi/JDwrfCFdGxw/mqdefault.jpg',
-      streamUrl: 'https://www.youtube.com/embed/JDwrfCFdGxw?autoplay=1&mute=1',
-      embedUrl: 'https://www.youtube.com/watch?v=JDwrfCFdGxw',
-      category: 'weather', source: 'YouTube Live', lastUpdate: now,
+      id: 'cam-sf-golden-gate', title: 'Golden Gate Bridge, San Francisco', location: 'San Francisco', country: 'US',
+      latitude: 37.8199, longitude: -122.4783,
+      thumbnailUrl: 'https://img.youtube.com/vi/JCpBlMaE1Pc/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/JCpBlMaE1Pc?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=JCpBlMaE1Pc',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-chi-skyline', title: 'Chicago Skyline Live', location: 'Chicago', country: 'US',
+      latitude: 41.8781, longitude: -87.6298,
+      thumbnailUrl: 'https://img.youtube.com/vi/a7rpSfnGiUo/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/a7rpSfnGiUo?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=a7rpSfnGiUo',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-niagara', title: 'Niagara Falls Live', location: 'Niagara Falls', country: 'US',
+      latitude: 43.0896, longitude: -79.0849,
+      thumbnailUrl: 'https://img.youtube.com/vi/GGGrd6NFLQ8/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/GGGrd6NFLQ8?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=GGGrd6NFLQ8',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-toronto', title: 'Toronto CN Tower & Skyline', location: 'Toronto', country: 'CA',
+      latitude: 43.6426, longitude: -79.3871,
+      thumbnailUrl: 'https://img.youtube.com/vi/Gi0GDnK-2Jk/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/Gi0GDnK-2Jk?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=Gi0GDnK-2Jk',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== EUROPE ========
+    {
+      id: 'cam-london-abbey', title: 'Abbey Road Crossing, London', location: 'London', country: 'GB',
+      latitude: 51.5320, longitude: -0.1779,
+      thumbnailUrl: 'https://img.youtube.com/vi/5g0gRzmFBHc/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/5g0gRzmFBHc?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=5g0gRzmFBHc',
+      category: 'traffic', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-london-bigben', title: 'London Eye & Big Ben', location: 'London', country: 'GB',
+      latitude: 51.5014, longitude: -0.1419,
+      thumbnailUrl: 'https://img.youtube.com/vi/VGiMkhx6Dj0/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/VGiMkhx6Dj0?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=VGiMkhx6Dj0',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-paris-eiffel', title: 'Eiffel Tower Live', location: 'Paris', country: 'FR',
+      latitude: 48.8584, longitude: 2.2945,
+      thumbnailUrl: 'https://img.youtube.com/vi/6OGc4_6hAXE/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/6OGc4_6hAXE?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=6OGc4_6hAXE',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-venice', title: 'St. Mark\'s Square, Venice', location: 'Venice', country: 'IT',
+      latitude: 45.4341, longitude: 12.3388,
+      thumbnailUrl: 'https://img.youtube.com/vi/vPl84Pe_5r0/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/vPl84Pe_5r0?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=vPl84Pe_5r0',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
     },
     {
       id: 'cam-rome-trevi', title: 'Trevi Fountain, Rome', location: 'Rome', country: 'IT',
@@ -500,12 +546,220 @@ export function getPublicWebcams(): PublicWebcam[] {
       category: 'landmark', source: 'YouTube Live', lastUpdate: now,
     },
     {
+      id: 'cam-amsterdam', title: 'Amsterdam Dam Square', location: 'Amsterdam', country: 'NL',
+      latitude: 52.3730, longitude: 4.8935,
+      thumbnailUrl: 'https://img.youtube.com/vi/0vkEJAr2BKA/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/0vkEJAr2BKA?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=0vkEJAr2BKA',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-prague', title: 'Prague Old Town Square', location: 'Prague', country: 'CZ',
+      latitude: 50.0870, longitude: 14.4213,
+      thumbnailUrl: 'https://img.youtube.com/vi/LCGojXvfPFk/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/LCGojXvfPFk?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=LCGojXvfPFk',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-dublin', title: 'Dublin City Centre', location: 'Dublin', country: 'IE',
+      latitude: 53.3498, longitude: -6.2603,
+      thumbnailUrl: 'https://img.youtube.com/vi/JvB-gAJMq9k/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/JvB-gAJMq9k?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=JvB-gAJMq9k',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== ASIA / PACIFIC ========
+    {
+      id: 'cam-tokyo-shibuya', title: 'Shibuya Crossing, Tokyo', location: 'Tokyo', country: 'JP',
+      latitude: 35.6595, longitude: 139.7004,
+      thumbnailUrl: 'https://img.youtube.com/vi/--P0h2LRYF0/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/--P0h2LRYF0?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=--P0h2LRYF0',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-tokyo-tower', title: 'Tokyo Tower & Skyline', location: 'Tokyo', country: 'JP',
+      latitude: 35.6586, longitude: 139.7454,
+      thumbnailUrl: 'https://img.youtube.com/vi/DjYZk8nrXVY/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/DjYZk8nrXVY?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=DjYZk8nrXVY',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-narita-airport', title: 'Narita Airport, Tokyo', location: 'Narita', country: 'JP',
+      latitude: 35.7720, longitude: 140.3929,
+      thumbnailUrl: 'https://img.youtube.com/vi/IG0NJ25ZXWo/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/IG0NJ25ZXWo?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=IG0NJ25ZXWo',
+      category: 'airport', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-seoul', title: 'Seoul Gangnam District', location: 'Seoul', country: 'KR',
+      latitude: 37.4979, longitude: 127.0276,
+      thumbnailUrl: 'https://img.youtube.com/vi/k_xJiMuYIJI/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/k_xJiMuYIJI?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=k_xJiMuYIJI',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
       id: 'cam-singapore', title: 'Marina Bay Sands, Singapore', location: 'Singapore', country: 'SG',
       latitude: 1.2834, longitude: 103.8607,
       thumbnailUrl: 'https://img.youtube.com/vi/YAZOiGl2z_o/mqdefault.jpg',
       streamUrl: 'https://www.youtube.com/embed/YAZOiGl2z_o?autoplay=1&mute=1',
       embedUrl: 'https://www.youtube.com/watch?v=YAZOiGl2z_o',
       category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-bangkok', title: 'Bangkok Sukhumvit Live', location: 'Bangkok', country: 'TH',
+      latitude: 13.7563, longitude: 100.5018,
+      thumbnailUrl: 'https://img.youtube.com/vi/pD7LFBl5mQk/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/pD7LFBl5mQk?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=pD7LFBl5mQk',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== MIDDLE EAST / AFRICA ========
+    {
+      id: 'cam-dubai-skyline', title: 'Dubai Skyline & Burj Khalifa', location: 'Dubai', country: 'AE',
+      latitude: 25.1972, longitude: 55.2744,
+      thumbnailUrl: 'https://img.youtube.com/vi/VDjCGBtGZKE/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/VDjCGBtGZKE?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=VDjCGBtGZKE',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-mecca', title: 'Mecca Masjid al-Haram Live', location: 'Mecca', country: 'SA',
+      latitude: 21.4225, longitude: 39.8262,
+      thumbnailUrl: 'https://img.youtube.com/vi/eFz3nLz2z7A/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/eFz3nLz2z7A?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=eFz3nLz2z7A',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-jerusalem', title: 'Western Wall Live', location: 'Jerusalem', country: 'IL',
+      latitude: 31.7767, longitude: 35.2345,
+      thumbnailUrl: 'https://img.youtube.com/vi/eJJyJvEqQNs/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/eJJyJvEqQNs?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=eJJyJvEqQNs',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== SPACE / SPECIAL ========
+    {
+      id: 'cam-iss', title: 'ISS — Earth from Space', location: 'Low Earth Orbit', country: 'INTL',
+      latitude: 0, longitude: 0,
+      thumbnailUrl: 'https://img.youtube.com/vi/P9C25Un7xaM/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/P9C25Un7xaM?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=P9C25Un7xaM',
+      category: 'landmark', source: 'NASA ISS Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-iss-hd', title: 'ISS HD Earth Viewing', location: 'Low Earth Orbit', country: 'INTL',
+      latitude: 0, longitude: 90,
+      thumbnailUrl: 'https://img.youtube.com/vi/xRPjKQtRXR8/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/xRPjKQtRXR8?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=xRPjKQtRXR8',
+      category: 'landmark', source: 'NASA ISS HD', lastUpdate: now,
+    },
+    // ======== SOUTH AMERICA ========
+    {
+      id: 'cam-rio', title: 'Copacabana Beach, Rio', location: 'Rio de Janeiro', country: 'BR',
+      latitude: -22.9714, longitude: -43.1823,
+      thumbnailUrl: 'https://img.youtube.com/vi/K7I_xLI9Kz8/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/K7I_xLI9Kz8?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=K7I_xLI9Kz8',
+      category: 'weather', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-buenos-aires', title: 'Buenos Aires Obelisco', location: 'Buenos Aires', country: 'AR',
+      latitude: -34.6037, longitude: -58.3816,
+      thumbnailUrl: 'https://img.youtube.com/vi/Rx1kS9pO5vQ/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/Rx1kS9pO5vQ?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=Rx1kS9pO5vQ',
+      category: 'city', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== AUSTRALIA / OCEANIA ========
+    {
+      id: 'cam-sydney', title: 'Sydney Opera House & Harbour', location: 'Sydney', country: 'AU',
+      latitude: -33.8568, longitude: 151.2153,
+      thumbnailUrl: 'https://img.youtube.com/vi/8nHnPVR8tgg/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/8nHnPVR8tgg?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=8nHnPVR8tgg',
+      category: 'landmark', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== AIRPORTS & TRAFFIC ========
+    {
+      id: 'cam-lax-airport', title: 'LAX Airport Live', location: 'Los Angeles', country: 'US',
+      latitude: 33.9425, longitude: -118.4081,
+      thumbnailUrl: 'https://img.youtube.com/vi/tCHq8IiZ_CQ/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/tCHq8IiZ_CQ?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=tCHq8IiZ_CQ',
+      category: 'airport', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-heathrow', title: 'London Heathrow Airport', location: 'London', country: 'GB',
+      latitude: 51.4700, longitude: -0.4543,
+      thumbnailUrl: 'https://img.youtube.com/vi/iFVrSzVOB_k/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/iFVrSzVOB_k?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=iFVrSzVOB_k',
+      category: 'airport', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-dubai-airport', title: 'Dubai Airport Live', location: 'Dubai', country: 'AE',
+      latitude: 25.2532, longitude: 55.3657,
+      thumbnailUrl: 'https://img.youtube.com/vi/Iipc1GQfkC0/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/Iipc1GQfkC0?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=Iipc1GQfkC0',
+      category: 'airport', source: 'YouTube Live', lastUpdate: now,
+    },
+    // ======== NATURE & WEATHER ========
+    {
+      id: 'cam-yellowstone', title: 'Yellowstone Old Faithful', location: 'Wyoming', country: 'US',
+      latitude: 44.4605, longitude: -110.8281,
+      thumbnailUrl: 'https://img.youtube.com/vi/1BMqBwMelf0/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/1BMqBwMelf0?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=1BMqBwMelf0',
+      category: 'weather', source: 'NPS Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-hawaii-kilauea', title: 'Kilauea Volcano, Hawaii', location: 'Hawaii', country: 'US',
+      latitude: 19.4069, longitude: -155.2834,
+      thumbnailUrl: 'https://img.youtube.com/vi/z4lFGQaQa0U/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/z4lFGQaQa0U?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=z4lFGQaQa0U',
+      category: 'weather', source: 'USGS Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-northern-lights', title: 'Northern Lights Live — Churchill', location: 'Churchill, Manitoba', country: 'CA',
+      latitude: 58.7684, longitude: -94.1650,
+      thumbnailUrl: 'https://img.youtube.com/vi/H09Yhs0ffjE/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/H09Yhs0ffjE?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=H09Yhs0ffjE',
+      category: 'weather', source: 'explore.org', lastUpdate: now,
+    },
+    {
+      id: 'cam-african-wildlife', title: 'African Wildlife Waterhole', location: 'South Africa', country: 'ZA',
+      latitude: -24.0000, longitude: 31.5000,
+      thumbnailUrl: 'https://img.youtube.com/vi/NkLHg9BSDXE/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/NkLHg9BSDXE?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=NkLHg9BSDXE',
+      category: 'weather', source: 'explore.org', lastUpdate: now,
+    },
+    // ======== PORT & MARITIME ========
+    {
+      id: 'cam-gibraltar', title: 'Strait of Gibraltar', location: 'Gibraltar', country: 'GI',
+      latitude: 36.1408, longitude: -5.3536,
+      thumbnailUrl: 'https://img.youtube.com/vi/CvE_-0RaSFo/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/CvE_-0RaSFo?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=CvE_-0RaSFo',
+      category: 'port', source: 'YouTube Live', lastUpdate: now,
+    },
+    {
+      id: 'cam-port-hamburg', title: 'Port of Hamburg Live', location: 'Hamburg', country: 'DE',
+      latitude: 53.5453, longitude: 9.9660,
+      thumbnailUrl: 'https://img.youtube.com/vi/MH0WI-jEb_Q/mqdefault.jpg',
+      streamUrl: 'https://www.youtube.com/embed/MH0WI-jEb_Q?autoplay=1&mute=1',
+      embedUrl: 'https://www.youtube.com/watch?v=MH0WI-jEb_Q',
+      category: 'port', source: 'YouTube Live', lastUpdate: now,
     },
   ];
 }

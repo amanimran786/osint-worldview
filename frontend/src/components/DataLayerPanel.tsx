@@ -112,10 +112,10 @@ export function useDataLayers() {
     { key: 'weather', label: 'Weather Intel', enabled: true, count: 0, color: '#3b82f6' },
     { key: 'cyber', label: 'Cyber Threats', enabled: false, count: 0, color: '#a855f7' },
     { key: 'disasters', label: 'Disasters', enabled: true, count: 0, color: '#f97316' },
-    { key: 'flights', label: 'Air Traffic', enabled: false, count: 0, color: '#38bdf8' },
-    { key: 'nasaEvents', label: 'NASA Events', enabled: false, count: 0, color: '#34d399' },
-    { key: 'fires', label: 'Fire Hotspots', enabled: false, count: 0, color: '#fb923c' },
-    { key: 'spaceWeather', label: 'Space Weather', enabled: false, count: 0, color: '#fbbf24' },
+    { key: 'flights', label: 'Air Traffic', enabled: true, count: 0, color: '#38bdf8' },
+    { key: 'nasaEvents', label: 'NASA Events', enabled: true, count: 0, color: '#34d399' },
+    { key: 'fires', label: 'Fire Hotspots', enabled: true, count: 0, color: '#fb923c' },
+    { key: 'spaceWeather', label: 'Space Weather', enabled: true, count: 0, color: '#fbbf24' },
   ]);
 
   const [data, setData] = useState<LayerData>({

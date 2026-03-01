@@ -106,11 +106,13 @@ function Atmosphere() {
 /* ---- Continent outlines from simplified GeoJSON ---- */
 const CONTINENT_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson';
 
-/* ---- Country borders from Natural Earth ---- */
-const COUNTRIES_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+/* ---- Country borders — use dedicated boundary lines for crisp rendering ---- */
+const COUNTRY_BORDERS_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_boundary_lines_land.geojson';
+const COUNTRIES_FILL_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
 
 /* ---- US States / Major Admin-1 boundaries ---- */
 const STATES_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_1_states_provinces_lines.geojson';
+const STATES_POLY_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_1_states_provinces.geojson';
 
 /** Shared helper: parse polygon rings from a GeoJSON feature into Vector3 line geometries */
 function parseGeoJSONRings(
@@ -168,7 +170,7 @@ function ContinentOutlines() {
           key={i}
           object={new THREE.Line(
             geo,
-            new THREE.LineBasicMaterial({ color: '#f0a030', transparent: true, opacity: 0.25 })
+            new THREE.LineBasicMaterial({ color: '#f0a030', transparent: true, opacity: 0.35 })
           )}
         />
       ))}
@@ -181,12 +183,21 @@ function CountryBorders() {
   const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
 
   useEffect(() => {
-    fetch(COUNTRIES_URL)
-      .then(r => r.json())
+    // First try dedicated boundary lines (clean LineString data), fallback to country polygons
+    fetch(COUNTRY_BORDERS_URL)
+      .then(r => { if (!r.ok) throw new Error('boundary lines failed'); return r.json(); })
       .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-        setLines(parseGeoJSONRings(geojson.features, 0.004));
+        setLines(parseGeoJSONRings(geojson.features, 0.005));
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback: use country polygons for outlines
+        fetch(COUNTRIES_FILL_URL)
+          .then(r => r.json())
+          .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
+            setLines(parseGeoJSONRings(geojson.features, 0.005));
+          })
+          .catch(() => {});
+      });
   }, []);
 
   return (
@@ -196,7 +207,7 @@ function CountryBorders() {
           key={i}
           object={new THREE.Line(
             geo,
-            new THREE.LineBasicMaterial({ color: '#4ade80', transparent: true, opacity: 0.15 })
+            new THREE.LineBasicMaterial({ color: '#4ade80', transparent: true, opacity: 0.55 })
           )}
         />
       ))}
@@ -209,12 +220,21 @@ function StateBorders() {
   const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
 
   useEffect(() => {
+    // First try the dedicated lines file, fallback to polygon outlines
     fetch(STATES_URL)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('state lines failed'); return r.json(); })
       .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-        setLines(parseGeoJSONRings(geojson.features, 0.0045));
+        setLines(parseGeoJSONRings(geojson.features, 0.006));
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback: use state polygon outlines
+        fetch(STATES_POLY_URL)
+          .then(r => r.json())
+          .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
+            setLines(parseGeoJSONRings(geojson.features, 0.006));
+          })
+          .catch(() => {});
+      });
   }, []);
 
   return (
@@ -224,7 +244,7 @@ function StateBorders() {
           key={i}
           object={new THREE.Line(
             geo,
-            new THREE.LineBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.10 })
+            new THREE.LineBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.35 })
           )}
         />
       ))}

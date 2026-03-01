@@ -166,8 +166,21 @@ export function SurveillancePage() {
 }
 
 /* ================================================================
-   📷 CAMERAS TAB
+   📷 CAMERAS TAB — with region/category filters
    ================================================================ */
+type CamRegion = 'ALL' | 'NA' | 'EU' | 'ASIA' | 'ME_AF' | 'SA' | 'AU' | 'SPACE';
+type CamCategory = 'ALL' | 'city' | 'landmark' | 'airport' | 'traffic' | 'weather' | 'port';
+
+const REGION_MAP: Record<string, CamRegion> = {
+  US: 'NA', CA: 'NA', MX: 'NA',
+  GB: 'EU', FR: 'EU', IT: 'EU', DE: 'EU', NL: 'EU', CZ: 'EU', IE: 'EU', GI: 'EU',
+  JP: 'ASIA', KR: 'ASIA', SG: 'ASIA', TH: 'ASIA',
+  AE: 'ME_AF', SA: 'ME_AF', IL: 'ME_AF', ZA: 'ME_AF',
+  BR: 'SA', AR: 'SA',
+  AU: 'AU',
+  INTL: 'SPACE',
+};
+
 function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
   webcams: PublicWebcam[];
   active: PublicWebcam | null;
@@ -175,40 +188,118 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
   apod: NasaAPOD | null;
   epicImages: EpicImage[];
 }) {
+  const [region, setRegion] = useState<CamRegion>('ALL');
+  const [category, setCategory] = useState<CamCategory>('ALL');
+
+  const filtered = webcams.filter((c) => {
+    if (region !== 'ALL' && (REGION_MAP[c.country] || 'NA') !== region) return false;
+    if (category !== 'ALL' && c.category !== category) return false;
+    return true;
+  });
+
+  const regionOpts: { key: CamRegion; label: string }[] = [
+    { key: 'ALL', label: 'ALL REGIONS' },
+    { key: 'NA', label: 'N. AMERICA' },
+    { key: 'EU', label: 'EUROPE' },
+    { key: 'ASIA', label: 'ASIA/PAC' },
+    { key: 'ME_AF', label: 'ME / AFRICA' },
+    { key: 'SA', label: 'S. AMERICA' },
+    { key: 'AU', label: 'OCEANIA' },
+    { key: 'SPACE', label: 'SPACE' },
+  ];
+  const catOpts: { key: CamCategory; label: string }[] = [
+    { key: 'ALL', label: 'ALL' },
+    { key: 'city', label: 'CITY' },
+    { key: 'landmark', label: 'LANDMARK' },
+    { key: 'airport', label: 'AIRPORT' },
+    { key: 'traffic', label: 'TRAFFIC' },
+    { key: 'weather', label: 'NATURE' },
+    { key: 'port', label: 'PORT' },
+  ];
+
+  // Resolve the embed URL for the active camera — support both YouTube and EarthCam
+  const getPlayerUrl = (cam: PublicWebcam) => cam.streamUrl || cam.embedUrl;
+
   return (
     <div className="space-y-6">
       {/* Active camera viewer */}
-      {active && active.streamUrl && (
+      {active && (
         <div className="border border-amber/20 bg-black">
           <div className="flex items-center justify-between px-3 py-1.5 border-b border-amber/10 bg-surface">
             <div className="flex items-center gap-2">
               <Radio className="h-3 w-3 text-red-400 animate-pulse" />
               <span className="text-[10px] font-mono text-amber tracking-wider">{active.title}</span>
+              <span className="text-[8px] font-mono text-amber/30">{active.location} · {active.source}</span>
             </div>
-            <button onClick={() => onSelect(null)} className="text-amber/30 hover:text-amber text-[10px] font-mono">✕</button>
+            <div className="flex items-center gap-2">
+              <a
+                href={active.embedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-amber/30 hover:text-amber text-[9px] font-mono flex items-center gap-1"
+              >
+                <ExternalLink className="h-3 w-3" /> SOURCE
+              </a>
+              <button onClick={() => onSelect(null)} className="text-amber/30 hover:text-amber text-[10px] font-mono">✕</button>
+            </div>
           </div>
           <div className="aspect-video">
             <iframe
-              src={active.streamUrl}
+              src={getPlayerUrl(active)}
               title={active.title}
               className="w-full h-full"
               allow="autoplay; encrypted-media"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </div>
       )}
 
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[8px] font-mono text-amber/30 tracking-widest mr-1">REGION</span>
+        {regionOpts.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setRegion(key)}
+            className={clsx(
+              'px-2 py-0.5 text-[7px] font-mono tracking-wider border transition-colors',
+              region === key
+                ? 'border-amber/40 text-amber bg-amber/15'
+                : 'border-amber/10 text-amber/25 hover:text-amber/50'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+        <span className="text-[8px] font-mono text-amber/30 tracking-widest ml-3 mr-1">TYPE</span>
+        {catOpts.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setCategory(key)}
+            className={clsx(
+              'px-2 py-0.5 text-[7px] font-mono tracking-wider border transition-colors',
+              category === key
+                ? 'border-tactical-green/40 text-tactical-green bg-tactical-green/15'
+                : 'border-amber/10 text-amber/25 hover:text-amber/50'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {/* Camera grid */}
       <div>
         <h3 className="text-[10px] font-mono text-amber/40 tracking-wider mb-3 flex items-center gap-2">
-          <Camera className="h-3 w-3" /> GLOBAL LIVE FEEDS ({webcams.length})
+          <Camera className="h-3 w-3" /> GLOBAL LIVE FEEDS ({filtered.length} of {webcams.length})
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {webcams.map((cam) => (
+          {filtered.map((cam) => (
             <button
               key={cam.id}
-              onClick={() => onSelect(cam.streamUrl ? cam : null)}
+              onClick={() => onSelect(cam)}
               className={clsx(
                 'border border-amber/15 bg-black/50 hover:border-amber/30 transition-colors text-left group',
                 active?.id === cam.id && 'border-amber/50 ring-1 ring-amber/20'
@@ -226,6 +317,9 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
                   <span className="text-[7px] font-mono text-red-400 tracking-wider">LIVE</span>
                 </div>
+                <div className="absolute top-1 right-1 bg-black/70 px-1.5 py-0.5">
+                  <span className="text-[6px] font-mono text-amber/50 tracking-wider uppercase">{cam.category}</span>
+                </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                   <div className="text-[9px] font-mono text-white/90">{cam.title}</div>
                   <div className="text-[7px] font-mono text-white/50">{cam.location} · {cam.source}</div>
@@ -234,6 +328,11 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
             </button>
           ))}
         </div>
+        {filtered.length === 0 && (
+          <div className="text-center py-8 text-[10px] font-mono text-amber/20">
+            No cameras match the selected filters. Try adjusting region or type.
+          </div>
+        )}
       </div>
 
       {/* NASA EPIC — Earth from Space */}
