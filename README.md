@@ -196,33 +196,46 @@ osint-worldview/
 | Database | PostgreSQL 16 (prod), SQLite (dev) |
 | Ingest | feedparser (RSS), httpx, USGS API, ReliefWeb API, abuse.ch, OpenWeatherMap |
 | Auth | python-jose (JWT), passlib (bcrypt) |
-| Deploy | Docker, Railway / Render.com, GitHub Actions CI/CD |
+| Deploy | Docker, Fly.io (free), Render.com (free), GitHub Actions CI/CD |
 
 ## Deploy to Production
 
-### Option 1: Railway (recommended)
+### Option 1: Fly.io ⭐ (recommended — free, fastest)
 
-1. **Create Railway account** at [railway.app](https://railway.app)
-2. **Connect GitHub repo:**
-   - Click "New Project" → "Deploy from GitHub repo"
-   - Select `amanimran786/osint-worldview`
-3. **Set environment variables** in Railway dashboard:
-   ```
-   ENV=production
-   DATABASE_URL=sqlite:////app/osint_worldview.db
-   SECRET_KEY=<generate-a-random-string>
-   CORS_ORIGINS=https://your-app.railway.app
-   AI_ENABLED=false
-   ```
-4. Railway auto-detects the `Dockerfile` and deploys.
-5. Enable **auto-deploy** — every push to `main` triggers a new build.
+Fly.io gives you 3 free shared VMs, ~2s cold starts, persistent volumes for SQLite.
 
-### Option 2: Render.com (free tier)
+```bash
+# 1. Install Fly CLI
+curl -L https://fly.io/install.sh | sh
 
-1. **Create Render account** at [render.com](https://render.com)
-2. **New Web Service** → Connect your GitHub repo
-3. **Blueprint**: The `render.yaml` file auto-configures everything
-4. Or manually: Docker runtime, Dockerfile path = `./Dockerfile`
+# 2. Sign up (free, no credit card for hobby plan)
+fly auth signup
+
+# 3. Launch (one-time setup — creates app + volume)
+cd osint-worldview
+fly launch --no-deploy
+fly volumes create osint_data --region sjc --size 1
+
+# 4. Set secrets
+fly secrets set SECRET_KEY=$(openssl rand -hex 32)
+
+# 5. Deploy!
+fly deploy
+
+# 6. Open your live app
+fly open
+```
+
+**Auto-deploy from GitHub:** Add `FLY_API_TOKEN` secret to your repo → every push to `main` triggers deploy via `.github/workflows/deploy.yml`.
+
+Get your token: `fly tokens create deploy -x 999999h`
+
+### Option 2: Render.com (free, zero config)
+
+1. Go to [render.com](https://render.com) → "New Web Service"
+2. Connect `amanimran786/osint-worldview`
+3. The `render.yaml` blueprint auto-configures everything
+4. ⚠️ Free tier sleeps after 15min idle (~30s cold start)
 
 ### Option 3: Docker (self-hosted)
 
@@ -239,10 +252,9 @@ docker run -p 8000:8000 \
   osint-worldview
 ```
 
-### CI/CD with GitHub Actions
+### CI/CD
 
-The `.github/workflows/deploy.yml` auto-deploys to Railway on every push to `main`.
-Add the `RAILWAY_TOKEN` secret in your GitHub repo settings.
+`.github/workflows/deploy.yml` auto-deploys to Fly.io on every push to `main`.
 
 ## License
 

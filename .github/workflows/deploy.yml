@@ -1,4 +1,4 @@
-name: Deploy to Railway
+name: Deploy to Fly.io
 
 on:
   push:
@@ -12,10 +12,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
+      - name: Setup Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Deploy
-        run: railway up --detach
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

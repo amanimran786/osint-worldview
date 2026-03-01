@@ -9,7 +9,7 @@ services:
     dockerfilePath: ./Dockerfile
     region: oregon
     plan: free
-    healthCheckPath: /api/health
+    healthCheckPath: /api/health/live
     envVars:
       - key: ENV
         value: production

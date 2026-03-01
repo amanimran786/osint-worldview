@@ -39,10 +39,11 @@ COPY --from=frontend-builder /frontend/dist /app/static
 
 # Non-root user
 RUN adduser --disabled-password --gecos "" appuser && \
-    chown -R appuser:appuser /app
+    mkdir -p /data && \
+    chown -R appuser:appuser /app /data
 USER appuser
 
-# Railway injects PORT env var (usually 8000)
+# Railway/Render inject PORT; Fly.io uses 8000
 EXPOSE ${PORT:-8000}
 
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]

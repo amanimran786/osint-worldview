@@ -1,0 +1,38 @@
+# fly.toml — Fly.io configuration
+# Deploy: fly launch / fly deploy
+# Docs: https://fly.io/docs/reference/configuration/
+
+app = "osint-worldview"
+primary_region = "sjc"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  ENV = "production"
+  DATABASE_URL = "sqlite:////data/osint_worldview.db"
+  CORS_ORIGINS = "*"
+  AI_ENABLED = "false"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Persistent volume for SQLite database
+[mounts]
+  source = "osint_data"
+  destination = "/data"
