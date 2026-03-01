@@ -5,33 +5,20 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
-    proxy: {
-      '/api/ws': {
-        target: 'ws://localhost:8001',
-        ws: true,
-      },
-      '/api': {
-        target: 'http://localhost:8001',
-        changeOrigin: true,
-      },
-    },
   },
   build: {
-    // Chunk splitting for better caching
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          state: ['zustand', 'axios'],
+          state: ['zustand'],
           ui: ['lucide-react', 'clsx', 'date-fns'],
           charts: ['recharts'],
           map: ['leaflet', 'react-leaflet'],
         },
       },
     },
-    // Enable source maps for production debugging
     sourcemap: true,
-    // Target modern browsers
     target: 'es2020',
   },
 });

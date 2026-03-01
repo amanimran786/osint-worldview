@@ -1,28 +1,27 @@
-import axios from 'axios';
+/**
+ * API layer — fully client-side for Vercel static deployment.
+ *
+ * • DB-dependent endpoints (signals, cases, rules, sources, analytics, search, geo)
+ *   → served from in-browser localStorage demo store
+ * • Live data layers (earthquakes, weather, cyber, disasters)
+ *   → fetched directly from public APIs in the browser (no serverless needed)
+ */
 import type {
   Signal, Rule, Source, Case, Note,
   Analytics, AIAnalysis, AISummary, GeoSignal, HeatmapEntry,
   EarthquakeFeature, CyberThreat, WeatherData, DisasterEvent,
 } from './types';
+import * as demo from './services/demoStore';
+import {
+  fetchEarthquakesDirect,
+  fetchWeatherDirect,
+  fetchCyberThreatsDirect,
+  fetchDisastersDirect,
+} from './services/dataLayers';
 
-const api = axios.create({
-  baseURL: '/api',
-  timeout: 15_000,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-// Response interceptor: normalize error messages
-api.interceptors.response.use(
-  (res) => res,
-  (error) => {
-    const message =
-      error.response?.data?.detail ??
-      error.response?.data?.message ??
-      error.message ??
-      'An unexpected error occurred';
-    return Promise.reject(new Error(message));
-  },
-);
+/* ================================================================
+   DB-DEPENDENT ENDPOINTS — localStorage demo store
+   ================================================================ */
 
 /* ---- Signals ---- */
 export async function fetchSignals(params?: {
@@ -32,8 +31,7 @@ export async function fetchSignals(params?: {
   limit?: number;
   offset?: number;
 }): Promise<Signal[]> {
-  const { data } = await api.get('/signals/', { params });
-  return data;
+  return demo.getSignals(params);
 }
 
 export async function ingestSignal(payload: {
@@ -42,108 +40,91 @@ export async function ingestSignal(payload: {
   snippet?: string;
   source: string;
 }): Promise<Signal> {
-  const { data } = await api.post('/signals/', payload);
-  return data;
+  return demo.createSignal(payload);
 }
 
 export async function updateSignal(
   id: number,
   patch: { status?: string; case_id?: number },
 ): Promise<Signal> {
-  const { data } = await api.patch(`/signals/${id}`, patch);
-  return data;
+  const result = demo.updateSignal(id, patch);
+  if (!result) throw new Error('Signal not found');
+  return result;
 }
 
 /* ---- Rules ---- */
 export async function fetchRules(): Promise<Rule[]> {
-  const { data } = await api.get('/rules/');
-  return data;
+  return demo.getRules();
 }
 
 export async function createRule(payload: Omit<Rule, 'id'>): Promise<Rule> {
-  const { data } = await api.post('/rules/', payload);
-  return data;
+  return demo.createRule(payload);
 }
 
 export async function deleteRule(id: number): Promise<void> {
-  await api.delete(`/rules/${id}`);
+  demo.deleteRule(id);
 }
 
 /* ---- Sources ---- */
 export async function fetchSources(): Promise<Source[]> {
-  const { data } = await api.get('/sources/');
-  return data;
+  return demo.getSources();
 }
 
-export async function createSource(
-  payload: Omit<Source, 'id'>,
-): Promise<Source> {
-  const { data } = await api.post('/sources/', payload);
-  return data;
+export async function createSource(payload: Omit<Source, 'id'>): Promise<Source> {
+  return demo.createSource(payload);
 }
 
-export async function triggerPoll(sourceId: number): Promise<{ task_id: string }> {
-  const { data } = await api.post(`/sources/${sourceId}/poll`);
-  return data;
+export async function triggerPoll(_sourceId: number): Promise<{ task_id: string }> {
+  return { task_id: `demo-${Date.now()}` };
 }
 
 export async function triggerPollAll(): Promise<{ task_id: string }> {
-  const { data } = await api.post('/sources/poll-all');
-  return data;
+  return { task_id: `demo-poll-all-${Date.now()}` };
 }
 
 /* ---- Cases ---- */
-export async function fetchCases(params?: {
-  status?: string;
-}): Promise<Case[]> {
-  const { data } = await api.get('/cases/', { params });
-  return data;
+export async function fetchCases(params?: { status?: string }): Promise<Case[]> {
+  return demo.getCases(params);
 }
 
 export async function createCase(title: string): Promise<Case> {
-  const { data } = await api.post('/cases/', { title });
-  return data;
+  return demo.createCase(title);
 }
 
 export async function fetchNotes(caseId: number): Promise<Note[]> {
-  const { data } = await api.get(`/cases/${caseId}/notes`);
-  return data;
+  return demo.getNotes(caseId);
 }
 
-export async function addNote(
-  caseId: number,
-  content: string,
-): Promise<Note> {
-  const { data } = await api.post(`/cases/${caseId}/notes`, { content });
-  return data;
+export async function addNote(caseId: number, content: string): Promise<Note> {
+  return demo.addNote(caseId, content);
 }
 
 /* ---- Health ---- */
 export async function healthCheck(): Promise<{ status: string }> {
-  const { data } = await api.get('/health/live');
-  return data;
+  return { status: 'ok (vercel)' };
 }
 
 /* ---- Analytics ---- */
 export async function fetchAnalytics(days = 30): Promise<Analytics> {
-  const { data } = await api.get('/analytics/', { params: { days } });
-  return data;
+  return demo.getAnalytics(days);
 }
 
 /* ---- AI ---- */
 export async function getAIStatus(): Promise<{ ai_enabled: boolean; model: string | null }> {
-  const { data } = await api.get('/ai/status');
-  return data;
+  return { ai_enabled: false, model: null };
 }
 
-export async function summarizeSignals(signalIds: number[]): Promise<AISummary[]> {
-  const { data } = await api.post('/ai/summarize', { signal_ids: signalIds });
-  return data;
+export async function summarizeSignals(_signalIds: number[]): Promise<AISummary[]> {
+  return [];
 }
 
-export async function analyzeSignals(limit = 20): Promise<AIAnalysis> {
-  const { data } = await api.post('/ai/analyze', null, { params: { limit } });
-  return data;
+export async function analyzeSignals(_limit = 20): Promise<AIAnalysis> {
+  return {
+    analysis: 'AI analysis requires backend API keys (ANTHROPIC_API_KEY or OPENAI_API_KEY). Running in demo mode — all live data layers are operational.',
+    threat_level: 'medium',
+    key_entities: ['Demo Mode — Live Data Active'],
+    recommended_actions: ['Configure AI provider to enable automated threat analysis'],
+  };
 }
 
 /* ---- Search ---- */
@@ -158,8 +139,7 @@ export async function searchSignals(params: {
   has_location?: boolean;
   limit?: number;
 }): Promise<Signal[]> {
-  const { data } = await api.get('/search/', { params });
-  return data;
+  return demo.searchSignals({ q: params.q, limit: params.limit });
 }
 
 /* ---- Geo ---- */
@@ -168,52 +148,53 @@ export async function fetchGeoSignals(params?: {
   status?: string;
   limit?: number;
 }): Promise<GeoSignal[]> {
-  const { data } = await api.get('/geo/signals', { params });
-  return data;
+  return demo.getGeoSignals(params);
 }
 
 export async function fetchHeatmap(): Promise<HeatmapEntry[]> {
-  const { data } = await api.get('/geo/heatmap');
-  return data;
+  return demo.getHeatmap();
 }
 
 /* ---- Export ---- */
-export function getExportUrl(format: 'csv' | 'json', params?: {
+export function getExportUrl(format: 'csv' | 'json', _params?: {
   status?: string;
   source?: string;
   min_severity?: number;
 }): string {
-  const searchParams = new URLSearchParams();
-  if (params?.status) searchParams.set('status', params.status);
-  if (params?.source) searchParams.set('source', params.source);
-  if (params?.min_severity !== undefined) searchParams.set('min_severity', String(params.min_severity));
-  return `/api/export/signals/${format}?${searchParams.toString()}`;
+  const signals = demo.getSignals();
+  if (format === 'json') {
+    const blob = new Blob([JSON.stringify(signals, null, 2)], { type: 'application/json' });
+    return URL.createObjectURL(blob);
+  }
+  const header = 'id,title,source,severity,status,category,latitude,longitude,location_name,published_at\n';
+  const rows = signals.map(s =>
+    `${s.id},"${s.title}",${s.source},${s.severity},${s.status},${s.category ?? ''},${s.latitude ?? ''},${s.longitude ?? ''},"${s.location_name ?? ''}",${s.published_at ?? ''}`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  return URL.createObjectURL(blob);
 }
 
-/* ---- Data Layers ---- */
+/* ================================================================
+   LIVE DATA LAYERS — direct browser fetch (no backend/serverless)
+   ================================================================ */
+
 export async function fetchEarthquakes(params?: {
   min_magnitude?: number;
   period?: 'hour' | 'day' | 'week' | 'month';
 }): Promise<EarthquakeFeature[]> {
-  const { data } = await api.get('/layers/earthquakes', { params });
-  return data.features ?? [];
+  return fetchEarthquakesDirect(params);
 }
 
 export async function fetchCyberThreats(params?: {
   limit?: number;
 }): Promise<CyberThreat[]> {
-  const { data } = await api.get('/layers/cyber-threats', { params });
-  return data.threats ?? [];
+  return fetchCyberThreatsDirect(params);
 }
 
 export async function fetchWeather(): Promise<WeatherData[]> {
-  const { data } = await api.get('/layers/weather');
-  return data.weather ?? [];
+  return fetchWeatherDirect();
 }
 
 export async function fetchDisasters(): Promise<DisasterEvent[]> {
-  const { data } = await api.get('/layers/disasters');
-  return data.disasters ?? [];
+  return fetchDisastersDirect();
 }
-
-export default api;
