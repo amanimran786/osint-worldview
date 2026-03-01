@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import health, signals, rules, cases, sources, auth
-from app.api.routes import analytics, ai, search, export, geo, websocket
+from app.api.routes import analytics, ai, search, export, geo, websocket, layers
 
 api_router = APIRouter()
 
@@ -17,3 +17,4 @@ api_router.include_router(search.router)
 api_router.include_router(export.router)
 api_router.include_router(geo.router)
 api_router.include_router(websocket.router)
+api_router.include_router(layers.router)

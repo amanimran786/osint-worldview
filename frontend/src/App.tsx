@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
+import { HUDOverlay } from './components/HUDOverlay';
 import { ToastContainer } from './components/Toast';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useStore } from './store';
@@ -17,8 +18,13 @@ const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ de
 
 function PageLoader() {
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+    <div className="flex flex-1 items-center justify-center bg-surface">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber border-t-transparent" />
+        <span className="text-[10px] font-mono text-amber/40 tracking-[0.2em] uppercase">
+          Loading Module...
+        </span>
+      </div>
     </div>
   );
 }
@@ -40,7 +46,7 @@ export default function App() {
   useWebSocket(useCallback((msg: WSMessage) => {
     switch (msg.type) {
       case 'new_signal':
-        addToast('New signal detected!', 'info');
+        addToast('⚡ NEW SIGNAL DETECTED', 'info');
         loadSignals(); // auto-refresh
         break;
       case 'signal_update':
@@ -48,7 +54,7 @@ export default function App() {
         break;
       case 'poll_complete': {
         const count = (msg.data?.new_signals as number) ?? 0;
-        addToast(`Feed poll complete — ${count} new signals`, 'success');
+        addToast(`✓ FEED POLL — ${count} NEW SIGNALS`, 'success');
         loadSignals();
         break;
       }
@@ -70,6 +76,7 @@ export default function App() {
             <Route path="/analytics" element={<AnalyticsPage />} />
           </Routes>
         </Suspense>
+        <HUDOverlay />
         <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       </div>
     </BrowserRouter>

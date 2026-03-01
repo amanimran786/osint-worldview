@@ -25,40 +25,45 @@ export function SourcesPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <TopBar title="Sources" />
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <TopBar title="SOURCES" />
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {sources.map((src) => (
             <div
               key={src.id}
-              className="rounded-xl border border-gray-700/50 bg-surface-card p-4"
+              className="hud-border bg-surface-card p-3"
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold text-gray-200">{src.name}</h3>
-                <span
-                  className={`inline-block h-2 w-2 rounded-full ${
-                    src.enabled ? 'bg-green-500' : 'bg-gray-600'
-                  }`}
-                />
+                <h3 className="text-[11px] font-mono text-gray-200">{src.name}</h3>
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className={`inline-block h-1.5 w-1.5 rounded-full ${
+                      src.enabled ? 'bg-tactical-green' : 'bg-gray-700'
+                    }`}
+                  />
+                  <span className={`text-[9px] font-mono uppercase tracking-wider ${src.enabled ? 'text-tactical-green/60' : 'text-gray-700'}`}>
+                    {src.enabled ? 'ACTIVE' : 'DISABLED'}
+                  </span>
+                </span>
               </div>
-              <p className="text-xs text-gray-500 truncate mb-1">{src.url}</p>
-              <div className="flex items-center justify-between mt-3">
-                <span className="rounded bg-gray-700 px-2 py-0.5 text-xs text-gray-400">
+              <p className="text-[10px] font-mono text-gray-600 truncate mb-2">{src.url}</p>
+              <div className="flex items-center justify-between">
+                <span className="border border-gray-800 px-1.5 py-0.5 text-[9px] font-mono text-gray-500 uppercase tracking-wider">
                   {src.type}
                 </span>
                 <button
                   onClick={() => handlePoll(src.id)}
                   disabled={pollingId === src.id}
-                  className="rounded bg-brand-600/20 px-2 py-1 text-xs text-brand-400 hover:bg-brand-600/30 disabled:opacity-50"
+                  className="border border-amber/20 bg-amber/5 px-2 py-0.5 text-[9px] font-mono text-amber/60 hover:text-amber hover:bg-amber/10 disabled:opacity-30 uppercase tracking-wider transition-all"
                 >
-                  {pollingId === src.id ? 'Queued ✓' : 'Poll now'}
+                  {pollingId === src.id ? 'QUEUED ✓' : 'POLL'}
                 </button>
               </div>
             </div>
           ))}
           {sources.length === 0 && (
-            <p className="text-sm text-gray-500 col-span-full text-center py-8">
-              No sources yet. Run the seed script to add defaults.
+            <p className="text-[11px] font-mono text-gray-600 col-span-full text-center py-8 tracking-wider">
+              NO SOURCES · RUN SEED SCRIPT TO ADD DEFAULTS
             </p>
           )}
         </div>

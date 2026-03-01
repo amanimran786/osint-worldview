@@ -22,19 +22,19 @@ export function SignalsPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <TopBar title="Signals" />
+      <TopBar title="SIGNALS" />
 
       {/* Filter bar */}
-      <div className="flex items-center gap-2 border-b border-gray-700/50 bg-surface-card px-6 py-2">
-        <span className="text-xs text-gray-500 mr-2">Status:</span>
+      <div className="flex items-center gap-2 border-b border-amber/10 bg-surface px-4 py-2">
+        <span className="text-[9px] font-mono text-gray-600 mr-2 tracking-wider uppercase">Status:</span>
         {statusFilters.map((st) => (
           <button
             key={st}
             onClick={() => setFilterStatus(st)}
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
+            className={`px-2.5 py-1 text-[10px] font-mono tracking-wider uppercase border transition-all ${
               filterStatus === st
-                ? 'bg-brand-600 text-white'
-                : 'text-gray-400 hover:bg-surface-hover'
+                ? 'border-amber/40 bg-amber/10 text-amber'
+                : 'border-transparent text-gray-600 hover:text-amber/60 hover:border-amber/15'
             }`}
           >
             {st || 'All'}

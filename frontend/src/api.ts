@@ -2,6 +2,7 @@ import axios from 'axios';
 import type {
   Signal, Rule, Source, Case, Note,
   Analytics, AIAnalysis, AISummary, GeoSignal, HeatmapEntry,
+  EarthquakeFeature, CyberThreat, WeatherData, DisasterEvent,
 } from './types';
 
 const api = axios.create({
@@ -187,6 +188,32 @@ export function getExportUrl(format: 'csv' | 'json', params?: {
   if (params?.source) searchParams.set('source', params.source);
   if (params?.min_severity !== undefined) searchParams.set('min_severity', String(params.min_severity));
   return `/api/export/signals/${format}?${searchParams.toString()}`;
+}
+
+/* ---- Data Layers ---- */
+export async function fetchEarthquakes(params?: {
+  min_magnitude?: number;
+  period?: 'hour' | 'day' | 'week' | 'month';
+}): Promise<EarthquakeFeature[]> {
+  const { data } = await api.get('/layers/earthquakes', { params });
+  return data;
+}
+
+export async function fetchCyberThreats(params?: {
+  limit?: number;
+}): Promise<CyberThreat[]> {
+  const { data } = await api.get('/layers/cyber-threats', { params });
+  return data;
+}
+
+export async function fetchWeather(): Promise<WeatherData[]> {
+  const { data } = await api.get('/layers/weather');
+  return data;
+}
+
+export async function fetchDisasters(): Promise<DisasterEvent[]> {
+  const { data } = await api.get('/layers/disasters');
+  return data;
 }
 
 export default api;

@@ -41,22 +41,22 @@ export function CasesPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <TopBar title="Cases" />
+      <TopBar title="CASES" />
       <div className="flex flex-1 overflow-hidden">
         {/* List */}
-        <div className="w-80 border-r border-gray-700/50 overflow-y-auto p-4 space-y-3">
+        <div className="w-80 border-r border-amber/10 overflow-y-auto p-3 space-y-2">
           {/* Create form */}
           <div className="flex gap-2">
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="New case title…"
-              className="flex-1 rounded-lg border border-gray-600 bg-surface px-3 py-1.5 text-sm text-gray-200 placeholder-gray-500 focus:border-brand-500 focus:outline-none"
+              className="flex-1 border border-amber/15 bg-surface px-3 py-1.5 text-[11px] font-mono text-amber/80 placeholder-gray-600 focus:border-amber/40 focus:outline-none tracking-wider"
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
             <button
               onClick={handleCreate}
-              className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
+              className="border border-amber/25 bg-amber/10 px-3 py-1.5 text-[10px] font-mono text-amber hover:bg-amber/20 uppercase tracking-wider"
             >
               Add
             </button>
@@ -66,38 +66,38 @@ export function CasesPage() {
             <div
               key={c.id}
               onClick={() => setSelectedCaseId(c.id)}
-              className={`cursor-pointer rounded-lg border border-gray-700/50 px-4 py-3 ${
-                selectedCaseId === c.id ? 'bg-brand-600/10 border-brand-500/30' : 'bg-surface-card hover:bg-surface-hover'
+              className={`cursor-pointer border px-3 py-2.5 transition-all ${
+                selectedCaseId === c.id ? 'bg-amber/10 border-amber/30' : 'border-gray-900 bg-surface-card hover:border-amber/15 hover:bg-amber/5'
               }`}
             >
-              <div className="text-sm font-medium text-gray-200">{c.title}</div>
+              <div className="text-[11px] font-mono text-gray-300">{c.title}</div>
               <div className="mt-1 flex items-center gap-2">
                 <StatusBadge status={c.status} />
-                <span className="text-xs text-gray-500">
+                <span className="text-[9px] font-mono text-gray-600">
                   {new Date(c.created_at).toLocaleDateString()}
                 </span>
               </div>
             </div>
           ))}
           {cases.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-8">No cases yet.</p>
+            <p className="text-[11px] font-mono text-gray-600 text-center py-8 tracking-wider">NO CASES YET</p>
           )}
         </div>
 
         {/* Detail */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4">
           {selectedCase ? (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">{selectedCase.title}</h2>
+              <h2 className="text-[12px] font-display tracking-[0.1em] text-amber uppercase">{selectedCase.title}</h2>
               <StatusBadge status={selectedCase.status} />
 
-              <div className="mt-6">
-                <h3 className="text-sm font-medium text-gray-400 mb-3">Notes</h3>
+              <div className="mt-4">
+                <h3 className="text-[9px] font-mono text-gray-600 mb-3 uppercase tracking-[0.15em]">Notes</h3>
                 <div className="space-y-2">
                   {notes.map((n) => (
-                    <div key={n.id} className="rounded-lg border border-gray-700/50 bg-surface-card p-3">
-                      <p className="text-sm text-gray-300">{n.content}</p>
-                      <span className="text-xs text-gray-500">
+                    <div key={n.id} className="hud-border bg-surface-card p-3">
+                      <p className="text-[11px] font-mono text-gray-300">{n.content}</p>
+                      <span className="text-[9px] font-mono text-gray-600">
                         {new Date(n.created_at).toLocaleString()}
                       </span>
                     </div>
@@ -108,12 +108,12 @@ export function CasesPage() {
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     placeholder="Add a note…"
-                    className="flex-1 rounded-lg border border-gray-600 bg-surface px-3 py-1.5 text-sm text-gray-200 placeholder-gray-500 focus:border-brand-500 focus:outline-none"
+                    className="flex-1 border border-amber/15 bg-surface px-3 py-1.5 text-[11px] font-mono text-amber/80 placeholder-gray-600 focus:border-amber/40 focus:outline-none"
                     onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
                   />
                   <button
                     onClick={handleAddNote}
-                    className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
+                    className="border border-amber/25 bg-amber/10 px-3 py-1.5 text-[10px] font-mono text-amber hover:bg-amber/20 uppercase tracking-wider"
                   >
                     Add
                   </button>
@@ -121,8 +121,8 @@ export function CasesPage() {
               </div>
             </div>
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-gray-500">
-              Select a case to view details.
+            <div className="flex h-full items-center justify-center text-[11px] font-mono text-gray-600 tracking-wider">
+              SELECT A CASE TO VIEW DETAILS
             </div>
           )}
         </div>

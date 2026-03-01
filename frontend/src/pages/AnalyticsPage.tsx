@@ -20,51 +20,52 @@ export function AnalyticsPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <TopBar title="Analytics" />
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <TopBar title="ANALYTICS" />
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Time range selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Time range:</span>
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] font-mono text-gray-600 mr-2 tracking-wider uppercase">Range:</span>
           {[7, 14, 30, 60, 90].map((d) => (
             <button
               key={d}
               onClick={() => setDays(d)}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
+              className={`px-2.5 py-1 text-[10px] font-mono tracking-wider uppercase border transition-all ${
                 days === d
-                  ? 'bg-brand-600 text-white'
-                  : 'text-gray-400 hover:bg-surface-hover'
+                  ? 'border-amber/40 bg-amber/10 text-amber'
+                  : 'border-transparent text-gray-600 hover:text-amber/60 hover:border-amber/15'
               }`}
             >
-              {d}d
+              {d}D
             </button>
           ))}
         </div>
 
         {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+          <div className="flex flex-col items-center justify-center py-12 gap-2">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber border-t-transparent" />
+            <span className="text-[10px] font-mono text-amber/40 tracking-wider">COMPUTING...</span>
           </div>
         )}
 
         {analytics && !loading && (
           <>
             {/* Summary cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="rounded-xl border border-gray-700/50 bg-surface-card p-4">
-                <span className="text-xs text-gray-500">Total Signals</span>
-                <div className="text-2xl font-bold text-white mt-1">{analytics.total_signals}</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className="hud-border bg-surface-card p-3">
+                <span className="text-[9px] font-mono text-gray-600 uppercase tracking-wider">Total Signals</span>
+                <div className="text-xl font-display font-bold text-amber mt-1 tabular-nums">{analytics.total_signals}</div>
               </div>
-              <div className="rounded-xl border border-gray-700/50 bg-surface-card p-4">
-                <span className="text-xs text-gray-500">New / Untriaged</span>
-                <div className="text-2xl font-bold text-yellow-400 mt-1">{analytics.new_signals}</div>
+              <div className="hud-border bg-surface-card p-3">
+                <span className="text-[9px] font-mono text-gray-600 uppercase tracking-wider">Untriaged</span>
+                <div className="text-xl font-display font-bold text-yellow-400 mt-1 tabular-nums">{analytics.new_signals}</div>
               </div>
-              <div className="rounded-xl border border-gray-700/50 bg-surface-card p-4">
-                <span className="text-xs text-gray-500">Critical</span>
-                <div className="text-2xl font-bold text-red-400 mt-1">{analytics.critical_signals}</div>
+              <div className="hud-border bg-surface-card p-3">
+                <span className="text-[9px] font-mono text-gray-600 uppercase tracking-wider">Critical</span>
+                <div className="text-xl font-display font-bold text-red-400 mt-1 tabular-nums">{analytics.critical_signals}</div>
               </div>
-              <div className="rounded-xl border border-gray-700/50 bg-surface-card p-4">
-                <span className="text-xs text-gray-500">Open Cases</span>
-                <div className="text-2xl font-bold text-green-400 mt-1">{analytics.open_cases}</div>
+              <div className="hud-border bg-surface-card p-3">
+                <span className="text-[9px] font-mono text-gray-600 uppercase tracking-wider">Open Cases</span>
+                <div className="text-xl font-display font-bold text-tactical-green mt-1 tabular-nums">{analytics.open_cases}</div>
               </div>
             </div>
 
@@ -72,7 +73,7 @@ export function AnalyticsPage() {
             <SignalTimeline data={analytics.signals_over_time} />
 
             {/* Side-by-side charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <SeverityPieChart data={analytics.severity_distribution} />
               <SourceBarChart data={analytics.top_sources} />
             </div>

@@ -36,14 +36,14 @@ export function Toast({ message, type = 'info', onClose, duration = 5000 }: Toas
   return (
     <div
       className={clsx(
-        'flex items-center gap-3 rounded-lg border px-4 py-3 shadow-xl animate-slide-in',
+        'flex items-center gap-3 border px-4 py-3 shadow-xl animate-slide-in backdrop-blur-sm text-[11px] font-mono',
         colorMap[type],
       )}
     >
-      <Icon className="h-4 w-4 shrink-0" />
-      <p className="text-sm flex-1">{message}</p>
-      <button onClick={onClose} className="text-gray-500 hover:text-gray-300">
-        <X className="h-3.5 w-3.5" />
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      <p className="flex-1 tracking-wider">{message}</p>
+      <button onClick={onClose} className="text-gray-600 hover:text-gray-400">
+        <X className="h-3 w-3" />
       </button>
     </div>
   );

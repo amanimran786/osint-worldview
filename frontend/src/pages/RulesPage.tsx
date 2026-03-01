@@ -12,42 +12,47 @@ export function RulesPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <TopBar title="Detection Rules" />
-      <div className="flex-1 overflow-y-auto p-6">
+      <TopBar title="DETECTION RULES" />
+      <div className="flex-1 overflow-y-auto p-4">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[11px] font-mono">
             <thead>
-              <tr className="border-b border-gray-700/50 text-left text-xs uppercase tracking-wider text-gray-500">
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3 w-28">Category</th>
-                <th className="px-4 py-3 w-20">Severity</th>
-                <th className="px-4 py-3">Keywords</th>
-                <th className="px-4 py-3 w-20">Enabled</th>
+              <tr className="border-b border-amber/10 text-left text-[9px] uppercase tracking-[0.15em] text-amber/30">
+                <th className="px-3 py-2.5">Name</th>
+                <th className="px-3 py-2.5 w-28">Category</th>
+                <th className="px-3 py-2.5 w-20">Severity</th>
+                <th className="px-3 py-2.5">Keywords</th>
+                <th className="px-3 py-2.5 w-20">Status</th>
               </tr>
             </thead>
             <tbody>
               {rules.map((r) => (
-                <tr key={r.id} className="border-b border-gray-800/50 hover:bg-surface-hover">
-                  <td className="px-4 py-3 font-medium text-gray-200">{r.name}</td>
-                  <td className="px-4 py-3 text-gray-400">{r.category}</td>
-                  <td className="px-4 py-3 text-gray-400">{r.severity}</td>
-                  <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-xs">
+                <tr key={r.id} className="border-b border-gray-900/50 hover:bg-amber/5 transition-colors">
+                  <td className="px-3 py-2.5 text-gray-300">{r.name}</td>
+                  <td className="px-3 py-2.5 text-gray-500">{r.category}</td>
+                  <td className="px-3 py-2.5 text-gray-500 tabular-nums">{r.severity}</td>
+                  <td className="px-3 py-2.5 text-[10px] text-gray-600 truncate max-w-xs">
                     {r.keywords}
                   </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-block h-2 w-2 rounded-full ${
-                        r.enabled ? 'bg-green-500' : 'bg-gray-600'
-                      }`}
-                    />
+                  <td className="px-3 py-2.5">
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className={`inline-block h-1.5 w-1.5 rounded-full ${
+                          r.enabled ? 'bg-tactical-green' : 'bg-gray-700'
+                        }`}
+                      />
+                      <span className={`text-[9px] uppercase tracking-wider ${r.enabled ? 'text-tactical-green/60' : 'text-gray-700'}`}>
+                        {r.enabled ? 'ON' : 'OFF'}
+                      </span>
+                    </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {rules.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-8">
-              No rules yet. Run the seed script to add defaults.
+            <p className="text-[11px] font-mono text-gray-600 text-center py-8 tracking-wider">
+              NO RULES · RUN SEED SCRIPT TO ADD DEFAULTS
             </p>
           )}
         </div>

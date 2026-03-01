@@ -126,6 +126,59 @@ export interface WSMessage {
   data?: Record<string, unknown>;
 }
 
+/* ---- Data Layers ---- */
+export interface EarthquakeFeature {
+  id: string;
+  title: string;
+  magnitude: number;
+  latitude: number;
+  longitude: number;
+  depth: number;
+  time: string;
+  url: string;
+}
+
+export interface CyberThreat {
+  ip: string;
+  port: number;
+  status: string;
+  first_seen: string;
+  last_online: string | null;
+  malware: string | null;
+}
+
+export interface WeatherData {
+  city: string;
+  latitude: number;
+  longitude: number;
+  temperature_c: number;
+  wind_speed_kmh: number;
+  condition: string;
+  severity: string;
+}
+
+export interface DisasterEvent {
+  title: string;
+  description: string;
+  link: string;
+  published: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export type VisualMode = 'normal' | 'crt' | 'nvg' | 'flir' | 'noir' | 'snow';
+
+export type DataLayerKey = 'earthquakes' | 'weather' | 'cyber' | 'disasters' | 'signals';
+
+export interface DataLayerState {
+  key: DataLayerKey;
+  label: string;
+  enabled: boolean;
+  count: number;
+  color: string;
+}
+
+/* ---- Severity helpers ---- */
 export type SeverityLevel = 'low' | 'med' | 'high' | 'crit';
 
 export function severityLevel(score: number): SeverityLevel {
