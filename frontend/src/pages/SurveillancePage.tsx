@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Camera, Satellite, Flame, Sun, Globe, RefreshCw,
-  Radio, Shield, AlertTriangle, ExternalLink, Wifi, Clock,
-  Telescope, Zap,
+  Shield, AlertTriangle, ExternalLink, Wifi, Clock,
+  Telescope, Zap, Maximize2,
+  Eye, MapPin, X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import {
@@ -25,7 +26,7 @@ import {
 
 type Tab = 'cameras' | 'nasa' | 'space' | 'fires' | 'neo';
 
-const REFRESH_INTERVAL = 60_000; // 60 seconds
+const REFRESH_INTERVAL = 60_000;
 
 export function SurveillancePage() {
   const [tab, setTab] = useState<Tab>('cameras');
@@ -34,7 +35,6 @@ export function SurveillancePage() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const intervalRef = useRef<number | null>(null);
 
-  // Data
   const [webcams, setWebcams] = useState<PublicWebcam[]>(getPublicWebcams());
   const [webcamsLoading, setWebcamsLoading] = useState(false);
   const [nasaEvents, setNasaEvents] = useState<NasaEvent[]>([]);
@@ -63,22 +63,16 @@ export function SurveillancePage() {
       if (epic.status === 'fulfilled') setEpicImages(epic.value);
       if (neoData.status === 'fulfilled') setNeos(neoData.value);
       setLastUpdate(new Date());
-    } catch { /* errors handled in fetchers */ }
+    } catch { /* handled */ }
     setLoading(false);
   }, []);
 
-  // Async webcam loading — starts with curated, upgrades to Windy API results
   useEffect(() => {
     let cancelled = false;
     setWebcamsLoading(true);
     getPublicWebcamsAsync().then((cams) => {
-      if (!cancelled) {
-        setWebcams(cams);
-        setWebcamsLoading(false);
-      }
-    }).catch(() => {
-      if (!cancelled) setWebcamsLoading(false);
-    });
+      if (!cancelled) { setWebcams(cams); setWebcamsLoading(false); }
+    }).catch(() => { if (!cancelled) setWebcamsLoading(false); });
     return () => { cancelled = true; };
   }, []);
 
@@ -101,7 +95,7 @@ export function SurveillancePage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-surface">
       {/* Header */}
-      <div className="border-b border-amber/10 bg-surface px-4 py-3">
+      <div className="border-b border-amber/10 bg-surface px-4 py-3 shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <Shield className="h-4 w-4 text-amber" />
@@ -144,7 +138,6 @@ export function SurveillancePage() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex items-center border border-amber/20 divide-x divide-amber/20">
           {tabs.map(({ key, label, icon: Icon, count }) => (
             <button
@@ -152,9 +145,7 @@ export function SurveillancePage() {
               onClick={() => setTab(key)}
               className={clsx(
                 'flex items-center gap-1.5 px-3 py-1.5 text-[9px] font-mono tracking-wider transition-colors',
-                tab === key
-                  ? 'bg-amber/15 text-amber'
-                  : 'text-amber/30 hover:text-amber/50'
+                tab === key ? 'bg-amber/15 text-amber' : 'text-amber/30 hover:text-amber/50'
               )}
             >
               <Icon className="h-3 w-3" />
@@ -172,7 +163,16 @@ export function SurveillancePage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
-        {tab === 'cameras' && <CamerasTab webcams={webcams} active={activeCamera} onSelect={setActiveCamera} apod={apod} epicImages={epicImages} webcamsLoading={webcamsLoading} />}
+        {tab === 'cameras' && (
+          <CamerasTab
+            webcams={webcams}
+            active={activeCamera}
+            onSelect={setActiveCamera}
+            apod={apod}
+            epicImages={epicImages}
+            webcamsLoading={webcamsLoading}
+          />
+        )}
         {tab === 'nasa' && <NasaTab events={nasaEvents} loading={loading} />}
         {tab === 'space' && <SpaceWeatherTab events={spaceWeather} loading={loading} />}
         {tab === 'fires' && <FiresTab hotspots={fireHotspots} loading={loading} />}
@@ -183,7 +183,7 @@ export function SurveillancePage() {
 }
 
 /* ================================================================
-   📷 CAMERAS TAB — with region/category filters
+   📷 CAMERAS TAB — Live mini-players in a grid, expand to analyze
    ================================================================ */
 type CamRegion = 'ALL' | 'NA' | 'EU' | 'ASIA' | 'ME_AF' | 'SA' | 'AU' | 'SPACE';
 type CamCategory = 'ALL' | 'city' | 'landmark' | 'airport' | 'traffic' | 'weather' | 'port';
@@ -198,6 +198,17 @@ const REGION_MAP: Record<string, CamRegion> = {
   INTL: 'SPACE',
 };
 
+/** Resolve the best embed URL for a given cam */
+function getPlayerUrl(cam: PublicWebcam): string {
+  return cam.streamUrl || cam.embedUrl;
+}
+
+/** Format the REC timestamp for the HUD */
+function recTimestamp(): string {
+  const d = new Date();
+  return `REC ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${d.toLocaleTimeString(undefined, { hour12: false, fractionalSecondDigits: 3 } as Intl.DateTimeFormatOptions)}`;
+}
+
 function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoading }: {
   webcams: PublicWebcam[];
   active: PublicWebcam | null;
@@ -208,6 +219,12 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoadin
 }) {
   const [region, setRegion] = useState<CamRegion>('ALL');
   const [category, setCategory] = useState<CamCategory>('ALL');
+  const [recTime, setRecTime] = useState(recTimestamp());
+
+  useEffect(() => {
+    const t = setInterval(() => setRecTime(recTimestamp()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const filtered = webcams.filter((c) => {
     if (region !== 'ALL' && (REGION_MAP[c.country] || 'NA') !== region) return false;
@@ -235,41 +252,100 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoadin
     { key: 'port', label: 'PORT' },
   ];
 
-  // Resolve the embed URL for the active camera — support both YouTube and EarthCam
-  const getPlayerUrl = (cam: PublicWebcam) => cam.streamUrl || cam.embedUrl;
-
   return (
-    <div className="space-y-6">
-      {/* Active camera viewer */}
+    <div className="space-y-4">
+      {/* Expanded analysis view — Palantir style */}
       {active && (
-        <div className="border border-amber/20 bg-black">
-          <div className="flex items-center justify-between px-3 py-1.5 border-b border-amber/10 bg-surface">
-            <div className="flex items-center gap-2">
-              <Radio className="h-3 w-3 text-red-400 animate-pulse" />
-              <span className="text-[10px] font-mono text-amber tracking-wider">{active.title}</span>
+        <div className="border border-amber/30 bg-black animate-in fade-in duration-300">
+          {/* Top HUD bar */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-amber/15 bg-surface/90 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-[9px] font-mono text-red-400 tracking-widest font-bold">● LIVE</span>
+              </div>
+              <span className="text-[11px] font-display text-amber tracking-wider text-glow-amber">{active.title}</span>
               <span className="text-[8px] font-mono text-amber/30">{active.location} · {active.source}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-[8px] font-mono text-tactical-green/60 tracking-wider">{recTime}</span>
+              <div className="flex items-center gap-1 text-[8px] font-mono text-amber/40">
+                <Eye className="h-3 w-3" />
+                <span>FEED ACTIVE</span>
+              </div>
+              {active.latitude !== 0 && (
+                <span className="text-[8px] font-mono text-amber/30">
+                  <MapPin className="h-3 w-3 inline mr-0.5" />
+                  {active.latitude.toFixed(4)}°, {active.longitude.toFixed(4)}°
+                </span>
+              )}
               <a
                 href={active.embedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-amber/30 hover:text-amber text-[9px] font-mono flex items-center gap-1"
+                className="text-amber/30 hover:text-amber text-[8px] font-mono flex items-center gap-1 border border-amber/20 px-2 py-0.5 hover:bg-amber/10 transition-colors"
               >
                 <ExternalLink className="h-3 w-3" /> SOURCE
               </a>
-              <button onClick={() => onSelect(null)} className="text-amber/30 hover:text-amber text-[10px] font-mono">✕</button>
+              <button
+                onClick={() => onSelect(null)}
+                className="text-amber/40 hover:text-amber p-1 border border-amber/20 hover:bg-amber/10 transition-colors"
+                title="Close analysis view"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
-          <div className="aspect-video">
+
+          {/* Main analysis player */}
+          <div className="relative" style={{ height: 'calc(56.25vw * 0.5)', maxHeight: '480px', minHeight: '300px' }}>
             <iframe
               src={getPlayerUrl(active)}
               title={active.title}
               className="w-full h-full"
-              allow="autoplay; encrypted-media"
+              allow="autoplay; encrypted-media; fullscreen"
               allowFullScreen
               sandbox="allow-scripts allow-same-origin allow-popups"
             />
+            {/* Corner reticle overlays */}
+            <div className="absolute inset-0 pointer-events-none">
+              {/* TL corner */}
+              <div className="absolute top-3 left-3 w-6 h-6 border-l-2 border-t-2 border-amber/40" />
+              {/* TR corner */}
+              <div className="absolute top-3 right-3 w-6 h-6 border-r-2 border-t-2 border-amber/40" />
+              {/* BL corner */}
+              <div className="absolute bottom-3 left-3 w-6 h-6 border-l-2 border-b-2 border-amber/40" />
+              {/* BR corner */}
+              <div className="absolute bottom-3 right-3 w-6 h-6 border-r-2 border-b-2 border-amber/40" />
+              {/* Center crosshair */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="w-8 h-8 border border-amber/15 rounded-full" />
+                <div className="absolute top-1/2 left-0 w-full h-px bg-amber/10" />
+                <div className="absolute top-0 left-1/2 w-px h-full bg-amber/10" />
+              </div>
+              {/* Bottom HUD strip */}
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between px-4 pb-1.5">
+                <div className="flex items-center gap-3 text-[7px] font-mono text-amber/40">
+                  <span>ORB: {Math.floor(Math.random() * 50000).toLocaleString()}</span>
+                  <span>PASS: {Math.floor(Math.random() * 200)}</span>
+                  <span>DESC: {Math.floor(Math.random() * 200)}</span>
+                </div>
+                <div className="flex items-center gap-3 text-[7px] font-mono text-amber/40">
+                  <span>SAT: {filtered.length}/{webcams.length}</span>
+                  <span>· LINK: <span className="text-tactical-green">ACTIVE</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Analysis metadata strip */}
+          <div className="grid grid-cols-6 gap-px bg-amber/5 border-t border-amber/15">
+            <MetaCell label="DESIGNATION" value={active.id.toUpperCase()} />
+            <MetaCell label="CATEGORY" value={active.category.toUpperCase()} />
+            <MetaCell label="COUNTRY" value={active.country || 'INTL'} />
+            <MetaCell label="SOURCE" value={active.source.toUpperCase()} />
+            <MetaCell label="STATUS" value="STREAMING" highlight />
+            <MetaCell label="LAST UPD" value={new Date(active.lastUpdate).toLocaleTimeString()} />
           </div>
         </div>
       )}
@@ -308,7 +384,7 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoadin
         ))}
       </div>
 
-      {/* Camera grid */}
+      {/* Live mini-player grid */}
       <div>
         <h3 className="text-[10px] font-mono text-amber/40 tracking-wider mb-3 flex items-center gap-2">
           <Camera className="h-3 w-3" /> GLOBAL LIVE FEEDS ({filtered.length} of {webcams.length})
@@ -318,47 +394,12 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoadin
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filtered.map((cam) => (
-            <button
+            <MiniPlayer
               key={cam.id}
-              onClick={() => onSelect(cam)}
-              className={clsx(
-                'border border-amber/15 bg-black/50 hover:border-amber/30 transition-colors text-left group',
-                active?.id === cam.id && 'border-amber/50 ring-1 ring-amber/20'
-              )}
-            >
-              <div className="aspect-video bg-gray-900 relative overflow-hidden">
-                <img
-                  src={cam.thumbnailUrl}
-                  alt={cam.title}
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                  loading="lazy"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-                <div className="absolute top-1 left-1 flex items-center gap-1 bg-black/70 px-1.5 py-0.5">
-                  <span className={clsx(
-                    'h-1.5 w-1.5 rounded-full',
-                    cam.status === 'active' ? 'bg-tactical-green animate-pulse' :
-                    cam.status === 'inactive' ? 'bg-red-500' :
-                    'bg-amber animate-pulse'
-                  )} />
-                  <span className={clsx(
-                    'text-[7px] font-mono tracking-wider',
-                    cam.status === 'active' ? 'text-tactical-green' :
-                    cam.status === 'inactive' ? 'text-red-400' :
-                    'text-amber'
-                  )}>
-                    {cam.status === 'active' ? 'LIVE' : cam.status === 'inactive' ? 'OFFLINE' : 'LIVE'}
-                  </span>
-                </div>
-                <div className="absolute top-1 right-1 bg-black/70 px-1.5 py-0.5">
-                  <span className="text-[6px] font-mono text-amber/50 tracking-wider uppercase">{cam.category}</span>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                  <div className="text-[9px] font-mono text-white/90">{cam.title}</div>
-                  <div className="text-[7px] font-mono text-white/50">{cam.location} · {cam.source}</div>
-                </div>
-              </div>
-            </button>
+              cam={cam}
+              isActive={active?.id === cam.id}
+              onSelect={() => onSelect(cam)}
+            />
           ))}
         </div>
         {filtered.length === 0 && (
@@ -368,7 +409,7 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoadin
         )}
       </div>
 
-      {/* NASA EPIC — Earth from Space */}
+      {/* NASA EPIC */}
       {epicImages.length > 0 && (
         <div>
           <h3 className="text-[10px] font-mono text-amber/40 tracking-wider mb-3 flex items-center gap-2">
@@ -417,6 +458,121 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoadin
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ================================================================
+   📹 MINI PLAYER CARD — Each card is a live embedded stream
+   ================================================================ */
+function MiniPlayer({ cam, isActive, onSelect }: {
+  cam: PublicWebcam;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  const [live, setLive] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  /* Auto-play iframes for cams with a streamUrl (YouTube/Windy embeds).
+     Non-embeddable sources (EarthCam etc.) show the thumbnail. */
+  const canEmbed = !!cam.streamUrl;
+
+  return (
+    <div
+      onMouseEnter={() => { setHovered(true); if (canEmbed) setLive(true); }}
+      onMouseLeave={() => setHovered(false)}
+      className={clsx(
+        'border bg-black/80 transition-all duration-200 group relative',
+        isActive ? 'border-amber/50 ring-1 ring-amber/30' : 'border-amber/15 hover:border-amber/30',
+      )}
+    >
+      <div className="aspect-video relative overflow-hidden bg-gray-950">
+        {/* Live iframe embed OR static thumbnail */}
+        {live && canEmbed ? (
+          <iframe
+            src={cam.streamUrl + (cam.streamUrl!.includes('?') ? '&' : '?') + 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0'}
+            title={cam.title}
+            className="w-full h-full"
+            allow="autoplay; encrypted-media"
+            sandbox="allow-scripts allow-same-origin allow-popups"
+            loading="lazy"
+          />
+        ) : (
+          <img
+            src={cam.thumbnailUrl}
+            alt={cam.title}
+            className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
+            loading="lazy"
+            onError={(e) => {
+              const el = e.target as HTMLImageElement;
+              el.style.display = 'none';
+            }}
+          />
+        )}
+
+        {/* HUD overlays — always visible */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Status badge */}
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/80 backdrop-blur-sm px-1.5 py-0.5 border border-amber/10">
+            <span className={clsx(
+              'h-1.5 w-1.5 rounded-full',
+              cam.status === 'active' ? 'bg-tactical-green animate-pulse' :
+              cam.status === 'inactive' ? 'bg-red-500' : 'bg-amber animate-pulse'
+            )} />
+            <span className={clsx(
+              'text-[7px] font-mono tracking-wider font-bold',
+              cam.status === 'active' ? 'text-tactical-green' :
+              cam.status === 'inactive' ? 'text-red-400' : 'text-amber'
+            )}>
+              {live && canEmbed ? '● LIVE' : cam.status === 'active' ? 'LIVE' : cam.status === 'inactive' ? 'OFFLINE' : 'LIVE'}
+            </span>
+          </div>
+
+          {/* Category badge */}
+          <div className="absolute top-1.5 right-1.5 bg-black/80 backdrop-blur-sm px-1.5 py-0.5 border border-amber/10">
+            <span className="text-[6px] font-mono text-amber/60 tracking-wider uppercase">{cam.category}</span>
+          </div>
+
+          {/* Corner brackets for analysis feel */}
+          <div className="absolute top-0.5 left-0.5 w-3 h-3 border-l border-t border-amber/20" />
+          <div className="absolute top-0.5 right-0.5 w-3 h-3 border-r border-t border-amber/20" />
+          <div className="absolute bottom-0.5 left-0.5 w-3 h-3 border-l border-b border-amber/20" />
+          <div className="absolute bottom-0.5 right-0.5 w-3 h-3 border-r border-b border-amber/20" />
+
+          {/* Bottom info bar */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
+            <div className="text-[9px] font-mono text-white/90 leading-tight">{cam.title}</div>
+            <div className="text-[7px] font-mono text-white/40 mt-0.5">{cam.location} · {cam.source}</div>
+          </div>
+        </div>
+
+        {/* Hover action overlay */}
+        {hovered && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-auto cursor-pointer z-10" onClick={onSelect}>
+            <div className="bg-black/60 backdrop-blur-sm border border-amber/30 p-3 flex items-center gap-2 hover:bg-black/80 transition-colors">
+              <Maximize2 className="h-4 w-4 text-amber" />
+              <span className="text-[9px] font-mono text-amber tracking-wider">ANALYZE</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   Metadata cell for the analysis strip
+   ================================================================ */
+function MetaCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className="bg-surface/80 px-3 py-2">
+      <div className="text-[7px] font-mono text-amber/25 tracking-widest">{label}</div>
+      <div className={clsx(
+        'text-[10px] font-mono mt-0.5',
+        highlight ? 'text-tactical-green' : 'text-amber/70'
+      )}>
+        {value}
+      </div>
     </div>
   );
 }
