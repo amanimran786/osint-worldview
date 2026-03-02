@@ -78,7 +78,7 @@ export function Sidebar() {
           <span className="text-[9px] font-mono text-tactical-green/60 tracking-wider">SYSTEMS NOMINAL</span>
         </div>
         <div className="text-[8px] font-mono text-gray-700 tracking-wider">
-          v3.0.0 · GSOC
+          v3.2.0 · GSOC
         </div>
       </div>
     </aside>
