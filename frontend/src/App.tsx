@@ -18,6 +18,7 @@ const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ de
 const AirspacePage = lazy(() => import('./pages/AirspacePage').then(m => ({ default: m.AirspacePage })));
 const MaritimePage = lazy(() => import('./pages/MaritimePage').then(m => ({ default: m.MaritimePage })));
 const SurveillancePage = lazy(() => import('./pages/SurveillancePage').then(m => ({ default: m.SurveillancePage })));
+const OSINTBiblePage = lazy(() => import('./pages/OSINTBiblePage').then(m => ({ default: m.OSINTBiblePage })));
 
 function PageLoader() {
   return (
@@ -80,6 +81,7 @@ export default function App() {
             <Route path="/airspace" element={<AirspacePage />} />
             <Route path="/maritime" element={<MaritimePage />} />
             <Route path="/surveillance" element={<SurveillancePage />} />
+            <Route path="/osint-bible" element={<OSINTBiblePage />} />
           </Routes>
         </Suspense>
         <HUDOverlay />

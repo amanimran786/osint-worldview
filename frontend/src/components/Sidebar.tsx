@@ -11,6 +11,7 @@ import {
   Plane,
   Camera,
   Ship,
+  Library,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -21,6 +22,7 @@ const links = [
   { to: '/airspace', label: 'Airspace', icon: Plane },
   { to: '/maritime', label: 'Maritime', icon: Ship },
   { to: '/surveillance', label: 'Surveillance', icon: Camera },
+  { to: '/osint-bible', label: 'OSINT Bible', icon: Library },
   { to: '/cases', label: 'Cases', icon: FolderOpen },
   { to: '/rules', label: 'Rules', icon: BookOpen },
   { to: '/sources', label: 'Sources', icon: Rss },
