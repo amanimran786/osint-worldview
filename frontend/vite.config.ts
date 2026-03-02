@@ -15,6 +15,7 @@ export default defineConfig({
           ui: ['lucide-react', 'clsx', 'date-fns'],
           charts: ['recharts'],
           map: ['leaflet', 'react-leaflet'],
+          globe: ['three', '@react-three/fiber', '@react-three/drei'],
         },
       },
     },

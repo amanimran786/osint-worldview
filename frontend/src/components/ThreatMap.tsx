@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import type { GeoSignal } from '../types';
@@ -20,38 +20,51 @@ function MapController({ flyTo }: { flyTo: City | null }) {
   return null;
 }
 
+/* ---- Icon cache to avoid recreating L.divIcon on every render ---- */
+const _iconCache = new Map<string, L.DivIcon>();
+function cachedIcon(key: string, factory: () => L.DivIcon): L.DivIcon {
+  let icon = _iconCache.get(key);
+  if (!icon) { icon = factory(); _iconCache.set(key, icon); }
+  return icon;
+}
+
 /* ---- Earthquake icon ---- */
 function earthquakeIcon(mag: number) {
-  const size = Math.max(8, Math.min(24, mag * 4));
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:${size}px;height:${size}px;border-radius:50%;
-      background:radial-gradient(circle,#ef4444 0%,#ef444400 70%);
-      border:1px solid #ef444480;
-      animation:rec-pulse 2s infinite;
-    "></div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+  const bucket = Math.round(mag * 2); // quantise to reduce cache entries
+  return cachedIcon(`eq_${bucket}`, () => {
+    const size = Math.max(8, Math.min(24, mag * 4));
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:${size}px;height:${size}px;border-radius:50%;
+        background:radial-gradient(circle,#ef4444 0%,#ef444400 70%);
+        border:1px solid #ef444480;
+        animation:rec-pulse 2s infinite;
+      "></div>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+    });
   });
 }
 
 /* ---- Weather icon ---- */
 function weatherIcon(severity: string) {
-  const colors: Record<string, string> = {
-    clear: '#3b82f6', mild: '#60a5fa', moderate: '#f59e0b', severe: '#ef4444', extreme: '#dc2626',
-  };
-  const color = colors[severity] || '#3b82f6';
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:10px;height:10px;
-      background:${color};
-      border:1px solid ${color}80;
-      transform:rotate(45deg);
-    "></div>`,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5],
+  return cachedIcon(`wx_${severity}`, () => {
+    const colors: Record<string, string> = {
+      clear: '#3b82f6', mild: '#60a5fa', moderate: '#f59e0b', severe: '#ef4444', extreme: '#dc2626',
+    };
+    const color = colors[severity] || '#3b82f6';
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:10px;height:10px;
+        background:${color};
+        border:1px solid ${color}80;
+        transform:rotate(45deg);
+      "></div>`,
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
+    });
   });
 }
 
@@ -81,50 +94,56 @@ const disasterIcon = L.divIcon({
 
 /* ---- Flight icon (small plane triangle) ---- */
 function flightIcon(heading: number | null, onGround: boolean) {
-  const color = onGround ? '#64748b' : '#38bdf8';
-  const rot = heading ?? 0;
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:10px;height:10px;
-      transform:rotate(${rot}deg);
-    "><svg viewBox="0 0 24 24" fill="${color}" width="10" height="10"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>`,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5],
+  const rotBucket = Math.round((heading ?? 0) / 15) * 15; // quantise to 24 directions
+  return cachedIcon(`fl_${rotBucket}_${onGround}`, () => {
+    const color = onGround ? '#64748b' : '#38bdf8';
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:10px;height:10px;
+        transform:rotate(${rotBucket}deg);
+      "><svg viewBox="0 0 24 24" fill="${color}" width="10" height="10"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>`,
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
+    });
   });
 }
 
 /* ---- NASA event icon ---- */
 function nasaEventIcon(category: string) {
-  const colors: Record<string, string> = {
-    'Wildfires': '#ef4444', 'Severe Storms': '#8b5cf6', 'Volcanoes': '#dc2626',
-    'Sea and Lake Ice': '#67e8f9', 'Floods': '#3b82f6', 'Drought': '#fbbf24',
-  };
-  const color = colors[category] ?? '#34d399';
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:10px;height:10px;border-radius:50%;
-      background:${color};border:1.5px solid ${color}80;
-      box-shadow:0 0 6px ${color};
-    "></div>`,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5],
+  return cachedIcon(`nasa_${category}`, () => {
+    const colors: Record<string, string> = {
+      'Wildfires': '#ef4444', 'Severe Storms': '#8b5cf6', 'Volcanoes': '#dc2626',
+      'Sea and Lake Ice': '#67e8f9', 'Floods': '#3b82f6', 'Drought': '#fbbf24',
+    };
+    const color = colors[category] ?? '#34d399';
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:10px;height:10px;border-radius:50%;
+        background:${color};border:1.5px solid ${color}80;
+        box-shadow:0 0 6px ${color};
+      "></div>`,
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
+    });
   });
 }
 
 /* ---- Fire hotspot icon ---- */
 function fireIcon(confidence: string) {
-  const color = confidence === 'high' ? '#dc2626' : confidence === 'nominal' ? '#f97316' : '#fbbf24';
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:8px;height:8px;border-radius:50%;
-      background:radial-gradient(circle,${color} 0%,${color}00 70%);
-      border:1px solid ${color}60;
-    "></div>`,
-    iconSize: [8, 8],
-    iconAnchor: [4, 4],
+  return cachedIcon(`fire_${confidence}`, () => {
+    const color = confidence === 'high' ? '#dc2626' : confidence === 'nominal' ? '#f97316' : '#fbbf24';
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:8px;height:8px;border-radius:50%;
+        background:radial-gradient(circle,${color} 0%,${color}00 70%);
+        border:1px solid ${color}60;
+      "></div>`,
+      iconSize: [8, 8],
+      iconAnchor: [4, 4],
+    });
   });
 }
 
@@ -140,10 +159,12 @@ export function ThreatMap({ layers, layerData, flyTo, signalCount }: ThreatMapPr
   const [loading, setLoading] = useState(true);
   const mapRef = useRef<L.Map | null>(null);
 
-  const isLayerOn = useCallback((key: string) => {
-    if (!layers) return key === 'signals';
-    return layers.find(l => l.key === key)?.enabled ?? false;
+  const enabledLayers = useMemo(() => {
+    if (!layers) return new Set(['signals']);
+    return new Set(layers.filter(l => l.enabled).map(l => l.key));
   }, [layers]);
+
+  const isLayerOn = useCallback((key: string) => enabledLayers.has(key), [enabledLayers]);
 
   useEffect(() => {
     api.fetchGeoSignals({ limit: 500 }).then((data) => {

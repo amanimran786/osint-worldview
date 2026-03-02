@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { DataLayerKey, DataLayerState, EarthquakeFeature, WeatherData, CyberThreat, DisasterEvent } from '../types';
 import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent, GdeltArticle, CountryThreatScore, RansomwareEvent } from '../services/advancedLayers';
 import * as api from '../api';
@@ -153,7 +153,7 @@ export function useDataLayers() {
     ));
   };
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
       const [eq, wx, cy, dis, fl, nasa, fire, sw, gdelt, threats, ransom] = await Promise.allSettled([
@@ -215,10 +215,11 @@ export function useDataLayers() {
       // silently fail — layers are optional
     }
     setLoading(false);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch on mount
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(); }, [refresh]);
 
   return { layers, data, loading, toggle, refresh, setLayers };
 }

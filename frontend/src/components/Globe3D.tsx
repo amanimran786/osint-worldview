@@ -152,27 +152,27 @@ function parseGeoJSONRings(
 }
 
 function ContinentOutlines() {
-  const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
+  const [geos, setGeos] = useState<THREE.BufferGeometry[]>([]);
 
   useEffect(() => {
     fetch(CONTINENT_URL)
       .then(r => r.json())
       .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-        setLines(parseGeoJSONRings(geojson.features, 0.003));
+        setGeos(parseGeoJSONRings(geojson.features, 0.003));
       })
       .catch(() => {});
   }, []);
 
+  const lineObjects = useMemo(() =>
+    geos.map(geo => new THREE.Line(
+      geo,
+      new THREE.LineBasicMaterial({ color: '#f0a030', transparent: true, opacity: 0.35 })
+    )), [geos]);
+
   return (
     <group>
-      {lines.map((geo, i) => (
-        <primitive
-          key={i}
-          object={new THREE.Line(
-            geo,
-            new THREE.LineBasicMaterial({ color: '#f0a030', transparent: true, opacity: 0.35 })
-          )}
-        />
+      {lineObjects.map((obj, i) => (
+        <primitive key={i} object={obj} />
       ))}
     </group>
   );
@@ -180,36 +180,36 @@ function ContinentOutlines() {
 
 /* ---- Country borders ---- */
 function CountryBorders() {
-  const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
+  const [geos, setGeos] = useState<THREE.BufferGeometry[]>([]);
 
   useEffect(() => {
     // First try dedicated boundary lines (clean LineString data), fallback to country polygons
     fetch(COUNTRY_BORDERS_URL)
       .then(r => { if (!r.ok) throw new Error('boundary lines failed'); return r.json(); })
       .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-        setLines(parseGeoJSONRings(geojson.features, 0.005));
+        setGeos(parseGeoJSONRings(geojson.features, 0.005));
       })
       .catch(() => {
         // Fallback: use country polygons for outlines
         fetch(COUNTRIES_FILL_URL)
           .then(r => r.json())
           .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-            setLines(parseGeoJSONRings(geojson.features, 0.005));
+            setGeos(parseGeoJSONRings(geojson.features, 0.005));
           })
           .catch(() => {});
       });
   }, []);
 
+  const lineObjects = useMemo(() =>
+    geos.map(geo => new THREE.Line(
+      geo,
+      new THREE.LineBasicMaterial({ color: '#4ade80', transparent: true, opacity: 0.55 })
+    )), [geos]);
+
   return (
     <group>
-      {lines.map((geo, i) => (
-        <primitive
-          key={i}
-          object={new THREE.Line(
-            geo,
-            new THREE.LineBasicMaterial({ color: '#4ade80', transparent: true, opacity: 0.55 })
-          )}
-        />
+      {lineObjects.map((obj, i) => (
+        <primitive key={i} object={obj} />
       ))}
     </group>
   );
@@ -217,36 +217,36 @@ function CountryBorders() {
 
 /* ---- State / Province borders ---- */
 function StateBorders() {
-  const [lines, setLines] = useState<THREE.BufferGeometry[]>([]);
+  const [geos, setGeos] = useState<THREE.BufferGeometry[]>([]);
 
   useEffect(() => {
     // First try the dedicated lines file, fallback to polygon outlines
     fetch(STATES_URL)
       .then(r => { if (!r.ok) throw new Error('state lines failed'); return r.json(); })
       .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-        setLines(parseGeoJSONRings(geojson.features, 0.006));
+        setGeos(parseGeoJSONRings(geojson.features, 0.006));
       })
       .catch(() => {
         // Fallback: use state polygon outlines
         fetch(STATES_POLY_URL)
           .then(r => r.json())
           .then((geojson: { features: Array<{ geometry: { type: string; coordinates: any } }> }) => {
-            setLines(parseGeoJSONRings(geojson.features, 0.006));
+            setGeos(parseGeoJSONRings(geojson.features, 0.006));
           })
           .catch(() => {});
       });
   }, []);
 
+  const lineObjects = useMemo(() =>
+    geos.map(geo => new THREE.Line(
+      geo,
+      new THREE.LineBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.35 })
+    )), [geos]);
+
   return (
     <group>
-      {lines.map((geo, i) => (
-        <primitive
-          key={i}
-          object={new THREE.Line(
-            geo,
-            new THREE.LineBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.35 })
-          )}
-        />
+      {lineObjects.map((obj, i) => (
+        <primitive key={i} object={obj} />
       ))}
     </group>
   );
@@ -423,10 +423,12 @@ interface Globe3DProps {
 }
 
 export function Globe3D({ signals, layers, layerData }: Globe3DProps) {
-  const isLayerOn = useCallback((key: string) => {
-    if (!layers) return key === 'signals';
-    return layers.find(l => l.key === key)?.enabled ?? false;
+  const enabledLayers = useMemo(() => {
+    if (!layers) return new Set(['signals']);
+    return new Set(layers.filter(l => l.enabled).map(l => l.key));
   }, [layers]);
+
+  const isLayerOn = useCallback((key: string) => enabledLayers.has(key), [enabledLayers]);
 
   const points = useMemo<PointData[]>(() => {
     const result: PointData[] = [];

@@ -17,6 +17,28 @@
 const TIMEOUT = 15_000;
 const NASA_KEY = 'DEMO_KEY'; // Free, 30 req/hr per IP — enough for demo
 
+/* ---- Shared seeded PRNG — deterministic, no duplicated code ---- */
+function createSeededRandom(seed: number): () => number {
+  let s = seed;
+  return () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
+}
+
+/* ---- Simple in-memory response cache ---- */
+const _cache = new Map<string, { data: unknown; ts: number }>();
+function getCached<T>(key: string, ttlMs: number): T | null {
+  const entry = _cache.get(key);
+  if (entry && Date.now() - entry.ts < ttlMs) return entry.data as T;
+  return null;
+}
+function setCache(key: string, data: unknown): void {
+  _cache.set(key, { data, ts: Date.now() });
+  // Evict stale entries (keep cache bounded)
+  if (_cache.size > 30) {
+    const now = Date.now();
+    for (const [k, v] of _cache) { if (now - v.ts > 300_000) _cache.delete(k); }
+  }
+}
+
 /* ---- CORS proxy helpers with fallback chain (5 proxies for maximum reliability) ---- */
 const CORS_PROXIES = [
   (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -104,8 +126,7 @@ function generateSyntheticFlights(count = 150): FlightVector[] {
   ];
 
   const seed = Math.floor(Date.now() / 30_000); // Changes every 30s
-  let s = seed;
-  const rand = () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
+  const rand = createSeededRandom(seed);
 
   return Array.from({ length: count }, (_, i) => {
     const airline = airlines[i % airlines.length]!;
@@ -134,6 +155,11 @@ function generateSyntheticFlights(count = 150): FlightVector[] {
 export async function fetchAirTraffic(params?: {
   bounds?: { lamin: number; lomin: number; lamax: number; lomax: number };
 }): Promise<FlightVector[]> {
+  // Check cache first (30s TTL — matches OpenSky resolution)
+  const cacheKey = `flights:${params?.bounds ? JSON.stringify(params.bounds) : 'global'}`;
+  const cached = getCached<FlightVector[]>(cacheKey, 30_000);
+  if (cached) return cached;
+
   // Strategy 1: Try specific bounds if provided
   if (params?.bounds) {
     const { lamin, lomin, lamax, lomax } = params.bounds;
@@ -142,7 +168,7 @@ export async function fetchAirTraffic(params?: {
       const resp = await fetchWithCorsProxy(url, TIMEOUT);
       const data = await resp.json();
       const flights = parseOpenSkyStates(data);
-      if (flights.length > 0) return flights;
+      if (flights.length > 0) { setCache(cacheKey, flights); return flights; }
     } catch { /* fall through */ }
   }
 
@@ -151,7 +177,7 @@ export async function fetchAirTraffic(params?: {
     const resp = await fetchWithCorsProxy('https://opensky-network.org/api/states/all', TIMEOUT);
     const data = await resp.json();
     const flights = parseOpenSkyStates(data);
-    if (flights.length > 0) return flights;
+    if (flights.length > 0) { setCache(cacheKey, flights); return flights; }
   } catch { /* fall through */ }
 
   // Strategy 3: Try each region individually and merge
@@ -166,7 +192,7 @@ export async function fetchAirTraffic(params?: {
       if (allFlights.length > 200) break; // Enough data
     } catch { /* try next region */ }
   }
-  if (allFlights.length > 0) return allFlights;
+  if (allFlights.length > 0) { setCache(cacheKey, allFlights); return allFlights; }
 
   // Strategy 4: Synthetic fallback — always show flight data
   console.warn('[AirTraffic] All sources failed — using synthetic data');
@@ -228,6 +254,10 @@ export async function fetchNasaEvents(params?: {
 }): Promise<NasaEvent[]> {
   const days = params?.days ?? 30;
   const limit = params?.limit ?? 100;
+  const ck = `nasa_events_${days}_${limit}_${params?.category ?? ''}`;
+  const hit = getCached<NasaEvent[]>(ck, 60_000);
+  if (hit) return hit;
+
   let url = `https://eonet.gsfc.nasa.gov/api/v3/events?days=${days}&limit=${limit}&status=all`;
   if (params?.category) url += `&category=${params.category}`;
 
@@ -236,7 +266,7 @@ export async function fetchNasaEvents(params?: {
     if (!resp.ok) throw new Error(`EONET ${resp.status}`);
     const data = await resp.json();
 
-    return (data.events ?? []).map((ev: any): NasaEvent => {
+    const results = (data.events ?? []).map((ev: any): NasaEvent => {
       const geo = ev.geometry?.[ev.geometry.length - 1]; // latest geometry point
       let lat: number | null = null;
       let lng: number | null = null;
@@ -261,6 +291,8 @@ export async function fetchNasaEvents(params?: {
         link: ev.link ?? '',
       };
     });
+    setCache(ck, results);
+    return results;
   } catch (e) {
     console.warn('[NASA EONET] Fetch failed:', e);
     return [];
@@ -282,6 +314,10 @@ export interface SpaceWeatherEvent {
 }
 
 export async function fetchSpaceWeather(days = 30): Promise<SpaceWeatherEvent[]> {
+  const ck = `space_weather_${days}`;
+  const hit = getCached<SpaceWeatherEvent[]>(ck, 300_000);
+  if (hit) return hit;
+
   const start = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
   const end = new Date().toISOString().slice(0, 10);
 
@@ -338,7 +374,9 @@ export async function fetchSpaceWeather(days = 30): Promise<SpaceWeatherEvent[]>
     });
   });
 
-  return events.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  const sorted = events.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  setCache(ck, sorted);
+  return sorted;
 }
 
 /* ================================================================
@@ -744,6 +782,10 @@ export interface NearEarthObject {
 }
 
 export async function fetchNearEarthObjects(): Promise<NearEarthObject[]> {
+  const ck = 'neo_objects';
+  const hit = getCached<NearEarthObject[]>(ck, 300_000);
+  if (hit) return hit;
+
   const today = new Date().toISOString().slice(0, 10);
   const weekAhead = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
 
@@ -773,7 +815,9 @@ export async function fetchNearEarthObjects(): Promise<NearEarthObject[]> {
       }
     }
 
-    return objects.sort((a, b) => a.miss_distance_km - b.miss_distance_km);
+    const sorted = objects.sort((a, b) => a.miss_distance_km - b.miss_distance_km);
+    setCache(ck, sorted);
+    return sorted;
   } catch (e) {
     console.warn('[NeoWs] Fetch failed:', e);
     return [];
@@ -804,6 +848,9 @@ export async function fetchGdeltNews(params?: {
   const query = params?.query ?? 'conflict OR terrorism OR cyberattack OR sanctions OR military';
   const timespan = params?.timespan ?? '24h';
   const max = params?.maxRecords ?? 75;
+  const ck = `gdelt_${query}_${timespan}_${max}`;
+  const hit = getCached<GdeltArticle[]>(ck, 300_000);
+  if (hit) return hit;
 
   const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=ArtList&maxrecords=${max}&timespan=${timespan}&format=json&sort=datedesc`;
 
@@ -812,7 +859,7 @@ export async function fetchGdeltNews(params?: {
     if (!resp.ok) throw new Error(`GDELT ${resp.status}`);
     const data = await resp.json();
 
-    return (data.articles ?? []).map((a: any): GdeltArticle => ({
+    const results = (data.articles ?? []).map((a: any): GdeltArticle => ({
       url: a.url ?? '',
       title: a.title ?? '',
       seendate: a.seendate ?? '',
@@ -822,6 +869,8 @@ export async function fetchGdeltNews(params?: {
       sourcecountry: a.sourcecountry ?? '',
       tone: parseFloat(a.tone?.split(',')?.[0] ?? '0'),
     }));
+    setCache(ck, results);
+    return results;
   } catch (e) {
     console.warn('[GDELT] Fetch failed:', e);
     return [];
@@ -860,8 +909,7 @@ export interface CountryThreatScore {
 
 export function getCountryThreatScores(): CountryThreatScore[] {
   const daySeed = Math.floor(Date.now() / 86_400_000);
-  let s = daySeed;
-  const rand = () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
+  const rand = createSeededRandom(daySeed);
 
   const countries: [string, string, number, number, number][] = [
     ['Russia', 'RU', 55.76, 37.62, 72], ['China', 'CN', 39.9, 116.4, 65],
@@ -915,8 +963,7 @@ export function getRansomwareEvents(): RansomwareEvent[] {
   ];
 
   const daySeed = Math.floor(Date.now() / 86_400_000);
-  let s = daySeed;
-  const rand = () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
+  const rand = createSeededRandom(daySeed);
 
   const events: RansomwareEvent[] = [];
   for (let i = 0; i < 25; i++) {

@@ -44,14 +44,14 @@ export function HUDOverlay() {
     return () => clearInterval(interval);
   }, []);
 
-  // Simulated GPS coords that follow a pattern
+  // Simulated GPS coords that follow a pattern (2s cadence — MGRS/DMS don't need faster)
   useEffect(() => {
     const interval = setInterval(() => {
       setMousePos({
         lat: 30.2672 + Math.sin(Date.now() / 10000) * 0.01,
         lng: -97.7431 + Math.cos(Date.now() / 10000) * 0.01,
       });
-    }, 200);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
