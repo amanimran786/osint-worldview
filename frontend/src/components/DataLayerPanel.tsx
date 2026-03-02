@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import type { DataLayerKey, DataLayerState, EarthquakeFeature, WeatherData, CyberThreat, DisasterEvent } from '../types';
-import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent } from '../services/advancedLayers';
+import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent, GdeltArticle, CountryThreatScore, RansomwareEvent } from '../services/advancedLayers';
 import * as api from '../api';
 import {
   fetchAirTraffic,
   fetchNasaEvents,
   fetchFireHotspots,
   fetchSpaceWeather,
+  fetchGdeltNews,
+  getCountryThreatScores,
+  getRansomwareEvents,
 } from '../services/advancedLayers';
 import {
   Activity, Cloud, Shield, AlertTriangle,
   Zap, Loader2, Plane, Satellite, Flame, Sun,
+  Newspaper, Globe, Skull,
 } from 'lucide-react';
 
 const LAYER_META: Record<DataLayerKey, { label: string; icon: typeof Activity; color: string }> = {
@@ -23,6 +27,9 @@ const LAYER_META: Record<DataLayerKey, { label: string; icon: typeof Activity; c
   nasaEvents: { label: 'NASA Events', icon: Satellite, color: '#34d399' },
   fires: { label: 'Fire Hotspots', icon: Flame, color: '#fb923c' },
   spaceWeather: { label: 'Space Weather', icon: Sun, color: '#fbbf24' },
+  gdeltNews: { label: 'GDELT Intel', icon: Newspaper, color: '#06b6d4' },
+  countryThreats: { label: 'Threat Index', icon: Globe, color: '#dc2626' },
+  ransomware: { label: 'Ransomware', icon: Skull, color: '#e11d48' },
 };
 
 export interface LayerData {
@@ -34,6 +41,9 @@ export interface LayerData {
   nasaEvents: NasaEvent[];
   fires: FireHotspot[];
   spaceWeather: SpaceWeatherEvent[];
+  gdeltNews: GdeltArticle[];
+  countryThreats: CountryThreatScore[];
+  ransomware: RansomwareEvent[];
 }
 
 interface DataLayerPanelProps {
@@ -116,6 +126,9 @@ export function useDataLayers() {
     { key: 'nasaEvents', label: 'NASA Events', enabled: true, count: 0, color: '#34d399' },
     { key: 'fires', label: 'Fire Hotspots', enabled: true, count: 0, color: '#fb923c' },
     { key: 'spaceWeather', label: 'Space Weather', enabled: true, count: 0, color: '#fbbf24' },
+    { key: 'gdeltNews', label: 'GDELT Intel', enabled: true, count: 0, color: '#06b6d4' },
+    { key: 'countryThreats', label: 'Threat Index', enabled: false, count: 0, color: '#dc2626' },
+    { key: 'ransomware', label: 'Ransomware', enabled: false, count: 0, color: '#e11d48' },
   ]);
 
   const [data, setData] = useState<LayerData>({
@@ -127,6 +140,9 @@ export function useDataLayers() {
     nasaEvents: [],
     fires: [],
     spaceWeather: [],
+    gdeltNews: [],
+    countryThreats: [],
+    ransomware: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -140,7 +156,7 @@ export function useDataLayers() {
   const refresh = async () => {
     setLoading(true);
     try {
-      const [eq, wx, cy, dis, fl, nasa, fire, sw] = await Promise.allSettled([
+      const [eq, wx, cy, dis, fl, nasa, fire, sw, gdelt, threats, ransom] = await Promise.allSettled([
         api.fetchEarthquakes({ period: 'day', min_magnitude: 2.5 }),
         api.fetchWeather(),
         api.fetchCyberThreats({ limit: 50 }),
@@ -149,6 +165,9 @@ export function useDataLayers() {
         fetchNasaEvents({ days: 7, limit: 100 }),
         fetchFireHotspots({ days: 1 }),
         fetchSpaceWeather(7),
+        fetchGdeltNews(),
+        Promise.resolve(getCountryThreatScores()),
+        Promise.resolve(getRansomwareEvents()),
       ]);
 
       const eqData = eq.status === 'fulfilled' ? eq.value : [];
@@ -159,6 +178,9 @@ export function useDataLayers() {
       const nasaData = nasa.status === 'fulfilled' ? nasa.value : [];
       const fireData = fire.status === 'fulfilled' ? fire.value : [];
       const swData = sw.status === 'fulfilled' ? sw.value : [];
+      const gdeltData = gdelt.status === 'fulfilled' ? gdelt.value : [];
+      const threatsData = threats.status === 'fulfilled' ? threats.value : [];
+      const ransomData = ransom.status === 'fulfilled' ? ransom.value : [];
 
       setData({
         earthquakes: eqData,
@@ -169,6 +191,9 @@ export function useDataLayers() {
         nasaEvents: nasaData,
         fires: fireData,
         spaceWeather: swData,
+        gdeltNews: gdeltData,
+        countryThreats: threatsData,
+        ransomware: ransomData,
       });
       setLayers(prev => prev.map(l => {
         switch (l.key) {
@@ -180,6 +205,9 @@ export function useDataLayers() {
           case 'nasaEvents': return { ...l, count: nasaData.length };
           case 'fires': return { ...l, count: fireData.length };
           case 'spaceWeather': return { ...l, count: swData.length };
+          case 'gdeltNews': return { ...l, count: gdeltData.length };
+          case 'countryThreats': return { ...l, count: threatsData.length };
+          case 'ransomware': return { ...l, count: ransomData.length };
           default: return l;
         }
       }));

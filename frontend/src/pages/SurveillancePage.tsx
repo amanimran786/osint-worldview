@@ -13,6 +13,7 @@ import {
   fetchEpicImages,
   fetchNearEarthObjects,
   getPublicWebcams,
+  getPublicWebcamsAsync,
   type NasaEvent,
   type SpaceWeatherEvent,
   type FireHotspot,
@@ -34,7 +35,8 @@ export function SurveillancePage() {
   const intervalRef = useRef<number | null>(null);
 
   // Data
-  const [webcams] = useState<PublicWebcam[]>(getPublicWebcams());
+  const [webcams, setWebcams] = useState<PublicWebcam[]>(getPublicWebcams());
+  const [webcamsLoading, setWebcamsLoading] = useState(false);
   const [nasaEvents, setNasaEvents] = useState<NasaEvent[]>([]);
   const [spaceWeather, setSpaceWeather] = useState<SpaceWeatherEvent[]>([]);
   const [fireHotspots, setFireHotspots] = useState<FireHotspot[]>([]);
@@ -63,6 +65,21 @@ export function SurveillancePage() {
       setLastUpdate(new Date());
     } catch { /* errors handled in fetchers */ }
     setLoading(false);
+  }, []);
+
+  // Async webcam loading — starts with curated, upgrades to Windy API results
+  useEffect(() => {
+    let cancelled = false;
+    setWebcamsLoading(true);
+    getPublicWebcamsAsync().then((cams) => {
+      if (!cancelled) {
+        setWebcams(cams);
+        setWebcamsLoading(false);
+      }
+    }).catch(() => {
+      if (!cancelled) setWebcamsLoading(false);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -155,7 +172,7 @@ export function SurveillancePage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
-        {tab === 'cameras' && <CamerasTab webcams={webcams} active={activeCamera} onSelect={setActiveCamera} apod={apod} epicImages={epicImages} />}
+        {tab === 'cameras' && <CamerasTab webcams={webcams} active={activeCamera} onSelect={setActiveCamera} apod={apod} epicImages={epicImages} webcamsLoading={webcamsLoading} />}
         {tab === 'nasa' && <NasaTab events={nasaEvents} loading={loading} />}
         {tab === 'space' && <SpaceWeatherTab events={spaceWeather} loading={loading} />}
         {tab === 'fires' && <FiresTab hotspots={fireHotspots} loading={loading} />}
@@ -181,12 +198,13 @@ const REGION_MAP: Record<string, CamRegion> = {
   INTL: 'SPACE',
 };
 
-function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
+function CamerasTab({ webcams, active, onSelect, apod, epicImages, webcamsLoading }: {
   webcams: PublicWebcam[];
   active: PublicWebcam | null;
   onSelect: (cam: PublicWebcam | null) => void;
   apod: NasaAPOD | null;
   epicImages: EpicImage[];
+  webcamsLoading: boolean;
 }) {
   const [region, setRegion] = useState<CamRegion>('ALL');
   const [category, setCategory] = useState<CamCategory>('ALL');
@@ -294,6 +312,9 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
       <div>
         <h3 className="text-[10px] font-mono text-amber/40 tracking-wider mb-3 flex items-center gap-2">
           <Camera className="h-3 w-3" /> GLOBAL LIVE FEEDS ({filtered.length} of {webcams.length})
+          {webcamsLoading && (
+            <span className="text-[7px] text-tactical-green animate-pulse ml-2">⟳ FETCHING WINDY API…</span>
+          )}
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filtered.map((cam) => (
@@ -314,8 +335,20 @@ function CamerasTab({ webcams, active, onSelect, apod, epicImages }: {
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <div className="absolute top-1 left-1 flex items-center gap-1 bg-black/70 px-1.5 py-0.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                  <span className="text-[7px] font-mono text-red-400 tracking-wider">LIVE</span>
+                  <span className={clsx(
+                    'h-1.5 w-1.5 rounded-full',
+                    cam.status === 'active' ? 'bg-tactical-green animate-pulse' :
+                    cam.status === 'inactive' ? 'bg-red-500' :
+                    'bg-amber animate-pulse'
+                  )} />
+                  <span className={clsx(
+                    'text-[7px] font-mono tracking-wider',
+                    cam.status === 'active' ? 'text-tactical-green' :
+                    cam.status === 'inactive' ? 'text-red-400' :
+                    'text-amber'
+                  )}>
+                    {cam.status === 'active' ? 'LIVE' : cam.status === 'inactive' ? 'OFFLINE' : 'LIVE'}
+                  </span>
                 </div>
                 <div className="absolute top-1 right-1 bg-black/70 px-1.5 py-0.5">
                   <span className="text-[6px] font-mono text-amber/50 tracking-wider uppercase">{cam.category}</span>

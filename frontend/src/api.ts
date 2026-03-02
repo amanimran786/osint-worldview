@@ -212,6 +212,12 @@ export {
   fetchEpicImages,
   fetchNearEarthObjects,
   getPublicWebcams,
+  getPublicWebcamsAsync,
+  fetchWindyWebcams,
+  fetchGdeltNews,
+  fetchGdeltTimeline,
+  getCountryThreatScores,
+  getRansomwareEvents,
   fetchAllAdvancedData,
 } from './services/advancedLayers';
 
@@ -226,4 +232,7 @@ export type {
   NearEarthObject,
   PublicWebcam,
   AllAdvancedData,
+  GdeltArticle,
+  CountryThreatScore,
+  RansomwareEvent,
 } from './services/advancedLayers';
