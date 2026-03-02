@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { DataLayerKey, DataLayerState, EarthquakeFeature, WeatherData, CyberThreat, DisasterEvent } from '../types';
-import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent, GdeltArticle, CountryThreatScore, RansomwareEvent } from '../services/advancedLayers';
+import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent, GdeltArticle, CountryThreatScore, RansomwareEvent, Vessel } from '../services/advancedLayers';
 import * as api from '../api';
 import {
   fetchAirTraffic,
@@ -10,11 +10,12 @@ import {
   fetchGdeltNews,
   getCountryThreatScores,
   getRansomwareEvents,
+  fetchMaritimeVessels,
 } from '../services/advancedLayers';
 import {
   Activity, Cloud, Shield, AlertTriangle,
   Zap, Loader2, Plane, Satellite, Flame, Sun,
-  Newspaper, Globe, Skull,
+  Newspaper, Globe, Skull, Ship, CloudRain, Radio,
 } from 'lucide-react';
 
 const LAYER_META: Record<DataLayerKey, { label: string; icon: typeof Activity; color: string }> = {
@@ -30,6 +31,9 @@ const LAYER_META: Record<DataLayerKey, { label: string; icon: typeof Activity; c
   gdeltNews: { label: 'GDELT Intel', icon: Newspaper, color: '#06b6d4' },
   countryThreats: { label: 'Threat Index', icon: Globe, color: '#dc2626' },
   ransomware: { label: 'Ransomware', icon: Skull, color: '#e11d48' },
+  maritime: { label: 'Maritime AIS', icon: Ship, color: '#06b6d4' },
+  weatherRadar: { label: 'Weather Radar', icon: CloudRain, color: '#818cf8' },
+  satellite: { label: 'Satellite Imagery', icon: Radio, color: '#a3e635' },
 };
 
 export interface LayerData {
@@ -44,6 +48,7 @@ export interface LayerData {
   gdeltNews: GdeltArticle[];
   countryThreats: CountryThreatScore[];
   ransomware: RansomwareEvent[];
+  vessels: Vessel[];
 }
 
 interface DataLayerPanelProps {
@@ -129,6 +134,9 @@ export function useDataLayers() {
     { key: 'gdeltNews', label: 'GDELT Intel', enabled: true, count: 0, color: '#06b6d4' },
     { key: 'countryThreats', label: 'Threat Index', enabled: false, count: 0, color: '#dc2626' },
     { key: 'ransomware', label: 'Ransomware', enabled: false, count: 0, color: '#e11d48' },
+    { key: 'maritime', label: 'Maritime AIS', enabled: true, count: 0, color: '#06b6d4' },
+    { key: 'weatherRadar', label: 'Weather Radar', enabled: false, count: 0, color: '#818cf8' },
+    { key: 'satellite', label: 'Satellite Imagery', enabled: false, count: 0, color: '#a3e635' },
   ]);
 
   const [data, setData] = useState<LayerData>({
@@ -143,6 +151,7 @@ export function useDataLayers() {
     gdeltNews: [],
     countryThreats: [],
     ransomware: [],
+    vessels: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -156,7 +165,7 @@ export function useDataLayers() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const [eq, wx, cy, dis, fl, nasa, fire, sw, gdelt, threats, ransom] = await Promise.allSettled([
+      const [eq, wx, cy, dis, fl, nasa, fire, sw, gdelt, threats, ransom, vessels] = await Promise.allSettled([
         api.fetchEarthquakes({ period: 'day', min_magnitude: 2.5 }),
         api.fetchWeather(),
         api.fetchCyberThreats({ limit: 50 }),
@@ -168,6 +177,7 @@ export function useDataLayers() {
         fetchGdeltNews(),
         Promise.resolve(getCountryThreatScores()),
         Promise.resolve(getRansomwareEvents()),
+        fetchMaritimeVessels(),
       ]);
 
       const eqData = eq.status === 'fulfilled' ? eq.value : [];
@@ -181,6 +191,7 @@ export function useDataLayers() {
       const gdeltData = gdelt.status === 'fulfilled' ? gdelt.value : [];
       const threatsData = threats.status === 'fulfilled' ? threats.value : [];
       const ransomData = ransom.status === 'fulfilled' ? ransom.value : [];
+      const vesselData = vessels.status === 'fulfilled' ? vessels.value : [];
 
       setData({
         earthquakes: eqData,
@@ -194,6 +205,7 @@ export function useDataLayers() {
         gdeltNews: gdeltData,
         countryThreats: threatsData,
         ransomware: ransomData,
+        vessels: vesselData,
       });
       setLayers(prev => prev.map(l => {
         switch (l.key) {
@@ -208,6 +220,7 @@ export function useDataLayers() {
           case 'gdeltNews': return { ...l, count: gdeltData.length };
           case 'countryThreats': return { ...l, count: threatsData.length };
           case 'ransomware': return { ...l, count: ransomData.length };
+          case 'maritime': return { ...l, count: vesselData.length };
           default: return l;
         }
       }));

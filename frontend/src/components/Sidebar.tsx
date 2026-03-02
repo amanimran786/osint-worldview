@@ -10,6 +10,7 @@ import {
   Radio,
   Plane,
   Camera,
+  Ship,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -18,6 +19,7 @@ const links = [
   { to: '/signals', label: 'Signals', icon: Shield },
   { to: '/map', label: 'World View', icon: Map },
   { to: '/airspace', label: 'Airspace', icon: Plane },
+  { to: '/maritime', label: 'Maritime', icon: Ship },
   { to: '/surveillance', label: 'Surveillance', icon: Camera },
   { to: '/cases', label: 'Cases', icon: FolderOpen },
   { to: '/rules', label: 'Rules', icon: BookOpen },

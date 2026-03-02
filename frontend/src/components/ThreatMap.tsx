@@ -6,6 +6,7 @@ import type { DataLayerState } from '../types';
 import type { LayerData } from './DataLayerPanel';
 import { severityColor, severityLabel } from '../types';
 import * as api from '../api';
+import { getWeatherTileLayers, getSatelliteTileLayers } from '../services/advancedLayers';
 import 'leaflet/dist/leaflet.css';
 import type { City } from './CityQuickJump';
 
@@ -145,6 +146,100 @@ function fireIcon(confidence: string) {
       iconAnchor: [4, 4],
     });
   });
+}
+
+/* ---- Vessel icon (ship shape with heading rotation) ---- */
+function vesselIcon(heading: number | null, shipType: number, speed: number | null) {
+  const rotBucket = Math.round((heading ?? 0) / 15) * 15;
+  const typeBucket = Math.floor(shipType / 10) * 10;
+  return cachedIcon(`vessel_${rotBucket}_${typeBucket}_${(speed ?? 0) > 0.5 ? 'mov' : 'sta'}`, () => {
+    const colors: Record<number, string> = {
+      30: '#22d3ee', // Fishing - cyan
+      35: '#ef4444', // Military - red
+      60: '#a78bfa', // Passenger - purple
+      70: '#34d399', // Cargo - green
+      80: '#f97316', // Tanker - orange
+    };
+    const color = colors[typeBucket] ?? '#94a3b8';
+    const isMoving = (speed ?? 0) > 0.5;
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:12px;height:12px;
+        transform:rotate(${rotBucket}deg);
+        opacity:${isMoving ? 1 : 0.6};
+      "><svg viewBox="0 0 24 24" fill="${color}" width="12" height="12"><path d="M12 2L4 22l8-4 8 4L12 2z"/></svg></div>`,
+      iconSize: [12, 12],
+      iconAnchor: [6, 6],
+    });
+  });
+}
+
+/* ---- Weather tile overlay controller ---- */
+function WeatherRadarOverlay({ enabled }: { enabled: boolean }) {
+  const map = useMap();
+  const layerRef = useRef<L.TileLayer | null>(null);
+
+  useEffect(() => {
+    if (enabled) {
+      const wxLayers = getWeatherTileLayers();
+      const precip = wxLayers.find(l => l.id === 'precipitation');
+      if (precip && !layerRef.current) {
+        layerRef.current = L.tileLayer(precip.urlTemplate, {
+          opacity: precip.opacity,
+          attribution: precip.attribution,
+        }).addTo(map);
+      }
+    } else {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
+    }
+    return () => {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
+    };
+  }, [enabled, map]);
+
+  return null;
+}
+
+/* ---- Satellite imagery overlay controller ---- */
+function SatelliteOverlay({ enabled }: { enabled: boolean }) {
+  const map = useMap();
+  const layerRef = useRef<L.TileLayer | null>(null);
+
+  useEffect(() => {
+    if (enabled) {
+      const satLayers = getSatelliteTileLayers();
+      const esri = satLayers.find(l => l.id === 'esri-satellite');
+      if (esri && !layerRef.current) {
+        layerRef.current = L.tileLayer(esri.urlTemplate, {
+          opacity: esri.opacity,
+          attribution: esri.attribution,
+          maxZoom: esri.maxZoom,
+        }).addTo(map);
+        // Move below other overlay layers
+        layerRef.current.setZIndex(0);
+      }
+    } else {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
+    }
+    return () => {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
+    };
+  }, [enabled, map]);
+
+  return null;
 }
 
 interface ThreatMapProps {
@@ -359,6 +454,37 @@ export function ThreatMap({ layers, layerData, flyTo, signalCount }: ThreatMapPr
               </Popup>
             </Marker>
           ))}
+
+        {/* Maritime AIS vessels layer */}
+        {isLayerOn('maritime') && layerData?.vessels
+          ?.filter(v => v.latitude != null && v.longitude != null)
+          .slice(0, 500)
+          .map((v, i) => (
+            <Marker
+              key={`vessel-${i}`}
+              position={[v.latitude, v.longitude]}
+              icon={vesselIcon(v.heading, v.shipType, v.speed)}
+            >
+              <Popup>
+                <div className="min-w-[200px] text-[11px] font-mono">
+                  <p className="font-bold text-cyan-400 mb-1">🚢 {v.name ?? v.mmsi}</p>
+                  <p className="text-amber/70">{v.shipTypeName} · {v.flag}</p>
+                  <p className="text-amber/50 mt-1">
+                    {v.speed != null ? `${v.speed} kts` : '—'}
+                    {v.course != null ? ` · ${v.course}°` : ''}
+                  </p>
+                  <p className="text-amber/40 mt-0.5">{v.navStatus}</p>
+                  {v.destination && <p className="text-amber/30 mt-0.5">→ {v.destination}</p>}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+        {/* Weather radar tile overlay */}
+        <WeatherRadarOverlay enabled={isLayerOn('weatherRadar')} />
+
+        {/* Satellite imagery tile overlay */}
+        <SatelliteOverlay enabled={isLayerOn('satellite')} />
       </MapContainer>
 
       {/* Bottom status bar */}

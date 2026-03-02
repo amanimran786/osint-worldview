@@ -176,7 +176,8 @@ export type VisualMode = 'normal' | 'crt' | 'nvg' | 'flir' | 'noir' | 'snow';
 export type DataLayerKey =
   | 'signals' | 'earthquakes' | 'weather' | 'cyber' | 'disasters'
   | 'flights' | 'nasaEvents' | 'fires' | 'spaceWeather'
-  | 'gdeltNews' | 'countryThreats' | 'ransomware';
+  | 'gdeltNews' | 'countryThreats' | 'ransomware'
+  | 'maritime' | 'weatherRadar' | 'satellite';
 
 export interface DataLayerState {
   key: DataLayerKey;

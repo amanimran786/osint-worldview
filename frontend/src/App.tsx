@@ -16,6 +16,7 @@ const SourcesPage = lazy(() => import('./pages/SourcesPage').then(m => ({ defaul
 const MapPage = lazy(() => import('./pages/MapPage').then(m => ({ default: m.MapPage })));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
 const AirspacePage = lazy(() => import('./pages/AirspacePage').then(m => ({ default: m.AirspacePage })));
+const MaritimePage = lazy(() => import('./pages/MaritimePage').then(m => ({ default: m.MaritimePage })));
 const SurveillancePage = lazy(() => import('./pages/SurveillancePage').then(m => ({ default: m.SurveillancePage })));
 
 function PageLoader() {
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="/sources" element={<SourcesPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/airspace" element={<AirspacePage />} />
+            <Route path="/maritime" element={<MaritimePage />} />
             <Route path="/surveillance" element={<SurveillancePage />} />
           </Routes>
         </Suspense>

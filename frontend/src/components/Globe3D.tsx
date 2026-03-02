@@ -554,6 +554,31 @@ export function Globe3D({ signals, layers, layerData }: Globe3DProps) {
       });
     }
 
+    // Maritime AIS Vessels
+    if (isLayerOn('maritime') && layerData?.vessels) {
+      const vesselColors: Record<number, string> = {
+        3: '#22d3ee', // Fishing
+        6: '#a78bfa', // Passenger
+        7: '#34d399', // Cargo
+        8: '#f97316', // Tanker
+      };
+      layerData.vessels
+        .filter(v => v.latitude != null && v.longitude != null)
+        .slice(0, 300)
+        .forEach(v => {
+          const typeDecade = Math.floor(v.shipType / 10);
+          const color = vesselColors[typeDecade] ?? '#94a3b8';
+          result.push({
+            lat: v.latitude,
+            lng: v.longitude,
+            color,
+            size: 0.5,
+            label: v.name ?? v.mmsi,
+            sublabel: `${v.shipTypeName} · ${v.flag} · ${v.speed ?? 0} kts`,
+          });
+        });
+    }
+
     return result;
   }, [signals, layers, layerData, isLayerOn]);
 

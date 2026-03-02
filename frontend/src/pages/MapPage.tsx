@@ -186,6 +186,10 @@ export function MapPage() {
             <span className="text-rose-400 tabular-nums text-right">
               {layers.find(l => l.key === 'ransomware')?.count ?? 0}
             </span>
+            <span className="text-gray-600">Maritime</span>
+            <span className="text-cyan-400 tabular-nums text-right">
+              {layers.find(l => l.key === 'maritime')?.count ?? 0}
+            </span>
           </div>
         </div>
       </div>
