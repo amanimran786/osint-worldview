@@ -28,21 +28,28 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider, githubProvider, isFirebaseConfigured } from '../lib/firebase';
 
-/* ─── Authorized Operators ─── */
-// Add allowed email addresses here. Only these users can access the system.
-// Set via env var (comma-separated) or hardcode below.
-const ALLOWED_EMAILS: string[] = (
-  import.meta.env.VITE_ALLOWED_EMAILS ?? ''
-)
-  .split(',')
-  .map((e: string) => e.trim().toLowerCase())
-  .filter(Boolean);
+/* ─── Authorized Operators (SHA-256 hashed for security) ─── */
+// To add a new operator, hash their lowercase email with SHA-256 and add it here.
+// Generate: echo -n "email@example.com" | shasum -a 256
+const ALLOWED_HASHES = new Set([
+  '3cef0b7e144607189ebfc695fa393a04c4f1e6e418cdafb51c2dfc13e39ce5a8',
+  'bb8defcf84e250fbcdd91bd7b7f7786881841a1f9f9580a56caeb5d41f6e70db',
+  'c81b6b0a8e64f9a5e925bee8b0de7dbb08ca8f6137b2323546d4dade66d0ab2e',
+]);
 
-/** Check if an email is on the allowlist. Empty list = allow everyone. */
-function isEmailAllowed(email: string | null | undefined): boolean {
-  if (ALLOWED_EMAILS.length === 0) return true; // no allowlist = open access
+/** Hash an email with SHA-256 using the Web Crypto API */
+async function hashEmail(email: string): Promise<string> {
+  const data = new TextEncoder().encode(email.toLowerCase().trim());
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** Check if an email is on the allowlist. Empty set = allow everyone. */
+async function isEmailAllowed(email: string | null | undefined): Promise<boolean> {
+  if (ALLOWED_HASHES.size === 0) return true;
   if (!email) return false;
-  return ALLOWED_EMAILS.includes(email.toLowerCase());
+  const hash = await hashEmail(email);
+  return ALLOWED_HASHES.has(hash);
 }
 
 /* ─── Types ─── */
@@ -103,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser && !isEmailAllowed(firebaseUser.email)) {
+      if (firebaseUser && !(await isEmailAllowed(firebaseUser.email))) {
         // User authenticated but not on the allowlist — kick them out
         await signOut(auth);
         setUser(null);
@@ -124,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const cred = await signInWithPopup(auth, googleProvider);
-    if (!isEmailAllowed(cred.user.email)) {
+    if (!(await isEmailAllowed(cred.user.email))) {
       await signOut(auth);
       throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
@@ -137,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const cred = await signInWithPopup(auth, githubProvider);
-    if (!isEmailAllowed(cred.user.email)) {
+    if (!(await isEmailAllowed(cred.user.email))) {
       await signOut(auth);
       throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
@@ -149,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(DEMO_USER);
       return;
     }
-    if (!isEmailAllowed(email)) {
+    if (!(await isEmailAllowed(email))) {
       throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
     await signInWithEmailAndPassword(auth, email, password);
@@ -161,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(DEMO_USER);
       return;
     }
-    if (!isEmailAllowed(email)) {
+    if (!(await isEmailAllowed(email))) {
       throw new Error('ACCESS DENIED — Registration is restricted to authorized operators only.');
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
