@@ -1098,13 +1098,17 @@ export const OSINT_CATEGORIES: OSINTCategory[] = [
   },
 ];
 
-/* ─────────────── Computed exports ─────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   Computed Exports & DSA-Optimized Data Structures
+   ═══════════════════════════════════════════════════════════════════ */
 
+/** Total tool count across all categories */
 export const TOTAL_TOOLS = OSINT_CATEGORIES.reduce(
   (sum, cat) => sum + cat.tools.length,
   0,
 );
 
+/** Sorted unique tag list */
 export const ALL_TAGS: string[] = Array.from(
   new Set(
     OSINT_CATEGORIES.flatMap((c) =>
@@ -1112,3 +1116,148 @@ export const ALL_TAGS: string[] = Array.from(
     ),
   ),
 ).sort();
+
+/**
+ * O(1) Category Lookup Map — HashMap<id, OSINTCategory>
+ * Eliminates linear scans when accessing categories by id.
+ */
+export const CATEGORY_MAP: ReadonlyMap<string, OSINTCategory> = new Map(
+  OSINT_CATEGORIES.map((c) => [c.id, c]),
+);
+
+/**
+ * Tag Frequency Map — HashMap<tag, count>
+ * Pre-computed tag occurrence counts for weighted tag cloud rendering.
+ * Avoids recalculating on every render cycle.
+ */
+export const TAG_FREQUENCY: ReadonlyMap<string, number> = (() => {
+  const freq = new Map<string, number>();
+  for (const cat of OSINT_CATEGORIES) {
+    for (const tool of cat.tools) {
+      for (const tag of tool.tags ?? []) {
+        freq.set(tag, (freq.get(tag) ?? 0) + 1);
+      }
+    }
+  }
+  return freq;
+})();
+
+/** Maximum tag frequency for normalization in tag cloud */
+export const TAG_MAX_FREQ = Math.max(...TAG_FREQUENCY.values(), 1);
+
+/**
+ * Inverted Search Index — HashMap<token, Set<toolKey>>
+ * Pre-computed trigram + word index over all tool names, descriptions,
+ * URLs, and tags. Enables sub-linear search instead of O(N×M) linear scan
+ * across all tools on every keystroke.
+ *
+ * Strategy: Index lowercased words and bigrams (2-char prefix substrings)
+ * for each tool, keyed by "categoryId:toolIndex" for O(1) resolution.
+ */
+export interface IndexEntry {
+  catId: string;
+  toolIdx: number;
+}
+
+const _invertedIndex = new Map<string, IndexEntry[]>();
+
+function _indexToken(token: string, entry: IndexEntry) {
+  // Index the full word
+  const existing = _invertedIndex.get(token);
+  if (existing) existing.push(entry);
+  else _invertedIndex.set(token, [entry]);
+
+  // Index substrings of length 2+ (prefix matching for incremental search)
+  for (let len = 2; len < token.length; len++) {
+    const prefix = token.slice(0, len);
+    const pExisting = _invertedIndex.get(prefix);
+    if (pExisting) pExisting.push(entry);
+    else _invertedIndex.set(prefix, [entry]);
+  }
+}
+
+// Build the index once at module load time — O(N × avg_field_length)
+for (const cat of OSINT_CATEGORIES) {
+  for (let i = 0; i < cat.tools.length; i++) {
+    const tool: OSINTTool | undefined = cat.tools[i];
+    if (!tool) continue;
+    const entry: IndexEntry = { catId: cat.id, toolIdx: i };
+
+    // Tokenize and index name, description, url, tags
+    const fields: string[] = [
+      tool.name,
+      tool.description,
+      tool.url.replace(/https?:\/\//g, '').replace(/[/.\-_]/g, ' '),
+      ...(tool.tags ?? []),
+    ];
+
+    const seen = new Set<string>(); // deduplicate tokens per tool
+    for (const field of fields) {
+      const words = field.toLowerCase().split(/\W+/).filter(Boolean);
+      for (const word of words) {
+        if (!seen.has(word)) {
+          seen.add(word);
+          _indexToken(word, entry);
+        }
+      }
+    }
+  }
+}
+
+export const SEARCH_INDEX: ReadonlyMap<string, IndexEntry[]> = _invertedIndex;
+
+/**
+ * searchTools — O(k) indexed lookup (k = query tokens) instead of O(N×M) linear scan
+ * Returns matching tools grouped by category, using the inverted index.
+ * Falls back to linear scan for very short queries (< 2 chars).
+ */
+export function searchTools(
+  query: string,
+): Map<string, Set<number>> {
+  const result = new Map<string, Set<number>>();
+  const q = query.toLowerCase().trim();
+  if (q.length < 2) return result;
+
+  const tokens = q.split(/\W+/).filter(Boolean);
+  if (tokens.length === 0) return result;
+
+  // Start with matches for the first token, then intersect
+  const firstToken = tokens[0] ?? '';
+  if (!firstToken) return result;
+  const firstMatches = SEARCH_INDEX.get(firstToken);
+  if (!firstMatches) return result;
+
+  // Build initial candidate set keyed by "catId:toolIdx"
+  const candidates = new Map<string, IndexEntry>();
+  for (const entry of firstMatches) {
+    candidates.set(`${entry.catId}:${entry.toolIdx}`, entry);
+  }
+
+  // Intersect with subsequent tokens
+  for (let t = 1; t < tokens.length; t++) {
+    const token = tokens[t] ?? '';
+    if (!token) continue;
+    const tokenMatches = SEARCH_INDEX.get(token);
+    if (!tokenMatches) return new Map(); // no matches for this token = empty result
+    const tokenSet = new Set(tokenMatches.map((e) => `${e.catId}:${e.toolIdx}`));
+    for (const key of candidates.keys()) {
+      if (!tokenSet.has(key)) candidates.delete(key);
+    }
+    if (candidates.size === 0) return result;
+  }
+
+  // Group results by category
+  for (const entry of candidates.values()) {
+    const set = result.get(entry.catId);
+    if (set) set.add(entry.toolIdx);
+    else result.set(entry.catId, new Set([entry.toolIdx]));
+  }
+
+  return result;
+}
+
+/** Free tool count (pre-computed) */
+export const FREE_TOOL_COUNT = OSINT_CATEGORIES.reduce(
+  (sum, cat) => sum + cat.tools.filter((t) => t.free !== false).length,
+  0,
+);
