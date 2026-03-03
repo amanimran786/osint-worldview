@@ -11,7 +11,7 @@ import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
 
 export function SettingsPage() {
-  const { user, logout, openAIKey, setOpenAIKey, isDemo } = useAuth();
+  const { user, logout, openAIKey, setOpenAIKey } = useAuth();
   const [keyInput, setKeyInput] = useState(openAIKey);
   const [showKey, setShowKey] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -81,11 +81,6 @@ export function SettingsPage() {
             <h2 className="text-[11px] font-mono font-bold tracking-[0.15em] text-amber uppercase">
               Operator Profile
             </h2>
-            {isDemo && (
-              <span className="px-1.5 py-0.5 text-[7px] font-mono tracking-wider text-tactical-cyan border border-tactical-cyan/20 bg-tactical-cyan/5 uppercase">
-                DEMO
-              </span>
-            )}
           </div>
           <div className="p-4 space-y-3">
             <div className="flex items-center gap-4">

@@ -56,7 +56,6 @@ async function isEmailAllowed(email: string | null | undefined): Promise<boolean
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
-  isDemo: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithGitHub: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -68,18 +67,8 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/* ─── Demo user for when Firebase isn't configured ─── */
-const DEMO_USER = {
-  uid: 'demo-user-001',
-  email: 'operator@worldview.osint',
-  displayName: 'OSINT Operator',
-  photoURL: null,
-  emailVerified: true,
-} as unknown as User;
-
 /* ─── Storage keys ─── */
 const OPENAI_KEY_STORAGE = 'wv_openai_key';
-const DEMO_AUTH_STORAGE  = 'wv_demo_authenticated';
 
 /* ─── Provider ─── */
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -88,7 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [openAIKey, setOpenAIKeyState] = useState(() =>
     localStorage.getItem(OPENAI_KEY_STORAGE) ?? '',
   );
-  const isDemo = !isFirebaseConfigured;
 
   // Persist OpenAI key to localStorage
   const setOpenAIKey = useCallback((key: string) => {
@@ -99,12 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen to Firebase auth state
   useEffect(() => {
-    if (isDemo) {
-      // Demo mode — check if user previously "logged in"
-      const wasAuthenticated = localStorage.getItem(DEMO_AUTH_STORAGE);
-      if (wasAuthenticated === 'true') {
-        setUser(DEMO_USER);
-      }
+    if (!isFirebaseConfigured) {
+      // Firebase not configured — no one gets in
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -121,75 +106,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
     return unsubscribe;
-  }, [isDemo]);
+  }, []);
 
   /* ─── Auth methods ─── */
   const signInWithGoogle = useCallback(async () => {
-    if (isDemo) {
-      localStorage.setItem(DEMO_AUTH_STORAGE, 'true');
-      setUser(DEMO_USER);
-      return;
+    if (!isFirebaseConfigured) {
+      throw new Error('ACCESS DENIED — System not configured. Contact administrator.');
     }
     const cred = await signInWithPopup(auth, googleProvider);
     if (!(await isEmailAllowed(cred.user.email))) {
       await signOut(auth);
       throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
-  }, [isDemo]);
+  }, []);
 
   const signInWithGitHub = useCallback(async () => {
-    if (isDemo) {
-      localStorage.setItem(DEMO_AUTH_STORAGE, 'true');
-      setUser(DEMO_USER);
-      return;
+    if (!isFirebaseConfigured) {
+      throw new Error('ACCESS DENIED — System not configured. Contact administrator.');
     }
     const cred = await signInWithPopup(auth, githubProvider);
     if (!(await isEmailAllowed(cred.user.email))) {
       await signOut(auth);
       throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
-  }, [isDemo]);
+  }, []);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
-    if (isDemo) {
-      localStorage.setItem(DEMO_AUTH_STORAGE, 'true');
-      setUser(DEMO_USER);
-      return;
+    if (!isFirebaseConfigured) {
+      throw new Error('ACCESS DENIED — System not configured. Contact administrator.');
     }
     if (!(await isEmailAllowed(email))) {
       throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
     await signInWithEmailAndPassword(auth, email, password);
-  }, [isDemo]);
+  }, []);
 
   const signUpWithEmail = useCallback(async (email: string, password: string, displayName: string) => {
-    if (isDemo) {
-      localStorage.setItem(DEMO_AUTH_STORAGE, 'true');
-      setUser(DEMO_USER);
-      return;
+    if (!isFirebaseConfigured) {
+      throw new Error('ACCESS DENIED — System not configured. Contact administrator.');
     }
     if (!(await isEmailAllowed(email))) {
       throw new Error('ACCESS DENIED — Registration is restricted to authorized operators only.');
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName });
-  }, [isDemo]);
+  }, []);
 
   const logout = useCallback(async () => {
-    if (isDemo) {
-      localStorage.removeItem(DEMO_AUTH_STORAGE);
-      setUser(null);
-      return;
-    }
     await signOut(auth);
-  }, [isDemo]);
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
-        isDemo,
         signInWithGoogle,
         signInWithGitHub,
         signInWithEmail,

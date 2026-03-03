@@ -6,7 +6,7 @@
 import { useState, type FormEvent } from 'react';
 import {
   Radio, Shield, Eye, EyeOff, AlertTriangle,
-  Fingerprint, Github, Mail, Lock, User, Zap,
+  Fingerprint, Github, Mail, Lock, User,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,7 +17,6 @@ export function LoginPage() {
     signInWithGitHub,
     signInWithEmail,
     signUpWithEmail,
-    isDemo,
   } = useAuth();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -131,22 +130,6 @@ export function LoginPage() {
               {mode === 'login' ? 'AUTHENTICATE TO ACCESS SYSTEM' : 'REGISTER NEW OPERATOR'}
             </p>
           </div>
-
-          {/* Demo mode banner */}
-          {isDemo && (
-            <div className="mx-6 mb-4 p-2.5 border border-tactical-cyan/30 bg-tactical-cyan/5 flex items-start gap-2">
-              <Zap className="h-3.5 w-3.5 text-tactical-cyan flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-[9px] font-mono font-bold text-tactical-cyan tracking-wider uppercase">
-                  Demo Mode Active
-                </p>
-                <p className="text-[8px] font-mono text-tactical-cyan/60 mt-0.5">
-                  Firebase not configured. Any credentials will grant access.
-                  See SETUP_GUIDE for Firebase configuration.
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Error message */}
           {error && (
