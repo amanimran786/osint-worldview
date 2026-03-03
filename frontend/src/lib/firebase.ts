@@ -23,6 +23,7 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
 } from 'firebase/auth';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY            || 'demo-api-key',
@@ -31,12 +32,16 @@ const firebaseConfig = {
   storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET     || 'demo.appspot.com',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000',
   appId:             import.meta.env.VITE_FIREBASE_APP_ID             || '1:000:web:000',
+  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID     || undefined,
 };
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const githubProvider = new GithubAuthProvider();
+
+/** Initialize analytics only if supported (not in SSR/test environments) */
+export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 
 /** Check if Firebase is configured with real credentials */
 export const isFirebaseConfigured = firebaseConfig.apiKey !== 'demo-api-key';
