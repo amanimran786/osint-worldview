@@ -28,6 +28,23 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider, githubProvider, isFirebaseConfigured } from '../lib/firebase';
 
+/* ─── Authorized Operators ─── */
+// Add allowed email addresses here. Only these users can access the system.
+// Set via env var (comma-separated) or hardcode below.
+const ALLOWED_EMAILS: string[] = (
+  import.meta.env.VITE_ALLOWED_EMAILS ?? ''
+)
+  .split(',')
+  .map((e: string) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+/** Check if an email is on the allowlist. Empty list = allow everyone. */
+function isEmailAllowed(email: string | null | undefined): boolean {
+  if (ALLOWED_EMAILS.length === 0) return true; // no allowlist = open access
+  if (!email) return false;
+  return ALLOWED_EMAILS.includes(email.toLowerCase());
+}
+
 /* ─── Types ─── */
 interface AuthContextValue {
   user: User | null;
@@ -85,7 +102,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser && !isEmailAllowed(firebaseUser.email)) {
+        // User authenticated but not on the allowlist — kick them out
+        await signOut(auth);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       setUser(firebaseUser);
       setLoading(false);
     });
@@ -99,7 +123,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(DEMO_USER);
       return;
     }
-    await signInWithPopup(auth, googleProvider);
+    const cred = await signInWithPopup(auth, googleProvider);
+    if (!isEmailAllowed(cred.user.email)) {
+      await signOut(auth);
+      throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
+    }
   }, [isDemo]);
 
   const signInWithGitHub = useCallback(async () => {
@@ -108,7 +136,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(DEMO_USER);
       return;
     }
-    await signInWithPopup(auth, githubProvider);
+    const cred = await signInWithPopup(auth, githubProvider);
+    if (!isEmailAllowed(cred.user.email)) {
+      await signOut(auth);
+      throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
+    }
   }, [isDemo]);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
@@ -116,6 +148,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(DEMO_AUTH_STORAGE, 'true');
       setUser(DEMO_USER);
       return;
+    }
+    if (!isEmailAllowed(email)) {
+      throw new Error('ACCESS DENIED — Your account is not authorized for this system.');
     }
     await signInWithEmailAndPassword(auth, email, password);
   }, [isDemo]);
@@ -125,6 +160,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(DEMO_AUTH_STORAGE, 'true');
       setUser(DEMO_USER);
       return;
+    }
+    if (!isEmailAllowed(email)) {
+      throw new Error('ACCESS DENIED — Registration is restricted to authorized operators only.');
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName });
