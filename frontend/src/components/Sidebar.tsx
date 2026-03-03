@@ -12,8 +12,11 @@ import {
   Camera,
   Ship,
   Library,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuth } from '../contexts/AuthContext';
 
 const links = [
   { to: '/', label: 'Dashboard', icon: Activity },
@@ -30,6 +33,8 @@ const links = [
 ];
 
 export function Sidebar() {
+  const { user, logout } = useAuth();
+
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-amber/10 bg-surface">
       {/* Brand */}
@@ -74,6 +79,42 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Settings + Operator */}
+      <div className="border-t border-amber/10 px-2 py-2 space-y-1">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            clsx(
+              'flex items-center gap-3 px-3 py-2 text-[11px] font-mono tracking-wider uppercase',
+              'border transition-all duration-150',
+              isActive
+                ? 'border-amber/30 bg-amber/10 text-amber text-glow-amber'
+                : 'border-transparent text-gray-600 hover:text-amber/70 hover:border-amber/15 hover:bg-amber/5',
+            )
+          }
+        >
+          <Settings className="h-3.5 w-3.5" />
+          Settings
+        </NavLink>
+
+        <button
+          onClick={() => logout()}
+          className="flex w-full items-center gap-3 px-3 py-2 text-[11px] font-mono tracking-wider uppercase border border-transparent text-gray-600 hover:text-red-400/80 hover:border-red-400/15 hover:bg-red-400/5 transition-all duration-150"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Sign Out
+        </button>
+      </div>
+
+      {/* Operator info */}
+      {user && (
+        <div className="border-t border-amber/10 px-4 py-2">
+          <div className="text-[9px] font-mono text-amber/40 tracking-wider truncate">
+            {user.email ?? 'OPERATOR'}
+          </div>
+        </div>
+      )}
 
       {/* Status footer */}
       <div className="border-t border-amber/10 px-4 py-3 space-y-1">
