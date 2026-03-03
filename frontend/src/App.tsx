@@ -21,6 +21,8 @@ const MaritimePage = lazy(() => import('./pages/MaritimePage').then(m => ({ defa
 const SurveillancePage = lazy(() => import('./pages/SurveillancePage').then(m => ({ default: m.SurveillancePage })));
 const OSINTBiblePage = lazy(() => import('./pages/OSINTBiblePage').then(m => ({ default: m.OSINTBiblePage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const ScannerPage = lazy(() => import('./pages/ScannerPage').then(m => ({ default: m.ScannerPage })));
+const GodModePage = lazy(() => import('./pages/GodModePage').then(m => ({ default: m.GodModePage })));
 
 function PageLoader() {
   return (
@@ -107,6 +109,8 @@ function ProtectedApp() {
           <Route path="/maritime" element={<MaritimePage />} />
           <Route path="/surveillance" element={<SurveillancePage />} />
           <Route path="/osint-bible" element={<OSINTBiblePage />} />
+          <Route path="/scanner" element={<ScannerPage />} />
+          <Route path="/god-mode" element={<GodModePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/login" element={<Navigate to="/" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

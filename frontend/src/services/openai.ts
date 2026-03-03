@@ -12,8 +12,10 @@ const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 const DEFAULT_MODEL  = 'gpt-4o-mini';
 const STORAGE_KEY    = 'wv_openai_key';
 
-/** Get the stored OpenAI API key */
+/** Get the stored OpenAI API key — checks env var first, then localStorage */
 export function getOpenAIKey(): string {
+  const envKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (envKey && envKey !== 'your-key-here') return envKey;
   return localStorage.getItem(STORAGE_KEY) ?? '';
 }
 

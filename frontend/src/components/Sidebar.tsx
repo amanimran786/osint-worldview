@@ -14,6 +14,8 @@ import {
   Library,
   Settings,
   LogOut,
+  Scan,
+  Eye,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,6 +24,8 @@ const links = [
   { to: '/', label: 'Dashboard', icon: Activity },
   { to: '/signals', label: 'Signals', icon: Shield },
   { to: '/map', label: 'World View', icon: Map },
+  { to: '/god-mode', label: '4D God Mode', icon: Eye },
+  { to: '/scanner', label: 'Scanner', icon: Scan },
   { to: '/airspace', label: 'Airspace', icon: Plane },
   { to: '/maritime', label: 'Maritime', icon: Ship },
   { to: '/surveillance', label: 'Surveillance', icon: Camera },

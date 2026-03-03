@@ -12,6 +12,8 @@ import type {
   EarthquakeFeature, CyberThreat, WeatherData, DisasterEvent,
 } from './types';
 import * as demo from './services/demoStore';
+import { hasOpenAIKey } from './services/openai';
+import { analyzeSignals as aiAnalyzeSignals, summarizeSignal as aiSummarize } from './services/openai';
 import {
   fetchEarthquakesDirect,
   fetchWeatherDirect,
@@ -111,20 +113,50 @@ export async function fetchAnalytics(days = 30): Promise<Analytics> {
 
 /* ---- AI ---- */
 export async function getAIStatus(): Promise<{ ai_enabled: boolean; model: string | null }> {
-  return { ai_enabled: false, model: null };
+  return { ai_enabled: hasOpenAIKey(), model: hasOpenAIKey() ? 'gpt-4o-mini' : null };
 }
 
-export async function summarizeSignals(_signalIds: number[]): Promise<AISummary[]> {
-  return [];
+export async function summarizeSignals(signalIds: number[]): Promise<AISummary[]> {
+  if (!hasOpenAIKey()) return [];
+  const allSignals = demo.getSignals();
+  const summaries: AISummary[] = [];
+  for (const id of signalIds) {
+    const sig = allSignals.find(s => s.id === id);
+    if (!sig) continue;
+    try {
+      const summary = await aiSummarize({ title: sig.title, snippet: sig.snippet, url: sig.url, source: sig.source });
+      summaries.push({ signal_id: id, summary });
+    } catch { /* skip on error */ }
+  }
+  return summaries;
 }
 
 export async function analyzeSignals(_limit = 20): Promise<AIAnalysis> {
-  return {
-    analysis: 'AI analysis requires backend API keys (ANTHROPIC_API_KEY or OPENAI_API_KEY). Running in demo mode — all live data layers are operational.',
-    threat_level: 'medium',
-    key_entities: ['Demo Mode — Live Data Active'],
-    recommended_actions: ['Configure AI provider to enable automated threat analysis'],
-  };
+  if (!hasOpenAIKey()) {
+    return {
+      analysis: 'OpenAI API key not configured. Go to Settings to add your key for AI-powered threat analysis.',
+      threat_level: 'medium',
+      key_entities: ['Configure AI in Settings'],
+      recommended_actions: ['Add your OpenAI API key in the Settings page'],
+    };
+  }
+  const signals = demo.getSignals().slice(0, _limit);
+  try {
+    return await aiAnalyzeSignals(signals.map(s => ({
+      title: s.title,
+      snippet: s.snippet,
+      source: s.source,
+      severity: s.severity,
+      category: s.category,
+    })));
+  } catch (err) {
+    return {
+      analysis: `AI analysis error: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      threat_level: 'medium',
+      key_entities: [],
+      recommended_actions: ['Check your OpenAI API key in Settings'],
+    };
+  }
 }
 
 /* ---- Search ---- */
