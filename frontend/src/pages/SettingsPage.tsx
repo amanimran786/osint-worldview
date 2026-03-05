@@ -18,12 +18,39 @@ export function SettingsPage() {
   const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [testing, setTesting] = useState(false);
 
-  const handleSaveKey = () => {
-    setOpenAIKey(keyInput.trim());
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  /** Validate key against OpenAI API, then persist if valid */
+  const handleSaveKey = async () => {
+    const key = keyInput.trim();
+    if (!key) {
+      setTestResult({ ok: false, msg: 'No API key provided' });
+      return;
+    }
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const res = await fetch('https://api.openai.com/v1/models', {
+        headers: { Authorization: `Bearer ${key}` },
+      });
+      if (res.ok) {
+        setOpenAIKey(key);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+        setTestResult({ ok: true, msg: 'API key verified & saved — AI features are now active across all pages' });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setTestResult({
+          ok: false,
+          msg: data?.error?.message || `HTTP ${res.status}: Invalid API key — not saved`,
+        });
+      }
+    } catch {
+      setTestResult({ ok: false, msg: 'Network error — could not reach OpenAI. Key not saved.' });
+    } finally {
+      setTesting(false);
+    }
   };
 
+  /** Quick test without saving */
   const handleTestKey = async () => {
     const key = keyInput.trim();
     if (!key) {
@@ -37,7 +64,7 @@ export function SettingsPage() {
         headers: { Authorization: `Bearer ${key}` },
       });
       if (res.ok) {
-        setTestResult({ ok: true, msg: 'API key is valid — connected to OpenAI' });
+        setTestResult({ ok: true, msg: 'API key is valid — click "Save Key" to activate AI features' });
       } else {
         const data = await res.json().catch(() => ({}));
         setTestResult({
@@ -52,9 +79,11 @@ export function SettingsPage() {
     }
   };
 
-  const maskedKey = keyInput
-    ? `${keyInput.slice(0, 7)}${'•'.repeat(Math.max(0, keyInput.length - 11))}${keyInput.slice(-4)}`
+  /* ── Derive display info ── */
+  const maskedKey = openAIKey
+    ? `${openAIKey.slice(0, 7)}${'•'.repeat(Math.max(0, openAIKey.length - 11))}${openAIKey.slice(-4)}`
     : '';
+  const keyIsStored = openAIKey.length > 0;
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -152,14 +181,22 @@ export function SettingsPage() {
 
             {/* Key input */}
             <div>
-              <label className="block text-[8px] font-mono text-amber/40 tracking-[0.2em] uppercase mb-1.5">
-                API Key
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[8px] font-mono text-amber/40 tracking-[0.2em] uppercase">
+                  API Key
+                </label>
+                {keyIsStored && (
+                  <span className="flex items-center gap-1 text-[8px] font-mono text-tactical-green tracking-wider">
+                    <span className="h-1.5 w-1.5 rounded-full bg-tactical-green animate-pulse" />
+                    ACTIVE — {maskedKey.slice(0, 12)}…
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 px-3 py-2 border border-amber/15 bg-surface focus-within:border-amber/40 transition">
                 <Key className="h-3.5 w-3.5 text-amber/30 flex-shrink-0" />
                 <input
                   type={showKey ? 'text' : 'password'}
-                  value={showKey ? keyInput : maskedKey || keyInput}
+                  value={keyInput}
                   onChange={e => { setKeyInput(e.target.value); setSaved(false); setTestResult(null); }}
                   onFocus={() => setShowKey(true)}
                   placeholder="sk-proj-..."
@@ -194,18 +231,24 @@ export function SettingsPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleSaveKey}
-                disabled={!keyInput.trim()}
+                disabled={!keyInput.trim() || testing}
                 className={clsx(
                   'flex items-center gap-2 px-3 py-2 border text-[9px] font-mono tracking-wider uppercase transition',
                   saved
                     ? 'border-tactical-green/40 bg-tactical-green/10 text-tactical-green'
-                    : keyInput.trim()
+                    : keyInput.trim() && !testing
                       ? 'border-amber/30 bg-amber/10 text-amber hover:bg-amber/20'
                       : 'border-gray-800 bg-surface text-gray-700 cursor-not-allowed',
                 )}
               >
-                {saved ? <Check className="h-3 w-3" /> : <Save className="h-3 w-3" />}
-                {saved ? 'SAVED' : 'SAVE KEY'}
+                {testing ? (
+                  <div className="h-3 w-3 animate-spin rounded-full border border-amber/40 border-t-amber" />
+                ) : saved ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  <Save className="h-3 w-3" />
+                )}
+                {testing ? 'VERIFYING...' : saved ? 'VERIFIED & SAVED' : 'SAVE KEY'}
               </button>
               <button
                 onClick={handleTestKey}
