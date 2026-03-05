@@ -19,7 +19,7 @@ export default defineConfig({
         },
       },
     },
-    sourcemap: true,
+    sourcemap: false,   // SECURITY: never ship source maps to production
     target: 'es2020',
   },
 });

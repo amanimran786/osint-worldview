@@ -348,9 +348,7 @@ export class AutoScanner {
   }
 }
 
-/** Check if OpenAI key is available (via env var or localStorage) */
+/** Check if OpenAI key is available (via localStorage, set in Settings) */
 export function isAIEnabled(): boolean {
-  const envKey = import.meta.env.VITE_OPENAI_API_KEY;
-  if (envKey && envKey !== 'your-key-here') return true;
   return hasOpenAIKey();
 }
