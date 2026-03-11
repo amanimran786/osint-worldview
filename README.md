@@ -1,242 +1,624 @@
-# OSINT Worldview
+# WorldView Monitor
 
-Compliance-first OSINT Threat Detection & Triage platform — a Palantir-style retro-futuristic intelligence dashboard.
+**Real-time global intelligence dashboard** — AI-powered news aggregation, geopolitical monitoring, and infrastructure tracking in a unified situational awareness interface.
 
-![stack](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
-![stack](https://img.shields.io/badge/React_18-61DAFB?style=flat&logo=react&logoColor=black)
-![stack](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
-![stack](https://img.shields.io/badge/Three.js-000000?style=flat&logo=threedotjs&logoColor=white)
-![stack](https://img.shields.io/badge/Celery-37814A?style=flat&logo=celery&logoColor=white)
-![stack](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
-![stack](https://img.shields.io/badge/Claude_AI-7C3AED?style=flat&logoColor=white)
+[![GitHub stars](https://img.shields.io/github/stars/amanimran786/osint-worldview?style=social)](https://github.com/amanimran786/osint-worldview/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/amanimran786/osint-worldview?style=social)](https://github.com/amanimran786/osint-worldview/network/members)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Last commit](https://img.shields.io/github/last-commit/amanimran786/osint-worldview)](https://github.com/amanimran786/osint-worldview/commits/main)
+[![Latest release](https://img.shields.io/github/v/release/amanimran786/osint-worldview?style=flat)](https://github.com/amanimran786/osint-worldview/releases/latest)
+
+<p align="center">
+  <a href="https://worldview.app"><img src="https://img.shields.io/badge/Web_App-worldview.app-blue?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Web App"></a>&nbsp;
+  <a href="https://tech.worldview.app"><img src="https://img.shields.io/badge/Tech_Variant-tech.worldview.app-0891b2?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Tech Variant"></a>&nbsp;
+  <a href="https://finance.worldview.app"><img src="https://img.shields.io/badge/Finance_Variant-finance.worldview.app-059669?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Finance Variant"></a>&nbsp;
+  <a href="https://commodity.worldview.app"><img src="https://img.shields.io/badge/Commodity_Variant-commodity.worldview.app-b45309?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Commodity Variant"></a>&nbsp;
+  <a href="https://happy.worldview.app"><img src="https://img.shields.io/badge/Happy_Variant-happy.worldview.app-f59e0b?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Happy Variant"></a>
+</p>
+
+<p align="center">
+  <a href="https://worldview.app/api/download?platform=windows-exe"><img src="https://img.shields.io/badge/Download-Windows_(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download Windows"></a>&nbsp;
+  <a href="https://worldview.app/api/download?platform=macos-arm64"><img src="https://img.shields.io/badge/Download-macOS_Apple_Silicon-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download macOS ARM"></a>&nbsp;
+  <a href="https://worldview.app/api/download?platform=macos-x64"><img src="https://img.shields.io/badge/Download-macOS_Intel-555555?style=for-the-badge&logo=apple&logoColor=white" alt="Download macOS Intel"></a>&nbsp;
+  <a href="https://worldview.app/api/download?platform=linux-appimage"><img src="https://img.shields.io/badge/Download-Linux_(.AppImage)-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download Linux"></a>
+</p>
+
+<p align="center">
+  <a href="./docs/DOCUMENTATION.md"><strong>Full Documentation</strong></a> &nbsp;·&nbsp;
+  <a href="https://github.com/amanimran786/osint-worldview/releases/latest"><strong>All Releases</strong></a>
+</p>
+
+![WorldView Monitor Dashboard](docs/images/worldmonitor-7-mar-2026.jpg)
 
 ---
 
-## Architecture
+## Why WorldView Monitor?
 
-```
-┌──────────┐     ┌──────────┐     ┌──────────┐
-│ Frontend │────▶│ Backend  │────▶│ Postgres │
-│ React+TS │  /api│ FastAPI  │     │          │
-└──────────┘     └────┬─────┘     └──────────┘
-                      │
-                 ┌────▼─────┐     ┌──────────┐
-                 │  Celery   │────▶│  Redis   │
-                 │  Worker   │     │          │
-                 └───────────┘     └──────────┘
-```
+| Problem                            | Solution                                                                                                   |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| News scattered across 100+ sources | **Single unified dashboard** with 435+ curated feeds across 15 categories                                  |
+| No geospatial context for events   | **Interactive map** with 45 toggleable data layers and CII country risk heatmap                             |
+| Information overload               | **AI-synthesized briefs** with focal point detection and local LLM support                                 |
+| Crypto/macro signal noise          | **7-signal market radar** with composite BUY/CASH verdict                                                  |
+| Expensive OSINT tools ($$$)        | **100% free & open source**                                                                                |
+| Static news feeds                  | **Real-time updates** with live video streams and AI-powered deductions                                    |
+| Cloud-dependent AI tools           | **Run AI locally** with Ollama/LM Studio — no API keys, no data leaves your machine. Opt-in **Headline Memory** builds a local semantic index of every headline for RAG-powered queries |
+| Web-only dashboards                | **Native desktop app** (Tauri) for macOS, Windows, and Linux + installable PWA with offline map support    |
+| Flat 2D maps                       | **Dual map engine** — photorealistic 3D globe (globe.gl + Three.js) and WebGL flat map (deck.gl) with 45 toggleable data layers, runtime-switchable |
+| English-only OSINT tools           | **21 languages** with native-language RSS feeds, AI-translated summaries, and RTL support for Arabic       |
+| Siloed financial data              | **Finance variant** with 92 stock exchanges, 19 financial centers, 13 central banks, BIS data, WTO trade policy, and Gulf FDI tracking |
+| Undocumented, fragile APIs         | **Proto-first API contracts** — 22 typed services with auto-generated clients, servers, and OpenAPI docs   |
 
-**Signals flow:** RSS feeds → Celery ingest → keyword-based scoring → Signals table → Analyst triage → Cases
+---
 
-## Features
+## Live Demos
 
-| Area | What |
-|------|------|
-| **3D Globe** | Interactive Three.js globe with continent outlines, data columns, animated arcs, atmosphere glow |
-| **Live Data Layers** | Real-time earthquakes (USGS), weather alerts, cyber threats (abuse.ch), natural disasters (ReliefWeb) |
-| **Visual Modes** | 6 display modes: Normal, CRT, NVG, FLIR, Noir, Snow — retro-futuristic amber/CRT aesthetic |
-| **AI Analysis** | Multi-provider: Claude (Anthropic) primary, OpenAI fallback — signal summarization & threat analysis |
-| **Ingest** | RSS feed polling (every 15 min via Celery Beat), on-demand poll via API |
-| **Scoring** | Keyword-match rules with severity weighting, allowlist/denylist, dedup by URL+title hash |
-| **Triage** | Status workflow: New → In Review → Escalated / Dismissed → Closed |
-| **Cases** | Group signals into cases, add notes, assign analysts |
-| **Rules** | CRUD detection rules with category, severity, keyword lists |
-| **Sources** | Manage RSS/JSON/HTML sources, enable/disable, poll individually |
-| **Search** | Full-text search across signals with geo filtering |
-| **Export** | CSV/JSON export of signals and cases |
-| **Retention** | Auto-cleanup of stale "New" signals older than configurable retention period |
-| **Auth** | JWT stub (ready for full RBAC: Analyst, Lead, Admin) |
+| Variant             | URL                                                          | Focus                                            |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
+| **WorldView Monitor**   | [worldview.app](https://worldview.app)                 | Geopolitics, military, conflicts, infrastructure |
+| **Tech Monitor**    | [tech.worldview.app](https://tech.worldview.app)       | Startups, AI/ML, cloud, cybersecurity            |
+| **Finance Monitor** | [finance.worldview.app](https://finance.worldview.app) | Global markets, trading, central banks, Gulf FDI |
+| **Commodity Monitor** | [commodity.worldview.app](https://commodity.worldview.app) | Mining, metals, energy commodities, critical minerals |
+| **Happy Monitor**   | [happy.worldview.app](https://happy.worldview.app)     | Good news, positive trends, uplifting stories    |
 
-## Quick Start (Docker)
+All five variants run from a single codebase — switch between them with one click via the header bar.
+
+---
+
+## Key Features
+
+### Maps & Visualization
+
+- **Dual Map Engine** — 3D globe (globe.gl + Three.js) and WebGL flat map (deck.gl), runtime-switchable with 45 shared data layers. [Details →](./docs/MAP_ENGINE.md)
+- **45 toggleable data layers** — conflicts, bases, cables, pipelines, flights, vessels, protests, fires, earthquakes, datacenters, and more across all variants
+- **8 regional presets** — Global, Americas, Europe, MENA, Asia, Africa, Oceania, Latin America with time filtering (1h–7d)
+- **CII choropleth heatmap** — five-stop color gradient paints every country by instability score on both map engines
+- **URL state sharing** — map center, zoom, active layers, and time range encoded in shareable URLs
+
+### AI & Intelligence
+
+- **World Brief** — LLM-synthesized summary with 4-tier fallback: Ollama (local) → Groq → OpenRouter → browser T5. [Details →](./docs/AI_INTELLIGENCE.md)
+- **AI Deduction & Forecasting** — free-text geopolitical analysis grounded in live headlines. [Details →](./docs/AI_INTELLIGENCE.md#ai-deduction--forecasting)
+- **Headline Memory (RAG)** — opt-in browser-local semantic index using ONNX embeddings in IndexedDB. [Details →](./docs/AI_INTELLIGENCE.md#client-side-headline-memory-rag)
+- **Threat Classification** — instant keyword classifier with async ML and LLM override. [Details →](./docs/AI_INTELLIGENCE.md#threat-classification-pipeline)
+- **Country Brief Pages** — full-page intelligence dossiers with CII scores, AI analysis, timelines, and prediction markets. [Details →](./docs/AI_INTELLIGENCE.md#country-brief-pages)
+
+### Data Layers
+
+<details>
+<summary><strong>Geopolitical</strong> — conflicts, hotspots, protests, disasters, sanctions, cyber IOCs, GPS jamming, Iran events</summary>
+
+[Full details →](./docs/DATA_SOURCES.md#data-layers)
+</details>
+
+<details>
+<summary><strong>Military & Strategic</strong> — 210+ bases, live flights (ADS-B), naval vessels (AIS), nuclear facilities, spaceports, orbital surveillance</summary>
+
+[Full details →](./docs/DATA_SOURCES.md#data-layers) · [Orbital Surveillance →](./docs/ORBITAL_SURVEILLANCE.md)
+</details>
+
+<details>
+<summary><strong>Infrastructure</strong> — undersea cables, pipelines, 111 AI datacenters, 83 strategic ports, 107 airports, trade routes</summary>
+
+[Full details →](./docs/DATA_SOURCES.md#data-layers)
+</details>
+
+<details>
+<summary><strong>Market & Crypto</strong> — 7-signal macro radar, market watchlist, Gulf economies, crypto, prediction markets, stablecoins, ETF flows</summary>
+
+[Full details →](./docs/DATA_SOURCES.md#data-layers)
+</details>
+
+<details>
+<summary><strong>Tech Ecosystem</strong> — company HQs, startup hubs, cloud regions, accelerators, conferences</summary>
+
+[Full details →](./docs/DATA_SOURCES.md#data-layers)
+</details>
+
+<details>
+<summary><strong>Finance & Markets</strong> — 92 stock exchanges, 19 financial centers, 13 central banks, BIS data, WTO trade policy, Gulf FDI</summary>
+
+[Full details →](./docs/FINANCE_DATA.md)
+</details>
+
+### Live News & Video
+
+- **435+ RSS feeds** across geopolitics, defense, energy, tech, and finance with server-side aggregation (95% fewer edge invocations). [Details →](./docs/DATA_SOURCES.md#server-side-aggregation)
+- **30+ live video streams** — Bloomberg, Sky News, Al Jazeera, and more with HLS native streaming, idle-aware playback, and fullscreen mode
+- **22 live webcams** — geopolitical hotspot streams across 5 regions with Iran/Attacks dedicated tab
+- **Custom keyword monitors** — user-defined alerts with word-boundary matching and auto-coloring
+
+### Scoring & Detection
+
+- **Country Instability Index (CII)** — real-time stability scores using weighted multi-signal blend across 23 tier-1 nations + universal scoring for all countries. [Details →](./docs/ALGORITHMS.md#country-instability-index-cii)
+- **Hotspot Escalation** — dynamic scoring blending news activity, CII, geo-convergence, and military signals. [Details →](./docs/ALGORITHMS.md#hotspot-escalation-scoring)
+- **Strategic Risk Score** — composite geopolitical risk from convergence, CII, infrastructure, theater, and breaking news. [Details →](./docs/ALGORITHMS.md#strategic-risk-score-algorithm)
+- **Signal Aggregation** — multi-source fusion with temporal baseline anomaly detection (Welford's algorithm). [Details →](./docs/ALGORITHMS.md#signal-aggregation)
+- **Cross-Stream Correlation** — 14 signal types detecting patterns across news, markets, military, and predictions. [Details →](./docs/ALGORITHMS.md#cross-stream-correlation-engine)
+
+### Finance & Markets
+
+- **Macro Signal Analysis** — 7-signal market radar with composite BUY/CASH verdict. [Details →](./docs/FINANCE_DATA.md#macro-signal-analysis-market-radar)
+- **Gulf FDI** — 64 Saudi/UAE investments plotted globally. [Details →](./docs/FINANCE_DATA.md#gulf-fdi-investment-database)
+- **Stablecoin & BTC ETF** — peg health monitoring and spot ETF flow tracking. [Details →](./docs/FINANCE_DATA.md)
+- **Oil & Energy** — WTI/Brent prices, production, inventory via EIA. [Details →](./docs/FINANCE_DATA.md#oil--energy-analytics)
+- **BIS & WTO** — central bank rates, trade policy intelligence. [Details →](./docs/FINANCE_DATA.md)
+- **Premium Stock Analysis** — analysis engine with stored history, backtesting, and daily market brief. [Details →](./docs/PREMIUM_FINANCE.md)
+
+### Desktop & Mobile
+
+- **Native desktop app** (Tauri) — macOS, Windows, Linux with OS keychain, local sidecar, and cloud fallback. [Details →](./docs/DESKTOP_APP.md)
+- **Progressive Web App** — installable with offline map support (CacheFirst tiles, 500-tile cap)
+- **Mobile-optimized map** — touch pan with inertia, pinch-to-zoom, bottom-sheet popups, GPS centering
+- **Responsive layout** — ultra-wide L-shaped layout on 2000px+, collapsible panels, mobile search sheet
+
+### Platform Features
+
+- **21 languages** — lazy-loaded bundles with native-language RSS feeds, AI translation, and RTL support
+- **Cmd+K command palette** — fuzzy search across 24 result types, layer presets, ~250 country commands
+- **Proto-first API contracts** — 92 proto files, 22 services, auto-generated TypeScript + OpenAPI docs
+- **Dark/light theme** — persistent toggle with 20+ semantic color variables
+- **Story sharing** — intelligence briefs exportable to Twitter/X, LinkedIn, WhatsApp, Telegram, Reddit with OG images
+
+---
+
+## How It Works
+
+### AI & Analysis Pipeline
+
+**AI Summarization** — 4-tier provider chain (Ollama → Groq → OpenRouter → browser T5) with headline deduplication, variant-aware prompting, and Redis caching (24h TTL). [Details →](./docs/AI_INTELLIGENCE.md#ai-summarization-chain)
+
+**AI Deduction** — interactive geopolitical forecasting grounded in 15 most recent headlines, cached 1 hour by query hash. [Details →](./docs/AI_INTELLIGENCE.md#ai-deduction--forecasting)
+
+**Headline Memory** — opt-in ONNX-powered RAG system storing 5,000 headline vectors in IndexedDB for semantic search. [Details →](./docs/AI_INTELLIGENCE.md#client-side-headline-memory-rag)
+
+**Threat Classification** — three-stage pipeline: instant keyword → browser ML → batched LLM, each improving confidence. [Details →](./docs/AI_INTELLIGENCE.md#threat-classification-pipeline)
+
+**Browser-Side ML** — Transformers.js runs NER, sentiment, and embeddings entirely in the browser via Web Workers. [Details →](./docs/AI_INTELLIGENCE.md#browser-side-ml-pipeline)
+
+### Scoring Algorithms
+
+**Country Instability Index** — 0–100 score from baseline risk (40%), unrest (20%), security (20%), and information velocity (20%), with conflict-zone floors and travel advisory boosts. [Details →](./docs/ALGORITHMS.md#country-instability-index-cii)
+
+**Hotspot Escalation** — blends news (35%), CII (25%), geo-convergence (25%), and military (15%) with 48-hour trend regression. [Details →](./docs/ALGORITHMS.md#hotspot-escalation-scoring)
+
+**Strategic Theater Posture** — 9 operational theaters assessed for NORMAL → ELEVATED → CRITICAL based on aircraft, strike capability, naval presence, and regional CII. [Details →](./docs/ALGORITHMS.md#strategic-theater-posture-assessment)
+
+**Geographic Convergence** — 1°×1° spatial binning detects 3+ event types co-occurring within 24 hours. [Details →](./docs/ALGORITHMS.md#geographic-convergence-detection)
+
+**Trending Keywords** — 2-hour rolling window vs 7-day baseline flags surging terms with CVE/APT extraction. [Details →](./docs/ALGORITHMS.md#trending-keyword-spike-detection)
+
+### Data Collection
+
+**435+ RSS feeds** with 4-tier source credibility, server-side aggregation, and per-feed circuit breakers. [Details →](./docs/DATA_SOURCES.md)
+
+**Military tracking** — ADS-B flights, AIS vessels, USNI fleet reports, Wingbits aircraft enrichment. [Details →](./docs/DATA_SOURCES.md#intelligence-feeds)
+
+**Telegram OSINT** — 26 channels via MTProto with dedup and topic classification. [Details →](./docs/DATA_SOURCES.md#telegram-osint-intelligence-feed)
+
+**OREF rocket alerts** — Israel Home Front Command sirens via residential proxy. [Details →](./docs/DATA_SOURCES.md#oref-rocket-alert-integration)
+
+**Prediction markets** — Polymarket contracts with 4-tier fetch and country matching. [Details →](./docs/DATA_SOURCES.md#prediction-markets)
+
+### Architecture Overview
+
+**Vanilla TypeScript** — no framework, direct DOM manipulation, custom Panel/VirtualList classes. The entire app shell weighs less than React's runtime. [Details →](./docs/ARCHITECTURE.md)
+
+**Proto-first APIs** — 22 typed service domains with auto-generated clients, servers, and OpenAPI docs. [Details →](./docs/ARCHITECTURE.md#proto-first-api-contracts)
+
+**Edge functions** — 60+ Vercel Edge Functions split into per-domain thin entry points (~85% cold-start reduction). [Details →](./docs/ARCHITECTURE.md#edge-functions--deployment)
+
+**3-tier caching** — in-memory → Redis → upstream with cache stampede prevention and stale-on-error fallback. [Details →](./docs/ARCHITECTURE.md#bandwidth--caching)
+
+**Bootstrap hydration** — 15 Redis keys pre-fetched in a single pipeline call for sub-second first render. [Details →](./docs/ARCHITECTURE.md#bootstrap-hydration)
+
+**SmartPollLoop** — adaptive refresh with exponential backoff, hidden-tab throttle, and circuit breaker integration. [Details →](./docs/ARCHITECTURE.md#smartpollloop--adaptive-data-refresh)
+
+---
+
+## Multi-Variant Architecture
+
+A single codebase produces five specialized dashboards, each with distinct feeds, panels, map layers, and branding:
+
+| Aspect                | WorldView Monitor                                        | Tech Monitor                                    | Finance Monitor                                  | Commodity Monitor                                         | Happy Monitor                                         |
+| --------------------- | ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------- |
+| **Domain**            | worldview.app                                     | tech.worldview.app                           | finance.worldview.app                         | commodity.worldview.app                                | happy.worldview.app                                |
+| **Focus**             | Geopolitics, military, conflicts                     | AI/ML, startups, cybersecurity                  | Markets, trading, central banks                  | Mining, metals, energy commodities, critical minerals     | Good news, conservation, human progress               |
+| **RSS Feeds**         | 15 categories, 200+ feeds (politics, MENA, Africa, think tanks) | 21 categories, 152 feeds (AI, VC blogs, startups, GitHub) | 14 categories, 55 feeds (forex, bonds, commodities, IPOs) | 10 categories, 50+ feeds (gold/silver, energy, mining, critical minerals, base metals) | 5 categories, 21 positive-news sources (GNN, Positive.News, Upworthy) |
+| **Panels**            | 45 (strategic posture, CII, cascade, trade policy, airline intel, predictions) | 28 (AI labs, unicorns, accelerators, tech readiness) | 27 (forex, bonds, derivatives, trade policy, gulf economies) | 16 (live prices, sector heatmap, gold/silver, energy, mining, critical minerals, base metals, supply chain) | 10 (good news, breakthroughs, conservation, renewables, giving) |
+| **Unique Map Layers** | Military bases, nuclear facilities, hotspots         | Tech HQs, cloud regions, startup hubs           | Stock exchanges, central banks, Gulf investments | Mine sites, processing plants, commodity ports, commodity hubs, pipelines, trade routes | Positive events, kindness, species recovery, renewables |
+| **Desktop App**       | WorldView Monitor.app / .exe / .AppImage                 | Tech Monitor.app / .exe / .AppImage             | Finance Monitor.app / .exe / .AppImage           | (web-only)                                                | (web-only)                                            |
+
+Single-deployment consolidation — all five variants serve from one Vercel deployment, determined by hostname. Build-time `VITE_VARIANT` tree-shakes unused data. Runtime variant selector in the header bar.
+
+---
+
+## Programmatic API Access
+
+Every data endpoint is accessible programmatically via `api.worldview.app`. The API uses the same edge functions that power the dashboard, with the same caching and rate limiting:
 
 ```bash
-# 1. Clone
-git clone <repo-url> osint-worldview && cd osint-worldview
+# Fetch market quotes
+curl -s 'https://api.worldview.app/api/market/v1/list-market-quotes?symbols=AAPL,MSFT,GOOGL'
 
-# 2. Copy env
-cp .env.example .env
+# Get airport delays
+curl -s 'https://api.worldview.app/api/aviation/v1/list-airport-delays'
 
-# 3. Start everything
-docker compose up --build -d
+# Fetch climate anomalies
+curl -s 'https://api.worldview.app/api/climate/v1/list-climate-anomalies'
 
-# 4. Seed default sources & rules
-docker compose exec backend python scripts/seed.py
+# Get earthquake data
+curl -s 'https://api.worldview.app/api/seismology/v1/list-earthquakes'
 
-# 5. Open the app
-open http://localhost:3000
+# Company enrichment (GitHub, SEC filings, HN mentions)
+curl -s 'https://api.worldview.app/api/enrichment/company?domain=stripe.com'
+
+# Company signal discovery (funding, hiring, exec changes)
+curl -s 'https://api.worldview.app/api/enrichment/signals?company=Stripe&domain=stripe.com'
 ```
 
-| Service   | URL |
-|-----------|-----|
-| Frontend  | http://localhost:3000 |
-| Backend API | http://localhost:8000/api |
-| API Docs  | http://localhost:8000/docs |
-| Postgres  | localhost:5432 |
-| Redis     | localhost:6379 |
+All 22 service domains are available as REST endpoints following the pattern `POST /api/{domain}/v1/{rpc-name}`. GET requests with query parameters are supported for read-only RPCs. Responses include `X-Cache` headers (`HIT`, `REDIS-HIT`, `MISS`) for cache debugging and `Cache-Control` headers for CDN integration.
 
-## Local Dev (no Docker)
+> **Note**: Use `api.worldview.app`, not `worldview.app` — the main domain requires browser origin headers and returns 403 for programmatic access.
 
-### Backend
+---
+
+## Security Model
+
+| Layer                          | Mechanism                                                                                                                                                                                                                                          |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **CORS origin allowlist**      | Only `worldview.app`, `tech.worldview.app`, `finance.worldview.app`, and `localhost:*` can call API endpoints. All others receive 403. Implemented in `api/_cors.js`.                                                                     |
+| **RSS domain allowlist**       | The RSS proxy only fetches from explicitly listed domains (~90+). Requests for unlisted domains are rejected with 403.                                                                                                                             |
+| **Railway domain allowlist**   | The Railway relay has a separate, smaller domain allowlist for feeds that need the alternate origin.                                                                                                                                               |
+| **API key isolation**          | All API keys live server-side in Vercel environment variables. The browser never sees Groq, OpenRouter, ACLED, Finnhub, or other credentials.                                                                                                      |
+| **Input sanitization**         | User-facing content passes through `escapeHtml()` (prevents XSS) and `sanitizeUrl()` (blocks `javascript:` and `data:` URIs). URLs use `escapeAttr()` for attribute context encoding.                                                              |
+| **Query parameter validation** | API endpoints validate input formats (e.g., stablecoin coin IDs must match `[a-z0-9-]+`, bounding box params are numeric).                                                                                                                         |
+| **IP rate limiting**           | AI endpoints use Upstash Redis-backed rate limiting to prevent abuse of Groq/OpenRouter quotas.                                                                                                                                                    |
+| **Desktop sidecar auth**       | The local API sidecar requires a per-session `Bearer` token generated at launch. The token is stored in Rust state and injected into the sidecar environment — only the Tauri frontend can retrieve it via IPC. Health check endpoints are exempt. |
+| **OS keychain storage**        | Desktop API keys are stored in the operating system's credential manager (macOS Keychain, Windows Credential Manager), never in plaintext files or environment variables on disk.                                                                  |
+| **SSRF protection**            | Two-phase URL validation: protocol allowlist, private IP rejection, DNS rebinding detection, and TOCTOU-safe address pinning.                                                                                                                     |
+| **IPC window hardening**       | All sensitive Tauri IPC commands gate on `require_trusted_window()` with a `TRUSTED_WINDOWS` allowlist.                                                                                                                                            |
+| **Bot protection middleware**  | Edge Middleware blocks crawlers from `/api/*` routes. Social preview bots are selectively allowed on `/api/story` and `/api/og-story`.                                                                                                             |
+
+---
+
+## Regression Testing
+
+The test suite includes **30 test files** with **554 individual test cases** across **147 describe blocks**, covering server handlers, caching behavior, data integrity, and map overlays.
+
+**Unit & integration tests** (`npm test`) validate:
+
+| Area | Test Files | Coverage |
+| --- | --- | --- |
+| **Server handlers** | `server-handlers`, `supply-chain-handlers`, `supply-chain-v2` | All 22 proto service handler imports, route registration, response schemas |
+| **Caching** | `redis-caching`, `route-cache-tier`, `flush-stale-refreshes` | Cache key construction, TTL tiers, stale refresh coalescing, stampede prevention |
+| **Data integrity** | `bootstrap`, `deploy-config`, `edge-functions` | Bootstrap key sync between `cache-keys.ts` and `bootstrap.js`, all 57 edge function self-containment (no `../server/` imports), version sync across package.json/tauri.conf.json/Cargo.toml |
+| **Intelligence** | `military-classification`, `clustering`, `insights-loader`, `summarize-reasoning` | Military confidence scoring, news clustering algorithms, AI brief generation, LLM reasoning chain parsing |
+| **Map & geo** | `countries-geojson`, `globe-2d-3d-parity`, `map-locale`, `geo-keyword-matching` | GeoJSON polygon validity, flat/globe layer parity, locale-aware map labels, 217-hub keyword matching |
+| **Protocols** | `oref-proxy`, `oref-locations`, `oref-breaking`, `live-news-hls` | OREF alert parsing, 1480 Hebrew→English location translations, HLS stream detection |
+| **Circuit breakers** | `hapi-gdelt-circuit-breakers`, `tech-readiness-circuit-breakers`, `smart-poll-loop` | Per-source failure isolation, adaptive backoff, hidden-tab throttling |
+| **Data sources** | `gulf-fdi-data`, `ttl-acled-ais-guards`, `urlState` | Gulf FDI coordinate validation, ACLED/AIS TTL guards, URL state encoding/decoding |
+
+**E2E map tests** use Playwright with the map harness (`/tests/map-harness.html`) for overlay behavior validation.
+
+---
+
+## Quick Start
 
 ```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-# Update .env to point to local Postgres/Redis
-# DATABASE_URL=postgresql+psycopg2://osint:osint@localhost:5432/osint
-# REDIS_URL=redis://localhost:6379/0
-
-alembic upgrade head
-python scripts/seed.py
-uvicorn app.main:app --reload --port 8000
+# Clone and run
+git clone https://github.com/amanimran786/osint-worldview.git
+cd worldmonitor
+npm install
+vercel dev       # Runs frontend + all 60+ API edge functions
 ```
 
-### Celery Worker
+Open [http://localhost:3000](http://localhost:3000)
+
+> **Note**: `vercel dev` requires the [Vercel CLI](https://vercel.com/docs/cli) (`npm i -g vercel`). If you use `npm run dev` instead, only the frontend starts — news feeds and API-dependent panels won't load. See [Self-Hosting](#self-hosting) for details.
+
+### Environment Variables (Optional)
+
+The dashboard works without any API keys — panels for unconfigured services simply won't appear. For full functionality, copy the example file and fill in the keys you need:
 
 ```bash
-cd backend
-celery -A app.tasks.celery_app:celery worker --loglevel=info
+cp .env.example .env.local
 ```
 
-### Celery Beat
+The `.env.example` file documents every variable with descriptions and registration links, organized by deployment target (Vercel vs Railway). Key groups:
+
+| Group             | Variables                                                                  | Free Tier                                  |
+| ----------------- | -------------------------------------------------------------------------- | ------------------------------------------ |
+| **AI (Local)**    | `OLLAMA_API_URL`, `OLLAMA_MODEL`                                           | Free (runs on your hardware)               |
+| **AI (Cloud)**    | `GROQ_API_KEY`, `OPENROUTER_API_KEY`                                       | 14,400 req/day (Groq), 50/day (OpenRouter) |
+| **Cache**         | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`                       | 10K commands/day                           |
+| **Markets**       | `FINNHUB_API_KEY`, `FRED_API_KEY`, `EIA_API_KEY`                           | All free tier                              |
+| **Tracking**      | `WINGBITS_API_KEY`, `AISSTREAM_API_KEY`                                    | Free                                       |
+| **Geopolitical**  | `ACLED_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `NASA_FIRMS_API_KEY`         | Free for researchers                       |
+| **Relay**         | `WS_RELAY_URL`, `VITE_WS_RELAY_URL`, `OPENSKY_CLIENT_ID/SECRET`            | Self-hosted                                |
+| **UI**            | `VITE_VARIANT`, `VITE_MAP_INTERACTION_MODE` (`flat` or `3d`, default `3d`) | N/A                                        |
+| **Observability** | `VITE_SENTRY_DSN` (optional, empty disables reporting)                     | N/A                                        |
+
+See [`.env.example`](./.env.example) for the complete list with registration links.
+
+---
+
+## Self-Hosting
+
+WorldView Monitor relies on **60+ Vercel Edge Functions** in the `api/` directory for RSS proxying, data caching, and API key isolation. Running `npm run dev` alone starts only the Vite frontend — the edge functions won't execute, and most panels (news feeds, markets, AI summaries) will be empty.
+
+### Option 1: Deploy to Vercel (Recommended)
+
+The simplest path — Vercel runs the edge functions natively on their free tier:
 
 ```bash
-cd backend
-celery -A app.tasks.celery_app:celery beat --loglevel=info
+npm install -g vercel
+vercel          # Follow prompts to link/create project
 ```
 
-### Frontend
+Add your API keys in the Vercel dashboard under **Settings → Environment Variables**, then visit your deployment URL. The free Hobby plan supports all 60+ edge functions.
+
+### Option 2: Local Development with Vercel CLI
+
+To run everything locally (frontend + edge functions):
 
 ```bash
-cd frontend
-pnpm install
-pnpm dev          # http://localhost:5174  (proxies /api → backend:8000)
+npm install -g vercel
+cp .env.example .env.local   # Add your API keys
+vercel dev                   # Starts on http://localhost:3000
 ```
 
-## API Endpoints
+> **Important**: Use `vercel dev` instead of `npm run dev`. The Vercel CLI emulates the edge runtime locally so all `api/` endpoints work. Plain `npm run dev` only starts Vite and the API layer won't be available.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/health/live` | Liveness probe |
-| GET | `/api/health/ready` | Readiness probe |
-| GET | `/api/signals/` | List signals (filter: status, source, min_severity) |
-| POST | `/api/signals/` | Ingest a signal |
-| PATCH | `/api/signals/{id}` | Update signal status/case |
-| GET | `/api/rules/` | List rules |
-| POST | `/api/rules/` | Create rule |
-| PUT | `/api/rules/{id}` | Update rule |
-| DELETE | `/api/rules/{id}` | Delete rule |
-| GET | `/api/cases/` | List cases |
-| POST | `/api/cases/` | Create case |
-| PATCH | `/api/cases/{id}` | Update case |
-| DELETE | `/api/cases/{id}` | Delete case |
-| GET | `/api/cases/{id}/notes` | List notes for case |
-| POST | `/api/cases/{id}/notes` | Add note to case |
-| GET | `/api/sources/` | List sources |
-| POST | `/api/sources/` | Create source |
-| PUT | `/api/sources/{id}` | Update source |
-| DELETE | `/api/sources/{id}` | Delete source |
-| POST | `/api/sources/{id}/poll` | Trigger single source poll |
-| POST | `/api/sources/poll-all` | Trigger poll of all sources |
-| POST | `/api/auth/token` | Get JWT token (stub) |
+### Option 3: Static Frontend Only
 
-## Project Structure
+If you only want the map and client-side features (no news feeds, no AI, no market data):
 
+```bash
+npm run dev    # Vite dev server on http://localhost:5173
 ```
-osint-worldview/
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-├── README.md
-├── backend/
-│   ├── Dockerfile
-│   ├── Dockerfile.worker
-│   ├── requirements.txt
-│   ├── alembic.ini
-│   ├── .env
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── core/config.py
-│   │   ├── db/session.py
-│   │   ├── models/entities.py
-│   │   ├── schemas/schemas.py
-│   │   ├── api/
-│   │   │   ├── router.py
-│   │   │   └── routes/ (health, signals, rules, cases, sources, auth)
-│   │   ├── services/scoring.py
-│   │   └── tasks/ (celery_app, ingest)
-│   ├── migrations/
-│   │   └── versions/0001_init.py
-│   └── scripts/seed.py
-└── frontend/
-    ├── Dockerfile
-    ├── nginx.conf
-    ├── package.json
-    ├── vite.config.ts
-    ├── tailwind.config.js
-    └── src/
-        ├── main.tsx
-        ├── App.tsx
-        ├── api.ts
-        ├── store.ts
-        ├── types.ts
-        ├── components/ (Sidebar, TopBar, SignalTable, SignalDetail, badges)
-        └── pages/ (Dashboard, Signals, Cases, Rules, Sources)
+
+This runs the frontend without the API layer. Panels that require server-side proxying will show "No data available". The interactive map, static data layers (bases, cables, pipelines), and browser-side ML models still work.
+
+### Platform Notes
+
+| Platform               | Status                  | Notes                                                                                                                          |
+| ---------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Vercel**             | Full support            | Recommended deployment target                                                                                                  |
+| **Linux x86_64**       | Full support            | Works with `vercel dev` for local development. Desktop .AppImage available for x86_64. WebKitGTK rendering uses DMA-BUF with fallback to SHM for GPU compatibility. Font stack includes DejaVu Sans Mono and Liberation Mono for consistent rendering across distros |
+| **macOS**              | Works with `vercel dev` | Full local development                                                                                                         |
+| **Raspberry Pi / ARM** | Partial                 | `vercel dev` edge runtime emulation may not work on ARM. Use Option 1 (deploy to Vercel) or Option 3 (static frontend) instead |
+| **Docker**             | Official image         | See [Docker image](#docker-image-official) ([#1260](https://github.com/amanimran786/osint-worldview/issues/1260))                    |
+
+### Docker image (official)
+
+An official Docker image is published to GitHub Container Registry on each [release](https://github.com/amanimran786/osint-worldview/releases) ([#1260](https://github.com/amanimran786/osint-worldview/issues/1260)):
+
+- **Image**: `ghcr.io/amanimran786/osint-worldview`
+- **Architectures**: `linux/amd64`, `linux/arm64`
+- **Tags**: `latest`, `vX.Y.Z` (e.g. `v2.6.0`), and `X.Y` (e.g. `2.6`)
+
+The image is **frontend-only**: it serves the Vite-built static app with nginx and proxies `/api/*` to an upstream API. No Node or edge functions run inside the container.
+
+**Build (from repo root):**
+
+```bash
+docker build -f docker/Dockerfile -t ghcr.io/amanimran786/osint-worldview:latest .
 ```
+
+**Run (default API: `https://api.worldview.app`):**
+
+```bash
+docker run -d --name worldmonitor -p 3000:80 ghcr.io/amanimran786/osint-worldview:latest
+```
+
+Then open [http://localhost:3000](http://localhost:3000).
+
+**Environment variables:**
+
+| Variable        | Default                        | Description                                      |
+| --------------- | ------------------------------ | ------------------------------------------------ |
+| `API_UPSTREAM`  | `https://api.worldview.app` | Backend URL for `/api/*` proxy (set at runtime)  |
+
+The proxy forwards the upstream host (`Host: <API_UPSTREAM host>`) so the default API receives the correct Host. If your backend expects a different Host, configure it accordingly.
+
+Example with a custom API backend:
+
+```bash
+docker run -d -p 3000:80 -e API_UPSTREAM=http://my-api:3001 ghcr.io/amanimran786/osint-worldview:latest
+```
+
+Build-time options (optional, for custom builds): pass `VITE_VARIANT` and `VITE_WS_API_URL` via `--build-arg`. Other `VITE_*` vars the app uses (e.g. `VITE_PMTILES_URL`, `VITE_WS_RELAY_URL`) can be added the same way; see `.env.example` for the full list.
+
+### Railway Relay (Optional)
+
+The Railway relay is a multi-protocol gateway that handles data sources requiring persistent connections, residential proxying, or upstream APIs that block Vercel's edge runtime:
+
+```bash
+# On Railway, deploy with:
+node scripts/ais-relay.cjs
+```
+
+| Service                 | Protocol        | Purpose                                                              |
+| ----------------------- | --------------- | -------------------------------------------------------------------- |
+| **AIS Vessel Tracking** | WebSocket       | Live AIS maritime data with chokepoint detection and density grids   |
+| **OpenSky Aircraft**    | REST (polling)  | Military flight tracking across merged query regions                 |
+| **Telegram OSINT**      | MTProto (GramJS)| 26 OSINT channels polled on 60s cycle with FLOOD_WAIT handling       |
+| **OREF Rocket Alerts**  | curl + proxy    | Israel Home Front Command sirens via residential proxy (Akamai WAF)  |
+| **Polymarket Proxy**    | HTTPS           | JA3 fingerprint bypass with request queuing and cache deduplication   |
+| **ICAO NOTAM**          | REST            | Airport/airspace closure detection for 46 MENA airports              |
+
+Set `WS_RELAY_URL` (server-side, HTTPS) and `VITE_WS_RELAY_URL` (client-side, WSS) in your environment. Without the relay, AIS, OpenSky, Telegram, and OREF layers won't show live data, but all other features work normally.
+
+---
 
 ## Tech Stack
 
-| Layer | Tech |
-|-------|------|
-| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Three.js, @react-three/fiber, Zustand, Axios, Lucide icons, Recharts |
-| Backend | FastAPI, Pydantic v2, SQLAlchemy 2.0 (sync), Alembic |
-| AI | Claude (Anthropic), OpenAI, Google Gemini — multi-provider with automatic fallback |
-| Worker | Celery 5.4 + Redis broker/backend |
-| Database | PostgreSQL 16 (prod), SQLite (dev) |
-| Ingest | feedparser (RSS), httpx, USGS API, ReliefWeb API, abuse.ch, OpenWeatherMap |
-| Auth | python-jose (JWT), passlib (bcrypt) |
-| Deploy | Docker, Render.com (free forever), GitHub Actions CI/CD |
+| Category              | Technologies                                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**          | Vanilla TypeScript (no framework), Vite, globe.gl + Three.js (3D globe), deck.gl + MapLibre GL (flat map), vite-plugin-pwa (service worker + manifest) |
+| **Desktop**           | Tauri 2 (Rust) with Node.js sidecar, OS keychain integration (keyring crate), native TLS (reqwest)                                             |
+| **AI/ML**             | Ollama / LM Studio (local, OpenAI-compatible), Groq (Llama 3.1 8B), OpenRouter (fallback), Transformers.js (browser-side T5, NER, embeddings), IndexedDB vector store (5K headline RAG) |
+| **Caching**           | Redis (Upstash) — 3-tier cache with in-memory + Redis + upstream, cross-user AI deduplication. Vercel CDN (s-maxage). Service worker (Workbox) |
+| **Geopolitical APIs** | OpenSky, GDELT, ACLED, UCDP, HAPI, USGS, GDACS, NASA EONET, NASA FIRMS, Polymarket, Cloudflare Radar, WorldPop, OREF (Israel sirens), gpsjam.org (GPS interference), Telegram MTProto (26 OSINT channels) |
+| **Market APIs**       | Yahoo Finance (equities, forex, crypto), CoinGecko (stablecoins), mempool.space (BTC hashrate), alternative.me (Fear & Greed)                  |
+| **Threat Intel APIs** | abuse.ch (Feodo Tracker, URLhaus), AlienVault OTX, AbuseIPDB, C2IntelFeeds                                                                     |
+| **Economic APIs**     | FRED (Federal Reserve), EIA (Energy), Finnhub (stock quotes)                                                                                   |
+| **Localization**      | i18next (21 languages: en, bg, ro, fr, de, es, it, pl, pt, nl, sv, ru, ar, zh, ja, tr, th, vi, cs, el, ko), RTL support, lazy-loaded bundles, native-language feeds for 21 locales with one-time locale boost |
+| **API Contracts**     | Protocol Buffers (92 proto files, 22 services), sebuf HTTP annotations, buf CLI (lint + breaking checks), auto-generated TypeScript clients/servers + OpenAPI 3.1.0 docs |
+| **Analytics**         | Vercel Analytics (privacy-first, lightweight web vitals and page view tracking)                                                                 |
+| **Deployment**        | Vercel Edge Functions (60+ endpoints) + Railway (WebSocket relay + Telegram + OREF + Polymarket proxy + NOTAM) + Tauri (macOS/Windows/Linux) + PWA (installable) |
+| **Finance Data**      | 92 stock exchanges, 19 financial centers, 13 central banks, 10 commodity hubs, 64 Gulf FDI investments                                         |
+| **Data**              | 435+ RSS feeds across all 4 variants, ADS-B transponders, AIS maritime data, VIIRS satellite imagery, 30+ live video channels (8+ default YouTube + 18+ HLS native), 26 Telegram OSINT channels |
 
-## Deploy to Production
+---
 
-### Option 1: Render.com ⭐ (recommended — permanently free)
+---
 
-Render.com free tier: no credit card, no trial, no expiry. 750 hrs/month.
+## Contributing
 
-1. Go to [render.com](https://render.com) → Sign up with GitHub
-2. Click **"New Web Service"** → Connect `amanimran786/osint-worldview`
-3. Render auto-detects the `render.yaml` blueprint — click **"Apply"**
-4. Wait ~3 min for build → your app is live at `https://osint-worldview.onrender.com`
-
-**Auto-deploy:** Every push to `main` auto-deploys (Render watches the repo).
-
-**Optional GitHub Actions deploy hook:**
-1. In Render dashboard → your service → Settings → Deploy Hook → copy URL
-2. GitHub repo → Settings → Secrets → add `RENDER_DEPLOY_HOOK`
-3. Pushes now also trigger via `.github/workflows/deploy.yml`
-
-> ⚠️ Free tier sleeps after 15min idle (~30s cold start on first request)
-
-### Option 2: Docker (self-hosted)
+Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines, including the Sebuf RPC framework workflow, how to add data sources and RSS feeds, and our AI-assisted development policy. The project also maintains a [Code of Conduct](./CODE_OF_CONDUCT.md) and [Security Policy](./SECURITY.md) for responsible vulnerability disclosure.
 
 ```bash
-# Full stack with Postgres + Redis + Celery
-docker compose up --build -d
+# Development
+npm run dev          # Full variant (worldview.app)
+npm run dev:tech     # Tech variant (tech.worldview.app)
+npm run dev:finance    # Finance variant (finance.worldview.app)
+npm run dev:commodity  # Commodity variant (commodity.worldview.app)
+npm run dev:happy      # Happy variant (happy.worldview.app)
 
-# Or standalone production build
-docker build -t osint-worldview .
-docker run -p 8000:8000 \
-  -e ENV=production \
-  -e DATABASE_URL=sqlite:////app/osint_worldview.db \
-  -e SECRET_KEY=change-me \
-  osint-worldview
+# Production builds
+npm run build:full       # Build full variant
+npm run build:tech       # Build tech variant
+npm run build:finance    # Build finance variant
+npm run build:commodity  # Build commodity variant
+npm run build:happy      # Build happy variant
+
+# Quality (also runs automatically on PRs via GitHub Actions)
+npm run typecheck    # TypeScript type checking (tsc --noEmit)
+
+# Desktop packaging
+npm run desktop:package:macos:full      # .app + .dmg (WorldView Monitor)
+npm run desktop:package:macos:tech      # .app + .dmg (Tech Monitor)
+npm run desktop:package:macos:finance   # .app + .dmg (Finance Monitor)
+npm run desktop:package:windows:full    # .exe + .msi (WorldView Monitor)
+npm run desktop:package:windows:tech    # .exe + .msi (Tech Monitor)
+npm run desktop:package:windows:finance # .exe + .msi (Finance Monitor)
+
+# Generic packaging runner
+npm run desktop:package -- --os macos --variant full
+
+# Signed packaging (same targets, requires signing env vars)
+npm run desktop:package:macos:full:sign
+npm run desktop:package:windows:full:sign
 ```
 
-### CI/CD
+Desktop release details, signing hooks, variant outputs, and clean-machine validation checklist:
 
-`.github/workflows/deploy.yml` auto-deploys to Render on every push to `main`.
+- [docs/RELEASE_PACKAGING.md](./docs/RELEASE_PACKAGING.md)
+
+---
+
+## Roadmap
+
+**Completed highlights** — 4 variant dashboards, 60+ edge functions, dual map engine, native desktop app (Tauri), 21 languages, proto-first API contracts, AI summarization + deduction + RAG, 30+ live video streams, Telegram OSINT, OREF rocket alerts, CII scoring, cross-stream correlation, and much more.
+
+**Upcoming:**
+
+- [ ] Mobile-optimized views
+- [ ] Push notifications for critical alerts
+
+See [full roadmap](./docs/DOCUMENTATION.md#roadmap).
+
+---
+
+## Support the Project
+
+If you find WorldView Monitor useful:
+
+- **Star this repo** to help others discover it
+- **Share** with colleagues interested in OSINT
+- **Contribute** code, data sources, or documentation
+- **Report issues** to help improve the platform
+
+---
 
 ## License
 
-MIT
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)** — see [LICENSE](LICENSE) for the full text.
+
+### What This Means
+
+**You are free to:**
+
+- **Use** — run WorldView Monitor for any purpose, including commercial use
+- **Study** — read, audit, and learn from the source code
+- **Modify** — adapt, extend, and build upon the code
+- **Distribute** — share copies with anyone
+
+**Under these conditions:**
+
+- **Source code disclosure** — if you distribute or modify this software, you **must** make the complete source code available under the same AGPL-3.0 license
+- **Network use is distribution** — if you run a modified version as a network service (SaaS, web app, API), you **must** provide the source code to all users who interact with it over the network. This is the key difference from GPL-3.0 — you cannot run a modified version behind a server without sharing the source
+- **Same license (copyleft)** — any derivative work must be released under AGPL-3.0. You cannot re-license under a proprietary or more permissive license
+- **Attribution** — you must retain all copyright notices, give appropriate credit to the original author, and clearly indicate any changes you made
+- **State changes** — modified files must carry prominent notices stating that you changed them, with the date of the change
+- **No additional restrictions** — you may not impose any further restrictions on the rights granted by this license (e.g., no DRM, no additional terms)
+
+**In plain terms:**
+
+| Use Case | Allowed? | Condition |
+|----------|----------|-----------|
+| Personal / internal use | Yes | No conditions |
+| Self-hosted deployment | Yes | No conditions if unmodified |
+| Forking & modifying | Yes | Must share source under AGPL-3.0 |
+| Commercial use | Yes | Must share source under AGPL-3.0 |
+| Running as a SaaS/web service | Yes | Must share source under AGPL-3.0 |
+| Bundling into a proprietary product | No | AGPL-3.0 copyleft prevents this |
+
+**No warranty** — the software is provided "as is" without warranty of any kind.
+
+Copyright (C) 2024-2026 Elie Habib. All rights reserved under AGPL-3.0.
+
+---
+
+## Author
+
+**Elie Habib** — [GitHub](https://github.com/koala73)
+
+---
+
+## Contributors
+
+<a href="https://github.com/amanimran786/osint-worldview/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=amanimran786/osint-worldview" />
+</a>
+
+---
+
+## Security Acknowledgments
+
+We thank the following researchers for responsibly disclosing security issues:
+
+- **Cody Richard** — Disclosed three security findings covering IPC command exposure via DevTools in production builds, renderer-to-sidecar trust boundary analysis, and the global fetch patch credential injection architecture (2026)
+
+If you discover a vulnerability, please see our [Security Policy](./SECURITY.md) for responsible disclosure guidelines.
+
+---
+
+<p align="center">
+  <a href="https://worldview.app">worldview.app</a> &nbsp;·&nbsp;
+  <a href="https://tech.worldview.app">tech.worldview.app</a> &nbsp;·&nbsp;
+  <a href="https://finance.worldview.app">finance.worldview.app</a> &nbsp;·&nbsp;
+  <a href="https://commodity.worldview.app">commodity.worldview.app</a>
+</p>
+
+## Star History
+
+<a href="https://api.star-history.com/svg?repos=amanimran786/osint-worldview&type=Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=amanimran786/osint-worldview&type=Date&type=Date&theme=dark" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=amanimran786/osint-worldview&type=Date&type=Date" />
+ </picture>
+</a>
