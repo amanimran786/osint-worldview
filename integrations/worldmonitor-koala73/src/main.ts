@@ -28,7 +28,7 @@ Sentry.init({
     /importScripts/,
     /^TypeError: Load failed( \(.*\))?$/,
     /^TypeError: Failed to fetch( \(.*\))?$/,
-    /^TypeError: cancelled$/,
+    /^TypeError: (?:cancelled|avbruten)$/,
     /^TypeError: NetworkError/,
     /runtime\.sendMessage\(\)/,
     /Java object is gone/,
@@ -225,6 +225,9 @@ Sentry.init({
     /VConsole is not defined/,
     /exitFullscreen.*Document not active/,
     /Force close delete origin/,
+    /zp_token is not defined/,
+    /literal not terminated before end of script/,
+    /'' is not a valid selector/,
   ],
   beforeSend(event) {
     const msg = event.exception?.values?.[0]?.value ?? '';

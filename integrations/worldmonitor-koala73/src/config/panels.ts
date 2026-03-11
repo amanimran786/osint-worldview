@@ -66,7 +66,7 @@ const FULL_MAP_LAYERS: MapLayers = {
   iranAttacks: _desktop ? false : true,
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: true,
   bases: _desktop ? false : true,
@@ -125,7 +125,7 @@ const FULL_MOBILE_MAP_LAYERS: MapLayers = {
   iranAttacks: true,
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: true,
   bases: false,
@@ -225,7 +225,7 @@ const TECH_PANELS: Record<string, PanelConfig> = {
 const TECH_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -284,7 +284,7 @@ const TECH_MAP_LAYERS: MapLayers = {
 const TECH_MOBILE_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -386,7 +386,7 @@ const FINANCE_PANELS: Record<string, PanelConfig> = {
 const FINANCE_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -445,7 +445,7 @@ const FINANCE_MAP_LAYERS: MapLayers = {
 const FINANCE_MOBILE_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -520,7 +520,7 @@ const HAPPY_PANELS: Record<string, PanelConfig> = {
 const HAPPY_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -579,7 +579,7 @@ const HAPPY_MAP_LAYERS: MapLayers = {
 const HAPPY_MOBILE_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -669,7 +669,7 @@ const COMMODITY_PANELS: Record<string, PanelConfig> = {
 const COMMODITY_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -728,7 +728,7 @@ const COMMODITY_MAP_LAYERS: MapLayers = {
 const COMMODITY_MOBILE_MAP_LAYERS: MapLayers = {
   gpsJamming: false,
   satellites: false,
-  notamOverlay: false,
+
 
   conflicts: false,
   bases: false,
@@ -929,6 +929,35 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
     labelKey: 'header.panelCatGulfMena',
     panelKeys: ['gulf-economies', 'gcc-investments', 'gccNews', 'monitors', 'world-clock'],
     variants: ['finance'],
+  },
+
+  // Commodity variant
+  commodityPrices: {
+    labelKey: 'header.panelCatCommodityPrices',
+    panelKeys: ['commodities', 'gold-silver', 'energy', 'base-metals', 'critical-minerals', 'markets', 'heatmap', 'macro-signals'],
+    variants: ['commodity'],
+  },
+  miningIndustry: {
+    labelKey: 'header.panelCatMining',
+    panelKeys: ['commodity-news', 'mining-news', 'mining-companies', 'supply-chain', 'commodity-regulation'],
+    variants: ['commodity'],
+  },
+  commodityEcon: {
+    labelKey: 'header.panelCatCommodityEcon',
+    panelKeys: ['trade-policy', 'economic', 'gulf-economies', 'gcc-investments', 'finance', 'polymarket', 'airline-intel', 'world-clock', 'monitors'],
+    variants: ['commodity'],
+  },
+
+  // Happy variant
+  happyNews: {
+    labelKey: 'header.panelCatHappyNews',
+    panelKeys: ['positive-feed', 'progress', 'counters', 'spotlight', 'breakthroughs', 'digest'],
+    variants: ['happy'],
+  },
+  happyPlanet: {
+    labelKey: 'header.panelCatHappyPlanet',
+    panelKeys: ['species', 'renewable', 'giving'],
+    variants: ['happy'],
   },
 };
 
