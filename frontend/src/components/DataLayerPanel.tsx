@@ -3,6 +3,7 @@ import type { DataLayerKey, DataLayerState, EarthquakeFeature, WeatherData, Cybe
 import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent, GdeltArticle, CountryThreatScore, RansomwareEvent, Vessel } from '../services/advancedLayers';
 import type { SiteVariant } from '../config/variants';
 import { VARIANT_DEFAULT_LAYERS } from '../config/variantProfiles';
+import { FEED_BUNDLES } from '../config/feedBundles';
 import * as api from '../api';
 import {
   fetchAirTraffic,
@@ -148,6 +149,7 @@ function applyVariantDefaults(layers: DataLayerState[], variant: SiteVariant): D
 }
 
 export function useDataLayers(variant: SiteVariant) {
+  const feedBundle = FEED_BUNDLES[variant];
   const [layers, setLayers] = useState<DataLayerState[]>(() => applyVariantDefaults(makeBaseLayers(), variant));
 
   const [data, setData] = useState<LayerData>({
@@ -184,15 +186,15 @@ export function useDataLayers(variant: SiteVariant) {
       const [eq, wx, cy, dis, fl, nasa, fire, sw, gdelt, threats, ransom, vessels] = await Promise.allSettled([
         api.fetchEarthquakes({ period: 'day', min_magnitude: 2.5 }),
         api.fetchWeather(),
-        api.fetchCyberThreats({ limit: 50 }),
+        api.fetchCyberThreats({ limit: feedBundle.cyberLimit }),
         api.fetchDisasters(),
         fetchAirTraffic(),
-        fetchNasaEvents({ days: 7, limit: 100 }),
+        feedBundle.includeNasa ? fetchNasaEvents({ days: 7, limit: 100 }) : Promise.resolve([]),
         fetchFireHotspots({ days: 1 }),
-        fetchSpaceWeather(7),
-        fetchGdeltNews(),
-        Promise.resolve(getCountryThreatScores()),
-        Promise.resolve(getRansomwareEvents()),
+        feedBundle.includeSpaceWeather ? fetchSpaceWeather(7) : Promise.resolve([]),
+        fetchGdeltNews({ query: feedBundle.gdeltQuery, maxRecords: feedBundle.gdeltMaxRecords }),
+        feedBundle.includeCountryThreats ? Promise.resolve(getCountryThreatScores()) : Promise.resolve([]),
+        feedBundle.includeRansomware ? Promise.resolve(getRansomwareEvents()) : Promise.resolve([]),
         fetchMaritimeVessels(),
       ]);
 
@@ -249,7 +251,7 @@ export function useDataLayers(variant: SiteVariant) {
     }
     setLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [feedBundle]);
 
   // Fetch on mount
   useEffect(() => { refresh(); }, [refresh]);

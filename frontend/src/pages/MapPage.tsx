@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ThreatMap } from '../components/ThreatMap';
 import { DataLayerPanel, useDataLayers } from '../components/DataLayerPanel';
 import { CityQuickJump } from '../components/CityQuickJump';
 import { VisualModeSelector } from '../components/VisualModeSelector';
 import type { City } from '../components/CityQuickJump';
 import type { VisualMode, GeoSignal, DataLayerKey, DataLayerState } from '../types';
-import { Wifi, Maximize2, Globe, Map } from 'lucide-react';
+import { Wifi, Maximize2, Globe, Map, Link2 } from 'lucide-react';
 import * as api from '../api';
 import { useVariant } from '../contexts/VariantContext';
 import { MAP_PRESETS_BY_VARIANT, VARIANT_DEFAULT_LAYERS } from '../config/variantProfiles';
@@ -13,6 +14,7 @@ import { MAP_PRESETS_BY_VARIANT, VARIANT_DEFAULT_LAYERS } from '../config/varian
 const Globe3D = lazy(() => import('../components/Globe3D').then(m => ({ default: m.Globe3D })));
 
 export function MapPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { variant, variantMeta } = useVariant();
   const { layers, data, loading, toggle, refresh, setLayers } = useDataLayers(variant);
   const [flyTo, setFlyTo] = useState<City | null>(null);
@@ -53,6 +55,43 @@ export function MapPage() {
   }, [applyPreset, variant]);
 
   const presets = MAP_PRESETS_BY_VARIANT[variant];
+
+  useEffect(() => {
+    const urlView = searchParams.get('view');
+    const urlVisual = searchParams.get('visual');
+    const urlLayers = searchParams.get('layers');
+
+    if (urlView === '2d' || urlView === '3d') setViewMode(urlView);
+    if (urlVisual && ['normal', 'crt', 'nvg', 'flir', 'noir', 'snow'].includes(urlVisual)) {
+      setVisualMode(urlVisual as VisualMode);
+    }
+    if (urlLayers) {
+      const enabled = new Set(urlLayers.split(',').filter(Boolean) as DataLayerKey[]);
+      setLayers((prev: DataLayerState[]) => prev.map((layer) => ({ ...layer, enabled: enabled.has(layer.key) })));
+    }
+    // Only parse initial URL state on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const enabledLayers = layers.filter((l) => l.enabled).map((l) => l.key).join(',');
+    const next = new URLSearchParams(searchParams);
+    next.set('view', viewMode);
+    next.set('visual', visualMode);
+    next.set('layers', enabledLayers);
+    if (next.toString() !== searchParams.toString()) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [layers, viewMode, visualMode, searchParams, setSearchParams]);
+
+  const copyShareLink = useCallback(async () => {
+    const url = `${window.location.origin}${window.location.pathname}?${searchParams.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      window.prompt('Copy monitor URL', url);
+    }
+  }, [searchParams]);
 
   const visualModeClass = {
     normal: '',
@@ -107,6 +146,13 @@ export function MapPage() {
               </button>
             </div>
             <VisualModeSelector current={visualMode} onChange={setVisualMode} />
+            <button
+              onClick={copyShareLink}
+              className="flex items-center gap-1 border border-amber/20 px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-amber/40 hover:text-amber hover:border-amber/35"
+            >
+              <Link2 className="h-3 w-3" />
+              Share
+            </button>
             <button className="text-amber/30 hover:text-amber/60 transition-colors">
               <Maximize2 className="h-4 w-4" />
             </button>

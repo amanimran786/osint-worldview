@@ -20,26 +20,29 @@ import {
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
 import { useVariant } from '../contexts/VariantContext';
+import { getNavForVariant } from '../config/navRegistry';
 
-const links = [
-  { to: '/', label: 'Dashboard', icon: Activity },
-  { to: '/signals', label: 'Signals', icon: Shield },
-  { to: '/map', label: 'World View', icon: Map },
-  { to: '/god-mode', label: '4D God Mode', icon: Eye },
-  { to: '/scanner', label: 'Scanner', icon: Scan },
-  { to: '/airspace', label: 'Airspace', icon: Plane },
-  { to: '/maritime', label: 'Maritime', icon: Ship },
-  { to: '/surveillance', label: 'Surveillance', icon: Camera },
-  { to: '/osint-bible', label: 'OSINT Bible', icon: Library },
-  { to: '/cases', label: 'Cases', icon: FolderOpen },
-  { to: '/rules', label: 'Rules', icon: BookOpen },
-  { to: '/sources', label: 'Sources', icon: Rss },
-  { to: '/analytics', label: 'Analytics', icon: BarChart3 },
-];
+const ICON_BY_ROUTE = {
+  '/': Activity,
+  '/signals': Shield,
+  '/map': Map,
+  '/god-mode': Eye,
+  '/scanner': Scan,
+  '/airspace': Plane,
+  '/maritime': Ship,
+  '/surveillance': Camera,
+  '/osint-bible': Library,
+  '/cases': FolderOpen,
+  '/rules': BookOpen,
+  '/sources': Rss,
+  '/analytics': BarChart3,
+  '/settings': Settings,
+} as const;
 
 export function Sidebar() {
   const { user, logout } = useAuth();
   const { variant, variantMeta, variants, setVariant } = useVariant();
+  const links = getNavForVariant(variant).filter((item) => item.to !== '/settings');
 
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-amber/10 bg-surface">
@@ -65,7 +68,9 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 px-2 py-3">
-        {links.map(({ to, label, icon: Icon }) => (
+        {links.map(({ to, label }) => {
+          const Icon = ICON_BY_ROUTE[to as keyof typeof ICON_BY_ROUTE] ?? Activity;
+          return (
           <NavLink
             key={to}
             to={to}
@@ -83,7 +88,8 @@ export function Sidebar() {
             <Icon className="h-3.5 w-3.5" />
             {label}
           </NavLink>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Settings + Operator */}

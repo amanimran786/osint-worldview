@@ -12,6 +12,7 @@ import {
 import * as api from '../api';
 import type { Analytics } from '../types';
 import { useVariant } from '../contexts/VariantContext';
+import { FEED_BUNDLES } from '../config/feedBundles';
 import {
   fetchAirTraffic,
   fetchNasaEvents,
@@ -26,6 +27,7 @@ import { fetchCyberThreatsDirect } from '../services/dataLayers';
 
 export function DashboardPage() {
   const { variant, variantMeta } = useVariant();
+  const feedBundle = FEED_BUNDLES[variant];
   const signals = useStore((s) => s.signals);
   const cases = useStore((s) => s.cases);
   const sources = useStore((s) => s.sources);
@@ -70,14 +72,14 @@ export function DashboardPage() {
     // Fetch live layer counts
     Promise.allSettled([
       fetchAirTraffic(),
-      fetchNasaEvents({ days: 7, limit: 100 }),
-      fetchSpaceWeather(7),
+      feedBundle.includeNasa ? fetchNasaEvents({ days: 7, limit: 100 }) : Promise.resolve([]),
+      feedBundle.includeSpaceWeather ? fetchSpaceWeather(7) : Promise.resolve([]),
       fetchNearEarthObjects(),
       fetchFireHotspots({ days: 1 }),
-      fetchGdeltNews({ query: 'conflict OR cyber OR market OR crisis', maxRecords: 40 }),
-      Promise.resolve(getCountryThreatScores()),
-      Promise.resolve(getRansomwareEvents()),
-      fetchCyberThreatsDirect({ limit: 100 }),
+      fetchGdeltNews({ query: feedBundle.gdeltQuery, maxRecords: feedBundle.gdeltMaxRecords }),
+      feedBundle.includeCountryThreats ? Promise.resolve(getCountryThreatScores()) : Promise.resolve([]),
+      feedBundle.includeRansomware ? Promise.resolve(getRansomwareEvents()) : Promise.resolve([]),
+      fetchCyberThreatsDirect({ limit: feedBundle.cyberLimit }),
     ]).then(([flights, events, sw, neoResult, fires, gdelt, threats, ransomware, cyberThreats]) => {
       const flightData = flights.status === 'fulfilled' ? flights.value : [];
       const eventData = events.status === 'fulfilled' ? events.value : [];
@@ -101,7 +103,7 @@ export function DashboardPage() {
         cyberThreats: cyberData.length,
       });
     });
-  }, [loadSignals, loadCases, loadSources]);
+  }, [loadSignals, loadCases, loadSources, feedBundle]);
 
   const { newCount, critCount, openCases } = useMemo(() => ({
     newCount: signals.filter((s) => s.status === 'New').length,

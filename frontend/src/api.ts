@@ -132,31 +132,60 @@ export async function summarizeSignals(signalIds: number[]): Promise<AISummary[]
 }
 
 export async function analyzeSignals(_limit = 20): Promise<AIAnalysis> {
-  if (!hasOpenAIKey()) {
-    return {
-      analysis: 'OpenAI API key not configured. Go to Settings to add your key for AI-powered threat analysis.',
-      threat_level: 'medium',
-      key_entities: ['Configure AI in Settings'],
-      recommended_actions: ['Add your OpenAI API key in the Settings page'],
-    };
-  }
   const signals = demo.getSignals().slice(0, _limit);
+
+  // Provider chain:
+  // 1) Browser OpenAI key
+  // 2) Backend AI route (/api/ai/analyze)
+  // 3) Local rule-based fallback
   try {
-    return await aiAnalyzeSignals(signals.map(s => ({
-      title: s.title,
-      snippet: s.snippet,
-      source: s.source,
-      severity: s.severity,
-      category: s.category,
-    })));
-  } catch (err) {
-    return {
-      analysis: `AI analysis error: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      threat_level: 'medium',
-      key_entities: [],
-      recommended_actions: ['Check your OpenAI API key in Settings'],
-    };
+    if (hasOpenAIKey()) {
+      return await aiAnalyzeSignals(signals.map(s => ({
+        title: s.title,
+        snippet: s.snippet,
+        source: s.source,
+        severity: s.severity,
+        category: s.category,
+      })));
+    }
+  } catch {
+    // Continue to backend and local fallbacks.
   }
+
+  try {
+    const backend = await fetch(`/api/ai/analyze?limit=${_limit}`, { method: 'POST' });
+    if (backend.ok) {
+      const data = await backend.json();
+      return {
+        analysis: data.analysis ?? 'Backend AI analysis complete.',
+        threat_level: data.threat_level ?? 'medium',
+        key_entities: Array.isArray(data.key_entities) ? data.key_entities : [],
+        recommended_actions: Array.isArray(data.recommended_actions) ? data.recommended_actions : [],
+      };
+    }
+  } catch {
+    // Continue to local fallback.
+  }
+
+  const critical = signals.filter((s) => s.severity >= 60);
+  const high = signals.filter((s) => s.severity >= 35 && s.severity < 60);
+  const sources = Array.from(new Set(signals.map((s) => s.source))).slice(0, 6);
+  const categories = Array.from(new Set(signals.map((s) => s.category).filter(Boolean))).slice(0, 6) as string[];
+  const threat_level = critical.length >= 3 ? 'critical' : critical.length > 0 ? 'high' : high.length > 3 ? 'high' : 'medium';
+
+  return {
+    analysis:
+      `Automated local assessment processed ${signals.length} recent signals. ` +
+      `${critical.length} critical and ${high.length} high-priority events were identified. ` +
+      `Top sources include ${sources.join(', ') || 'N/A'} with key categories ${categories.join(', ') || 'N/A'}.`,
+    threat_level,
+    key_entities: categories.length ? categories : ['Signal Monitoring'],
+    recommended_actions: [
+      'Review critical and high-priority signals first.',
+      'Correlate events across top source clusters.',
+      hasOpenAIKey() ? 'Validate AI conclusions with analyst review.' : 'Configure AI provider keys for richer narrative analysis.',
+    ],
+  };
 }
 
 /* ---- Search ---- */

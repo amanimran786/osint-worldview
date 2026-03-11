@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVariant } from '../contexts/VariantContext';
+import { getNavForVariant } from '../config/navRegistry';
 
 interface Command {
   id: string;
@@ -11,26 +12,18 @@ interface Command {
 
 export function CommandPalette() {
   const navigate = useNavigate();
-  const { variants, setVariant } = useVariant();
+  const { variant, variants, setVariant } = useVariant();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
   const commands = useMemo<Command[]>(() => {
-    const navCommands: Command[] = [
-      { id: 'go-dashboard', label: 'Go to Dashboard', hint: 'Route', run: () => navigate('/') },
-      { id: 'go-signals', label: 'Go to Signals', hint: 'Route', run: () => navigate('/signals') },
-      { id: 'go-map', label: 'Go to World View', hint: 'Route', run: () => navigate('/map') },
-      { id: 'go-scanner', label: 'Go to Scanner', hint: 'Route', run: () => navigate('/scanner') },
-      { id: 'go-airspace', label: 'Go to Airspace', hint: 'Route', run: () => navigate('/airspace') },
-      { id: 'go-maritime', label: 'Go to Maritime', hint: 'Route', run: () => navigate('/maritime') },
-      { id: 'go-surveillance', label: 'Go to Surveillance', hint: 'Route', run: () => navigate('/surveillance') },
-      { id: 'go-cases', label: 'Go to Cases', hint: 'Route', run: () => navigate('/cases') },
-      { id: 'go-rules', label: 'Go to Rules', hint: 'Route', run: () => navigate('/rules') },
-      { id: 'go-sources', label: 'Go to Sources', hint: 'Route', run: () => navigate('/sources') },
-      { id: 'go-analytics', label: 'Go to Analytics', hint: 'Route', run: () => navigate('/analytics') },
-      { id: 'go-settings', label: 'Go to Settings', hint: 'Route', run: () => navigate('/settings') },
-    ];
+    const navCommands: Command[] = getNavForVariant(variant).map((item) => ({
+      id: `go-${item.to === '/' ? 'dashboard' : item.to.slice(1).replace('/', '-')}`,
+      label: `Go to ${item.label}`,
+      hint: 'Route',
+      run: () => navigate(item.to),
+    }));
 
     const variantCommands: Command[] = variants.map((v) => ({
       id: `switch-${v.id}`,
@@ -40,7 +33,7 @@ export function CommandPalette() {
     }));
 
     return [...navCommands, ...variantCommands];
-  }, [navigate, setVariant, variants]);
+  }, [navigate, setVariant, variant, variants]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -134,4 +127,3 @@ export function CommandPalette() {
     </div>
   );
 }
-

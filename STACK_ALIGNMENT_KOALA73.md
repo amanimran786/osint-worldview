@@ -19,6 +19,9 @@ The frontend now follows the World Monitor multi-variant runtime model:
 - Map layer quick presets (Strategic, Climate, Cyber, Full Spectrum)
 - Variant-specific layer defaults and preset packs
 - Adaptive map-layer refresh loop with hidden-tab throttle and backoff
+- Shareable map URL state (`view`, `visual`, `layers`)
+- Variant-aware nav/panel registry and feed bundles
+- Domain-style backend v1 routes (`/seismology`, `/climate`, `/cyber`, `/natural`, `/intelligence`)
 
 The upstream repository is vendored locally for capability-port work:
 
