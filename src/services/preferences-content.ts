@@ -9,7 +9,7 @@ import { escapeHtml } from '@/utils/sanitize';
 import { trackLanguageChange } from '@/services/analytics';
 import { exportSettings, importSettings, type ImportResult } from '@/utils/settings-persistence';
 
-const DESKTOP_RELEASES_URL = 'https://github.com/koala73/worldmonitor/releases';
+const DESKTOP_RELEASES_URL = 'https://github.com/amanimran786/osint-worldview/releases';
 
 export interface PreferencesHost {
   isDesktopApp: boolean;
@@ -226,9 +226,9 @@ export function renderPreferences(host: PreferencesHost): PreferencesResult {
     </div>
     <div class="us-data-mgmt-toast" id="usDataMgmtToast"></div>
   `;
-  html += `<a href="https://github.com/koala73/worldmonitor/discussions/94" target="_blank" rel="noopener noreferrer" class="us-discussion-link">
+  html += `<a href="/blog/" target="_blank" rel="noopener noreferrer" class="us-discussion-link">
     <span class="us-discussion-dot"></span>
-    <span>${t('components.community.joinDiscussion')}</span>
+    <span>Project updates</span>
   </a>`;
   html += `</div></details>`;
 

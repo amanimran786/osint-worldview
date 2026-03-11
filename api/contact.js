@@ -65,7 +65,7 @@ async function sendNotificationEmail(name, email, organization, phone, message) 
     console.error('[contact] RESEND_API_KEY not set — lead stored in Convex but notification NOT sent');
     return false;
   }
-  const notifyEmail = process.env.CONTACT_NOTIFY_EMAIL || 'sales@worldmonitor.app';
+  const notifyEmail = process.env.CONTACT_NOTIFY_EMAIL || 'sales@worldview.app';
   const emailDomain = (email.split('@')[1] || '').toLowerCase();
   try {
     const res = await fetch('https://api.resend.com/emails', {
@@ -75,7 +75,7 @@ async function sendNotificationEmail(name, email, organization, phone, message) 
         'Authorization': `Bearer ${resendKey}`,
       },
       body: JSON.stringify({
-        from: 'World Monitor <noreply@worldmonitor.app>',
+        from: 'WorldView <noreply@worldview.app>',
         to: [notifyEmail],
         subject: `[WM Enterprise] ${sanitizeForSubject(name)} from ${sanitizeForSubject(organization)}`,
         html: `
@@ -89,7 +89,7 @@ async function sendNotificationEmail(name, email, organization, phone, message) 
               <tr><td style="padding: 8px; font-weight: bold; color: #666;">Phone</td><td style="padding: 8px;"><a href="tel:${escapeHtml(phone)}">${escapeHtml(phone)}</a></td></tr>
               <tr><td style="padding: 8px; font-weight: bold; color: #666;">Message</td><td style="padding: 8px;">${escapeHtml(message || 'N/A')}</td></tr>
             </table>
-            <p style="color: #999; font-size: 12px; margin-top: 24px;">Sent from worldmonitor.app enterprise contact form</p>
+            <p style="color: #999; font-size: 12px; margin-top: 24px;">Sent from worldview.app enterprise contact form</p>
           </div>`,
       }),
     });

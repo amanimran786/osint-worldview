@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Global Situation with AI Insights"
   },
   "countryBrief": {
@@ -501,7 +501,7 @@
         "some": "Some features need API keys"
       },
       "openSettings": "Open Settings",
-      "skipSetup": "Skip the setup — a single World Monitor license unlocks everything. Join the waitlist for early access.",
+      "skipSetup": "Skip the setup — a single WorldView license unlocks everything. Join the waitlist for early access.",
       "summary": {
         "desktop": "Desktop mode",
         "web": "Web mode (read-only, server-managed credentials)",
@@ -546,9 +546,9 @@
       "sidecarUnreachable": "Sidecar not reachable.",
       "logCleared": "Log cleared.",
       "worldMonitor": {
-        "tabLabel": "World Monitor",
+        "tabLabel": "WorldView",
         "heroTitle": "One key. Everything included.",
-        "heroDescription": "A single World Monitor license replaces every API key and LLM provider you'd otherwise configure yourself. AI summaries, real-time intelligence, market data, conflict tracking, fire detection, satellite imagery — all powered, all managed, zero setup.",
+        "heroDescription": "A single WorldView license replaces every API key and LLM provider you'd otherwise configure yourself. AI summaries, real-time intelligence, market data, conflict tracking, fire detection, satellite imagery — all powered, all managed, zero setup.",
         "apiKey": {
           "title": "License Key",
           "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
@@ -559,7 +559,7 @@
         "dividerOr": "OR",
         "register": {
           "title": "Reserve Your Spot",
-          "description": "We're preparing to launch World Monitor licenses. Sign up now and be first in line — early members get priority access and founding-member pricing.",
+          "description": "We're preparing to launch WorldView licenses. Sign up now and be first in line — early members get priority access and founding-member pricing.",
           "emailPlaceholder": "your@email.com",
           "submitBtn": "Join Waitlist",
           "submitting": "Submitting...",
@@ -2416,7 +2416,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Requires a World Monitor license key",
+    "lockedDesc": "Requires a WorldView license key",
     "joinWaitlist": "Join Waitlist",
     "features": {
       "orefSirens1": "Real-time Israel missile & rocket alerts",

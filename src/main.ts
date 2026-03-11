@@ -11,7 +11,7 @@ const sentryDsn = import.meta.env.VITE_SENTRY_DSN?.trim();
 // Initialize Sentry error tracking (early as possible)
 Sentry.init({
   dsn: sentryDsn || undefined,
-  release: `worldmonitor@${__APP_VERSION__}`,
+  release: `worldview@${__APP_VERSION__}`,
   environment: location.hostname === 'worldview.app' ? 'production'
     : location.hostname.includes('vercel.app') ? 'preview'
     : 'development',

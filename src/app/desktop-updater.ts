@@ -68,7 +68,7 @@ export class DesktopUpdater implements AppModule {
 
   private async checkForUpdate(): Promise<void> {
     try {
-      const res = await fetch('https://api.worldmonitor.app/api/version', {
+      const res = await fetch('https://api.worldview.app/api/version', {
         signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) {
@@ -96,7 +96,7 @@ export class DesktopUpdater implements AppModule {
 
       const releaseUrl = typeof data.url === 'string' && data.url
         ? data.url
-        : 'https://github.com/koala73/worldmonitor/releases/latest';
+        : 'https://github.com/amanimran786/osint-worldview/releases/latest';
       this.logUpdaterOutcome('update_available', { current, remote, dismissed: false });
       trackUpdateShown(current, remote);
       await this.showUpdateToast(remote, releaseUrl);
@@ -151,7 +151,7 @@ export class DesktopUpdater implements AppModule {
       const platform = this.mapDesktopDownloadPlatform(runtimeInfo.os, runtimeInfo.arch);
       if (platform) {
         const variant = this.getDesktopBuildVariant();
-        return `https://worldmonitor.app/api/download?platform=${platform}&variant=${variant}`;
+        return `https://worldview.app/api/download?platform=${platform}&variant=${variant}`;
       }
     } catch {
       // Silent fallback to release page when desktop runtime info is unavailable.

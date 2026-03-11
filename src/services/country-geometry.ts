@@ -12,10 +12,10 @@ interface CountryHit {
   name: string;
 }
 
-const COUNTRY_GEOJSON_URL = 'https://maps.worldmonitor.app/countries.geojson';
+const COUNTRY_GEOJSON_URL = 'https://maps.worldview.app/countries.geojson';
 
 /** Optional higher-resolution boundary overrides sourced from Natural Earth (served from R2 CDN). */
-const COUNTRY_OVERRIDES_URL = 'https://maps.worldmonitor.app/country-boundary-overrides.geojson';
+const COUNTRY_OVERRIDES_URL = 'https://maps.worldview.app/country-boundary-overrides.geojson';
 const COUNTRY_OVERRIDE_TIMEOUT_MS = 3_000;
 
 const POLITICAL_OVERRIDES: Record<string, string> = { 'CN-TW': 'TW' };

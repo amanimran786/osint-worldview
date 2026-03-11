@@ -1,8 +1,8 @@
 // Non-sebuf: returns XML/HTML, stays as standalone Vercel function
 export const config = { runtime: 'edge' };
 
-const RELEASES_URL = 'https://api.github.com/repos/koala73/worldmonitor/releases/latest';
-const RELEASES_PAGE = 'https://github.com/koala73/worldmonitor/releases/latest';
+const RELEASES_URL = 'https://api.github.com/repos/amanimran786/osint-worldview/releases/latest';
+const RELEASES_PAGE = 'https://github.com/amanimran786/osint-worldview/releases/latest';
 
 const PLATFORM_PATTERNS = {
   'windows-exe': (name) => name.endsWith('_x64-setup.exe'),
@@ -14,8 +14,8 @@ const PLATFORM_PATTERNS = {
 };
 
 const VARIANT_IDENTIFIERS = {
-  full: ['worldmonitor'],
-  world: ['worldmonitor'],
+  full: ['worldview', 'worldmonitor'],
+  world: ['worldview', 'worldmonitor'],
   tech: ['techmonitor'],
   finance: ['financemonitor'],
 };
@@ -51,7 +51,7 @@ export default async function handler(req) {
     const res = await fetch(RELEASES_URL, {
       headers: {
         'Accept': 'application/vnd.github+json',
-        'User-Agent': 'WorldMonitor-Download-Redirect',
+        'User-Agent': 'WorldView-Download-Redirect',
       },
     });
 

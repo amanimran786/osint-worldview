@@ -263,7 +263,7 @@ function initOverviewListeners(area: HTMLElement): void {
   });
 
   area.querySelector('[data-wm-open-pro]')?.addEventListener('click', () => {
-    const url = 'https://worldmonitor.app/pro';
+    const url = 'https://worldview.app/pro';
     void invokeTauri<void>('open_url', { url }).catch(() => window.open(url, '_blank'));
   });
 

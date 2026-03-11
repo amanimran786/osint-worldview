@@ -583,12 +583,6 @@ Copyright (C) 2024-2026 Elie Habib. All rights reserved under AGPL-3.0.
 
 ---
 
-## Author
-
-**Elie Habib** — [GitHub](https://github.com/koala73)
-
----
-
 ## Contributors
 
 <a href="https://github.com/amanimran786/osint-worldview/graphs/contributors">

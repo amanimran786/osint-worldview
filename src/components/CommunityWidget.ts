@@ -2,7 +2,7 @@ import { t } from '@/services/i18n';
 import { getDismissed, setDismissed } from '@/utils/cross-domain-storage';
 
 const DISMISSED_KEY = 'wm-community-dismissed';
-const DISCUSSION_URL = 'https://github.com/koala73/worldmonitor/discussions/94';
+const DISCUSSION_URL = '/blog/';
 
 export function mountCommunityWidget(): void {
   if (getDismissed(DISMISSED_KEY)) return;
@@ -13,8 +13,8 @@ export function mountCommunityWidget(): void {
   widget.innerHTML = `
     <div class="cw-pill">
       <div class="cw-dot"></div>
-      <span class="cw-text">${t('components.community.joinDiscussion')}</span>
-      <a class="cw-cta" href="${DISCUSSION_URL}" target="_blank" rel="noopener">${t('components.community.openDiscussion')}</a>
+      <span class="cw-text">Follow project updates</span>
+      <a class="cw-cta" href="${DISCUSSION_URL}" target="_blank" rel="noopener">Open Blog</a>
       <button class="cw-close" aria-label="${t('common.close')}">&times;</button>
     </div>
     <button class="cw-dismiss">${t('components.community.dontShowAgain')}</button>

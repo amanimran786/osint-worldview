@@ -926,19 +926,19 @@ const Footer = () => (
       <div className="flex items-center gap-3 mb-4 md:mb-0">
         <img src="/favico/favicon-32x32.png" alt="" width="28" height="28" className="rounded-full" />
         <div className="flex flex-col">
-          <span className="font-display font-bold text-sm leading-none tracking-tight text-wm-text">WORLD MONITOR</span>
-          <span className="text-[9px] uppercase tracking-[2px] opacity-60 mt-0.5">by Someone.ceo</span>
+          <span className="font-display font-bold text-sm leading-none tracking-tight text-wm-text">WORLDVIEW</span>
+          <span className="text-[9px] uppercase tracking-[2px] opacity-60 mt-0.5">Realtime intelligence platform</span>
         </div>
       </div>
       <div className="flex items-center gap-6">
         <a href="/" className="hover:text-wm-text transition-colors">Dashboard</a>
         <a href="/pro" className="hover:text-wm-text transition-colors">Pro</a>
         <a href="/blog/" className="hover:text-wm-text transition-colors">Blog</a>
-        <a href="https://github.com/koala73/worldmonitor" target="_blank" rel="noreferrer" className="hover:text-wm-text transition-colors">GitHub</a>
-        <a href="https://github.com/koala73/worldmonitor/discussions" target="_blank" rel="noreferrer" className="hover:text-wm-text transition-colors">Discussions</a>
-        <a href="https://x.com/worldmonitorai" target="_blank" rel="noreferrer" className="hover:text-wm-text transition-colors">X</a>
+        <a href="/#mapSection" className="hover:text-wm-text transition-colors">Map</a>
+        <a href="/?settings=1" className="hover:text-wm-text transition-colors">Settings</a>
+        <a href="/#panelsGrid" className="hover:text-wm-text transition-colors">Panels</a>
       </div>
-      <span className="text-[10px] opacity-40 mt-4 md:mt-0">&copy; {new Date().getFullYear()} WorldMonitor</span>
+      <span className="text-[10px] opacity-40 mt-4 md:mt-0">&copy; {new Date().getFullYear()} WorldView</span>
     </div>
   </footer>
 );
@@ -1125,19 +1125,19 @@ const EnterprisePage = () => (
         <div className="flex items-center gap-3 mb-4 md:mb-0">
           <img src="/favico/favicon-32x32.png" alt="" width="28" height="28" className="rounded-full" />
           <div className="flex flex-col">
-            <span className="font-display font-bold text-sm leading-none tracking-tight text-wm-text">WORLD MONITOR</span>
-            <span className="text-[9px] uppercase tracking-[2px] opacity-60 mt-0.5">by Someone.ceo</span>
+            <span className="font-display font-bold text-sm leading-none tracking-tight text-wm-text">WORLDVIEW</span>
+            <span className="text-[9px] uppercase tracking-[2px] opacity-60 mt-0.5">Realtime intelligence platform</span>
           </div>
         </div>
         <div className="flex items-center gap-6">
           <a href="/" className="hover:text-wm-text transition-colors">Dashboard</a>
           <a href="/pro" className="hover:text-wm-text transition-colors">Pro</a>
           <a href="/blog/" className="hover:text-wm-text transition-colors">Blog</a>
-          <a href="https://github.com/koala73/worldmonitor" target="_blank" rel="noreferrer" className="hover:text-wm-text transition-colors">GitHub</a>
-          <a href="https://github.com/koala73/worldmonitor/discussions" target="_blank" rel="noreferrer" className="hover:text-wm-text transition-colors">Discussions</a>
-          <a href="https://x.com/worldmonitorai" target="_blank" rel="noreferrer" className="hover:text-wm-text transition-colors">X</a>
+          <a href="/#mapSection" className="hover:text-wm-text transition-colors">Map</a>
+          <a href="/?settings=1" className="hover:text-wm-text transition-colors">Settings</a>
+          <a href="/#panelsGrid" className="hover:text-wm-text transition-colors">Panels</a>
         </div>
-        <span className="text-[10px] opacity-40 mt-4 md:mt-0">&copy; {new Date().getFullYear()} WorldMonitor</span>
+        <span className="text-[10px] opacity-40 mt-4 md:mt-0">&copy; {new Date().getFullYear()} WorldView</span>
       </div>
     </footer>
   </div>

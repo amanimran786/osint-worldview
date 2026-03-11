@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in World Monitor
+description: Report a bug in WorldView
 labels: ["bug"]
 body:
   - type: markdown
@@ -13,9 +13,9 @@ body:
       label: Variant
       description: Which variant are you using?
       options:
-        - worldmonitor.app (Full / Geopolitical)
-        - tech.worldmonitor.app (Tech / Startup)
-        - finance.worldmonitor.app (Finance)
+        - worldview.app (Full / Geopolitical)
+        - tech.worldview.app (Tech / Startup)
+        - finance.worldview.app (Finance)
         - Desktop app (Windows)
         - Desktop app (macOS)
         - Desktop app (Linux)
