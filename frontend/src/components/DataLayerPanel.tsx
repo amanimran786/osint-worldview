@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { DataLayerKey, DataLayerState, EarthquakeFeature, WeatherData, CyberThreat, DisasterEvent } from '../types';
 import type { FlightVector, NasaEvent, FireHotspot, SpaceWeatherEvent, GdeltArticle, CountryThreatScore, RansomwareEvent, Vessel } from '../services/advancedLayers';
+import type { SiteVariant } from '../config/variants';
+import { VARIANT_DEFAULT_LAYERS } from '../config/variantProfiles';
 import * as api from '../api';
 import {
   fetchAirTraffic,
@@ -120,8 +122,8 @@ export function DataLayerPanel({ layers, onToggle, onRefresh, loading }: DataLay
 }
 
 /* ---- Hook: manages layer data fetching ---- */
-export function useDataLayers() {
-  const [layers, setLayers] = useState<DataLayerState[]>([
+function makeBaseLayers(): DataLayerState[] {
+  return [
     { key: 'signals', label: 'OSINT Signals', enabled: true, count: 0, color: '#f0a030' },
     { key: 'earthquakes', label: 'Earthquakes', enabled: true, count: 0, color: '#ef4444' },
     { key: 'weather', label: 'Weather Intel', enabled: true, count: 0, color: '#3b82f6' },
@@ -137,7 +139,16 @@ export function useDataLayers() {
     { key: 'maritime', label: 'Maritime AIS', enabled: true, count: 0, color: '#06b6d4' },
     { key: 'weatherRadar', label: 'Weather Radar', enabled: false, count: 0, color: '#818cf8' },
     { key: 'satellite', label: 'Satellite Imagery', enabled: false, count: 0, color: '#a3e635' },
-  ]);
+  ];
+}
+
+function applyVariantDefaults(layers: DataLayerState[], variant: SiteVariant): DataLayerState[] {
+  const enabledSet = new Set(VARIANT_DEFAULT_LAYERS[variant]);
+  return layers.map((layer) => ({ ...layer, enabled: enabledSet.has(layer.key) }));
+}
+
+export function useDataLayers(variant: SiteVariant) {
+  const [layers, setLayers] = useState<DataLayerState[]>(() => applyVariantDefaults(makeBaseLayers(), variant));
 
   const [data, setData] = useState<LayerData>({
     earthquakes: [],
@@ -155,12 +166,17 @@ export function useDataLayers() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [failureStreak, setFailureStreak] = useState(0);
 
   const toggle = (key: DataLayerKey) => {
     setLayers(prev => prev.map(l =>
       l.key === key ? { ...l, enabled: !l.enabled } : l
     ));
   };
+
+  useEffect(() => {
+    setLayers((prev) => applyVariantDefaults(prev, variant));
+  }, [variant]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -192,6 +208,9 @@ export function useDataLayers() {
       const threatsData = threats.status === 'fulfilled' ? threats.value : [];
       const ransomData = ransom.status === 'fulfilled' ? ransom.value : [];
       const vesselData = vessels.status === 'fulfilled' ? vessels.value : [];
+      const rejectedCount = [eq, wx, cy, dis, fl, nasa, fire, sw, gdelt, threats, ransom, vessels]
+        .filter((result) => result.status === 'rejected').length;
+      setFailureStreak((prev) => (rejectedCount === 0 ? 0 : Math.min(prev + 1, 5)));
 
       setData({
         earthquakes: eqData,
@@ -226,6 +245,7 @@ export function useDataLayers() {
       }));
     } catch {
       // silently fail — layers are optional
+      setFailureStreak((prev) => Math.min(prev + 1, 5));
     }
     setLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -233,6 +253,32 @@ export function useDataLayers() {
 
   // Fetch on mount
   useEffect(() => { refresh(); }, [refresh]);
+
+  // Adaptive background refresh loop:
+  // - normal mode: ~45s
+  // - hidden tab: ~2m
+  // - failure streak: exponential backoff up to 8m
+  useEffect(() => {
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const schedule = () => {
+      if (stopped) return;
+      const baseMs = document.visibilityState === 'hidden' ? 120_000 : 45_000;
+      const backoffFactor = Math.min(2 ** failureStreak, 16);
+      const delay = Math.min(baseMs * backoffFactor, 480_000);
+      timer = setTimeout(async () => {
+        await refresh();
+        schedule();
+      }, delay);
+    };
+
+    schedule();
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [refresh, failureStreak]);
 
   return { layers, data, loading, toggle, refresh, setLayers };
 }

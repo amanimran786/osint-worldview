@@ -1,0 +1,303 @@
+/**
+ * Shared gateway logic for per-domain Vercel edge functions.
+ *
+ * Each domain edge function calls `createDomainGateway(routes)` to get a
+ * request handler that applies CORS, API-key validation, rate limiting,
+ * POST-to-GET compat, error boundary, and cache-tier headers.
+ *
+ * Splitting domains into separate edge functions means Vercel bundles only the
+ * code for one domain per function, cutting cold-start cost by ~20×.
+ */
+
+import { createRouter, type RouteDescriptor } from './router';
+import { getCorsHeaders, isDisallowedOrigin } from './cors';
+// @ts-expect-error — JS module, no declaration file
+import { validateApiKey } from '../api/_api-key.js';
+import { mapErrorToResponse } from './error-mapper';
+import { checkRateLimit, checkEndpointRateLimit, hasEndpointRatePolicy } from './_shared/rate-limit';
+import { drainResponseHeaders } from './_shared/response-headers';
+import type { ServerOptions } from '../src/generated/server/worldmonitor/seismology/v1/service_server';
+
+export const serverOptions: ServerOptions = { onError: mapErrorToResponse };
+
+// --- Edge cache tier definitions ---
+// NOTE: This map is shared across all domain bundles (~3KB). Kept centralised for
+// single-source-of-truth maintainability; the size is negligible vs handler code.
+
+type CacheTier = 'fast' | 'medium' | 'slow' | 'static' | 'daily' | 'no-store';
+
+const TIER_HEADERS: Record<CacheTier, string> = {
+  fast: 'public, s-maxage=300, stale-while-revalidate=60, stale-if-error=600',
+  medium: 'public, s-maxage=600, stale-while-revalidate=120, stale-if-error=900',
+  slow: 'public, s-maxage=1800, stale-while-revalidate=300, stale-if-error=3600',
+  static: 'public, s-maxage=7200, stale-while-revalidate=600, stale-if-error=14400',
+  daily: 'public, s-maxage=86400, stale-while-revalidate=7200, stale-if-error=172800',
+  'no-store': 'no-store',
+};
+
+// Cloudflare-specific cache TTLs — more aggressive than s-maxage since CF can
+// revalidate via ETag/If-None-Match without full payload transfer.
+const TIER_CDN_CACHE: Record<CacheTier, string | null> = {
+  fast: 'public, s-maxage=600, stale-while-revalidate=300, stale-if-error=1200',
+  medium: 'public, s-maxage=1200, stale-while-revalidate=600, stale-if-error=1800',
+  slow: 'public, s-maxage=3600, stale-while-revalidate=900, stale-if-error=7200',
+  static: 'public, s-maxage=14400, stale-while-revalidate=3600, stale-if-error=28800',
+  daily: 'public, s-maxage=86400, stale-while-revalidate=14400, stale-if-error=172800',
+  'no-store': null,
+};
+
+const RPC_CACHE_TIER: Record<string, CacheTier> = {
+  '/api/maritime/v1/get-vessel-snapshot': 'no-store',
+
+  '/api/market/v1/list-market-quotes': 'medium',
+  '/api/market/v1/list-crypto-quotes': 'medium',
+  '/api/market/v1/list-commodity-quotes': 'medium',
+  '/api/market/v1/list-stablecoin-markets': 'medium',
+  '/api/market/v1/get-sector-summary': 'medium',
+  '/api/market/v1/list-gulf-quotes': 'medium',
+  '/api/market/v1/analyze-stock': 'slow',
+  '/api/market/v1/get-stock-analysis-history': 'medium',
+  '/api/market/v1/backtest-stock': 'slow',
+  '/api/market/v1/list-stored-stock-backtests': 'medium',
+  '/api/infrastructure/v1/list-service-statuses': 'slow',
+  '/api/seismology/v1/list-earthquakes': 'slow',
+  '/api/infrastructure/v1/list-internet-outages': 'slow',
+
+  '/api/unrest/v1/list-unrest-events': 'slow',
+  '/api/cyber/v1/list-cyber-threats': 'slow',
+  '/api/conflict/v1/list-acled-events': 'slow',
+  '/api/military/v1/get-theater-posture': 'slow',
+  '/api/infrastructure/v1/get-temporal-baseline': 'slow',
+  '/api/aviation/v1/list-airport-delays': 'static',
+  '/api/aviation/v1/get-airport-ops-summary': 'static',
+  '/api/aviation/v1/list-airport-flights': 'static',
+  '/api/aviation/v1/get-carrier-ops': 'slow',
+  '/api/aviation/v1/get-flight-status': 'fast',
+  '/api/aviation/v1/track-aircraft': 'no-store',
+  '/api/aviation/v1/search-flight-prices': 'medium',
+  '/api/aviation/v1/list-aviation-news': 'slow',
+  '/api/market/v1/get-country-stock-index': 'slow',
+
+  '/api/natural/v1/list-natural-events': 'slow',
+  '/api/wildfire/v1/list-fire-detections': 'static',
+  '/api/maritime/v1/list-navigational-warnings': 'static',
+  '/api/supply-chain/v1/get-shipping-rates': 'static',
+  '/api/economic/v1/get-fred-series': 'static',
+  '/api/economic/v1/get-energy-prices': 'static',
+  '/api/research/v1/list-arxiv-papers': 'static',
+  '/api/research/v1/list-trending-repos': 'static',
+  '/api/giving/v1/get-giving-summary': 'static',
+  '/api/intelligence/v1/get-country-intel-brief': 'static',
+  '/api/climate/v1/list-climate-anomalies': 'static',
+  '/api/research/v1/list-tech-events': 'static',
+  '/api/military/v1/get-usni-fleet-report': 'static',
+  '/api/conflict/v1/list-ucdp-events': 'static',
+  '/api/conflict/v1/get-humanitarian-summary': 'static',
+  '/api/conflict/v1/list-iran-events': 'slow',
+  '/api/displacement/v1/get-displacement-summary': 'static',
+  '/api/displacement/v1/get-population-exposure': 'static',
+  '/api/economic/v1/get-bis-policy-rates': 'static',
+  '/api/economic/v1/get-bis-exchange-rates': 'static',
+  '/api/economic/v1/get-bis-credit': 'static',
+  '/api/trade/v1/get-tariff-trends': 'static',
+  '/api/trade/v1/get-trade-flows': 'static',
+  '/api/trade/v1/get-trade-barriers': 'static',
+  '/api/trade/v1/get-trade-restrictions': 'static',
+  '/api/economic/v1/list-world-bank-indicators': 'static',
+  '/api/economic/v1/get-energy-capacity': 'static',
+  '/api/supply-chain/v1/get-critical-minerals': 'daily',
+  '/api/military/v1/get-aircraft-details': 'static',
+  '/api/military/v1/get-wingbits-status': 'static',
+
+  '/api/military/v1/list-military-flights': 'slow',
+  '/api/market/v1/list-etf-flows': 'slow',
+  '/api/research/v1/list-hackernews-items': 'slow',
+  '/api/intelligence/v1/get-risk-scores': 'slow',
+  '/api/intelligence/v1/get-pizzint-status': 'slow',
+  '/api/intelligence/v1/search-gdelt-documents': 'slow',
+  '/api/infrastructure/v1/get-cable-health': 'slow',
+  '/api/positive-events/v1/list-positive-geo-events': 'slow',
+
+  '/api/military/v1/list-military-bases': 'static',
+  '/api/economic/v1/get-macro-signals': 'medium',
+  '/api/prediction/v1/list-prediction-markets': 'medium',
+  '/api/supply-chain/v1/get-chokepoint-status': 'medium',
+  '/api/news/v1/list-feed-digest': 'slow',
+  '/api/intelligence/v1/classify-event': 'static',
+  '/api/news/v1/summarize-article-cache': 'slow',
+
+  '/api/imagery/v1/search-imagery': 'static',
+};
+
+const PREMIUM_RPC_PATHS = new Set([
+  '/api/market/v1/analyze-stock',
+  '/api/market/v1/get-stock-analysis-history',
+  '/api/market/v1/backtest-stock',
+  '/api/market/v1/list-stored-stock-backtests',
+]);
+
+/**
+ * Creates a Vercel Edge handler for a single domain's routes.
+ *
+ * Applies the full gateway pipeline: origin check → CORS → OPTIONS preflight →
+ * API key → rate limit → route match (with POST→GET compat) → execute → cache headers.
+ */
+export function createDomainGateway(
+  routes: RouteDescriptor[],
+): (req: Request) => Promise<Response> {
+  const router = createRouter(routes);
+
+  return async function handler(originalRequest: Request): Promise<Response> {
+    let request = originalRequest;
+    const rawPathname = new URL(request.url).pathname;
+    const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname;
+
+    // Origin check — skip CORS headers for disallowed origins
+    if (isDisallowedOrigin(request)) {
+      return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    let corsHeaders: Record<string, string>;
+    try {
+      corsHeaders = getCorsHeaders(request);
+    } catch {
+      corsHeaders = { 'Access-Control-Allow-Origin': '*' };
+    }
+
+    // OPTIONS preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    // API key validation (origin-aware)
+    const keyCheck = validateApiKey(request, {
+      forceKey: PREMIUM_RPC_PATHS.has(pathname),
+    });
+    if (keyCheck.required && !keyCheck.valid) {
+      return new Response(JSON.stringify({ error: keyCheck.error }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    // IP-based rate limiting — two-phase: endpoint-specific first, then global fallback
+    const endpointRlResponse = await checkEndpointRateLimit(request, pathname, corsHeaders);
+    if (endpointRlResponse) return endpointRlResponse;
+
+    if (!hasEndpointRatePolicy(pathname)) {
+      const rateLimitResponse = await checkRateLimit(request, corsHeaders);
+      if (rateLimitResponse) return rateLimitResponse;
+    }
+
+    // Route matching — if POST doesn't match, convert to GET for stale clients
+    let matchedHandler = router.match(request);
+    if (!matchedHandler && request.method === 'POST') {
+      const contentLen = parseInt(request.headers.get('Content-Length') ?? '0', 10);
+      if (contentLen < 1_048_576) {
+        const url = new URL(request.url);
+        try {
+          const body = await request.clone().json();
+          const isScalar = (x: unknown): x is string | number | boolean =>
+            typeof x === 'string' || typeof x === 'number' || typeof x === 'boolean';
+          for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
+            if (Array.isArray(v)) v.forEach((item) => { if (isScalar(item)) url.searchParams.append(k, String(item)); });
+            else if (isScalar(v)) url.searchParams.set(k, String(v));
+          }
+        } catch { /* non-JSON body — skip POST→GET conversion */ }
+        const getReq = new Request(url.toString(), { method: 'GET', headers: request.headers });
+        matchedHandler = router.match(getReq);
+        if (matchedHandler) request = getReq;
+      }
+    }
+    if (!matchedHandler) {
+      const allowed = router.allowedMethods(new URL(request.url).pathname);
+      if (allowed.length > 0) {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+          status: 405,
+          headers: { 'Content-Type': 'application/json', Allow: allowed.join(', '), ...corsHeaders },
+        });
+      }
+      return new Response(JSON.stringify({ error: 'Not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    // Execute handler with top-level error boundary
+    let response: Response;
+    try {
+      response = await matchedHandler(request);
+    } catch (err) {
+      console.error('[gateway] Unhandled handler error:', err);
+      response = new Response(JSON.stringify({ message: 'Internal server error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Merge CORS + handler side-channel headers into response
+    const mergedHeaders = new Headers(response.headers);
+    for (const [key, value] of Object.entries(corsHeaders)) {
+      mergedHeaders.set(key, value);
+    }
+    const extraHeaders = drainResponseHeaders(request);
+    if (extraHeaders) {
+      for (const [key, value] of Object.entries(extraHeaders)) {
+        mergedHeaders.set(key, value);
+      }
+    }
+
+    if (response.status === 200 && request.method === 'GET') {
+      if (mergedHeaders.get('X-No-Cache')) {
+        mergedHeaders.set('Cache-Control', 'no-store');
+        mergedHeaders.set('X-Cache-Tier', 'no-store');
+      } else {
+        const rpcName = pathname.split('/').pop() ?? '';
+        const envOverride = process.env[`CACHE_TIER_OVERRIDE_${rpcName.replace(/-/g, '_').toUpperCase()}`] as CacheTier | undefined;
+        const tier = (envOverride && envOverride in TIER_HEADERS ? envOverride : null) ?? RPC_CACHE_TIER[pathname] ?? 'medium';
+        mergedHeaders.set('Cache-Control', TIER_HEADERS[tier]);
+        const cdnCache = TIER_CDN_CACHE[tier];
+        if (cdnCache) mergedHeaders.set('CDN-Cache-Control', cdnCache);
+        mergedHeaders.set('X-Cache-Tier', tier);
+      }
+    }
+    mergedHeaders.delete('X-No-Cache');
+    if (!new URL(request.url).searchParams.has('_debug')) {
+      mergedHeaders.delete('X-Cache-Tier');
+    }
+
+    // ETag / 304 Not Modified — avoid resending unchanged data
+    if (response.status === 200 && request.method === 'GET' && response.body) {
+      const bodyBytes = await response.arrayBuffer();
+      // FNV-1a inspired fast hash — good enough for cache validation
+      let hash = 2166136261;
+      const view = new Uint8Array(bodyBytes);
+      for (let i = 0; i < view.length; i++) {
+        hash ^= view[i]!;
+        hash = Math.imul(hash, 16777619);
+      }
+      const etag = `"${(hash >>> 0).toString(36)}-${view.length.toString(36)}"`;
+      mergedHeaders.set('ETag', etag);
+
+      const ifNoneMatch = request.headers.get('If-None-Match');
+      if (ifNoneMatch === etag) {
+        return new Response(null, { status: 304, headers: mergedHeaders });
+      }
+
+      return new Response(bodyBytes, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: mergedHeaders,
+      });
+    }
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: mergedHeaders,
+    });
+  };
+}

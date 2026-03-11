@@ -1,11 +1,13 @@
-import { lazy, Suspense, useState, useCallback } from 'react';
+import { lazy, Suspense, useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { HUDOverlay } from './components/HUDOverlay';
+import { CommandPalette } from './components/CommandPalette';
 import { ToastContainer } from './components/Toast';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useStore } from './store';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { VariantProvider, useVariant } from './contexts/VariantContext';
 import { LoginPage } from './pages/LoginPage';
 import type { WSMessage } from './types';
 
@@ -52,8 +54,13 @@ function AuthLoader() {
 
 function ProtectedApp() {
   const { user, loading } = useAuth();
+  const { variantMeta } = useVariant();
   const loadSignals = useStore((s) => s.loadSignals);
   const [toasts, setToasts] = useState<Array<{ id: string; message: string; type?: 'info' | 'success' | 'warning' | 'error' }>>([]);
+
+  useEffect(() => {
+    document.title = `${variantMeta.name} | OSINT WorldView`;
+  }, [variantMeta.name]);
 
   const addToast = useCallback((message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -117,6 +124,7 @@ function ProtectedApp() {
         </Routes>
       </Suspense>
       <HUDOverlay />
+      <CommandPalette />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
@@ -124,10 +132,12 @@ function ProtectedApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <ProtectedApp />
-      </BrowserRouter>
-    </AuthProvider>
+    <VariantProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <ProtectedApp />
+        </BrowserRouter>
+      </AuthProvider>
+    </VariantProvider>
   );
 }

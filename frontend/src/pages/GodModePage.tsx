@@ -20,6 +20,7 @@ import {
 import { clsx } from 'clsx';
 import * as api from '../api';
 import { useDataLayers } from '../components/DataLayerPanel';
+import { useVariant } from '../contexts/VariantContext';
 import { runScan, getScanHistory, AutoScanner, isAIEnabled } from '../services/scanner';
 import type { ScanResult, ScanHighlight } from '../services/scanner';
 import type { GeoSignal } from '../types';
@@ -42,7 +43,8 @@ const THREAT_BG: Record<string, string> = {
 };
 
 export function GodModePage() {
-  const { layers, data, loading: layersLoading, toggle, refresh } = useDataLayers();
+  const { variant } = useVariant();
+  const { layers, data, loading: layersLoading, toggle, refresh } = useDataLayers(variant);
   const [geoSignals, setGeoSignals] = useState<GeoSignal[]>([]);
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);

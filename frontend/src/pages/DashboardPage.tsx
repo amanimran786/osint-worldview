@@ -11,14 +11,21 @@ import {
 } from 'lucide-react';
 import * as api from '../api';
 import type { Analytics } from '../types';
+import { useVariant } from '../contexts/VariantContext';
 import {
   fetchAirTraffic,
   fetchNasaEvents,
   fetchSpaceWeather,
   fetchNearEarthObjects,
+  fetchFireHotspots,
+  fetchGdeltNews,
+  getCountryThreatScores,
+  getRansomwareEvents,
 } from '../services/advancedLayers';
+import { fetchCyberThreatsDirect } from '../services/dataLayers';
 
 export function DashboardPage() {
+  const { variant, variantMeta } = useVariant();
   const signals = useStore((s) => s.signals);
   const cases = useStore((s) => s.cases);
   const sources = useStore((s) => s.sources);
@@ -30,8 +37,28 @@ export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'map' | 'analytics'>('overview');
 
   // Live data layer counts
-  const [liveFeeds, setLiveFeeds] = useState<{ flights: number; nasaEvents: number; spaceWeather: number; neos: number; hazardousNeos: number }>({
-    flights: 0, nasaEvents: 0, spaceWeather: 0, neos: 0, hazardousNeos: 0,
+  const [liveFeeds, setLiveFeeds] = useState<{
+    flights: number;
+    nasaEvents: number;
+    spaceWeather: number;
+    neos: number;
+    hazardousNeos: number;
+    fires: number;
+    gdelt: number;
+    highThreatCountries: number;
+    ransomware: number;
+    cyberThreats: number;
+  }>({
+    flights: 0,
+    nasaEvents: 0,
+    spaceWeather: 0,
+    neos: 0,
+    hazardousNeos: 0,
+    fires: 0,
+    gdelt: 0,
+    highThreatCountries: 0,
+    ransomware: 0,
+    cyberThreats: 0,
   });
 
   useEffect(() => {
@@ -46,17 +73,32 @@ export function DashboardPage() {
       fetchNasaEvents({ days: 7, limit: 100 }),
       fetchSpaceWeather(7),
       fetchNearEarthObjects(),
-    ]).then(([flights, events, sw, neoResult]) => {
+      fetchFireHotspots({ days: 1 }),
+      fetchGdeltNews({ query: 'conflict OR cyber OR market OR crisis', maxRecords: 40 }),
+      Promise.resolve(getCountryThreatScores()),
+      Promise.resolve(getRansomwareEvents()),
+      fetchCyberThreatsDirect({ limit: 100 }),
+    ]).then(([flights, events, sw, neoResult, fires, gdelt, threats, ransomware, cyberThreats]) => {
       const flightData = flights.status === 'fulfilled' ? flights.value : [];
       const eventData = events.status === 'fulfilled' ? events.value : [];
       const swData = sw.status === 'fulfilled' ? sw.value : [];
       const neoData = neoResult.status === 'fulfilled' ? neoResult.value : [];
+      const fireData = fires.status === 'fulfilled' ? fires.value : [];
+      const gdeltData = gdelt.status === 'fulfilled' ? gdelt.value : [];
+      const threatData = threats.status === 'fulfilled' ? threats.value : [];
+      const ransomwareData = ransomware.status === 'fulfilled' ? ransomware.value : [];
+      const cyberData = cyberThreats.status === 'fulfilled' ? cyberThreats.value : [];
       setLiveFeeds({
         flights: flightData.length,
         nasaEvents: eventData.length,
         spaceWeather: swData.length,
         neos: neoData.length,
         hazardousNeos: neoData.filter(n => n.is_potentially_hazardous).length,
+        fires: fireData.length,
+        gdelt: gdeltData.length,
+        highThreatCountries: threatData.filter(t => t.score >= 80).length,
+        ransomware: ransomwareData.length,
+        cyberThreats: cyberData.length,
       });
     });
   }, [loadSignals, loadCases, loadSources]);
@@ -73,20 +115,66 @@ export function DashboardPage() {
   );
 
   const stats = useMemo(() => [
-    { label: 'SIGNALS', value: analytics?.total_signals ?? signals.length, icon: Shield, color: 'text-amber' },
+    { label: `${variantMeta.shortName} SIGNALS`, value: analytics?.total_signals ?? signals.length, icon: Shield, color: 'text-amber' },
     { label: 'UNTRIAGED', value: analytics?.new_signals ?? newCount, icon: AlertTriangle, color: 'text-yellow-400' },
     { label: 'CRITICAL', value: analytics?.critical_signals ?? critCount, icon: AlertTriangle, color: 'text-red-400' },
     { label: 'OPEN CASES', value: analytics?.open_cases ?? openCases, icon: FolderOpen, color: 'text-tactical-green' },
     { label: 'SOURCES', value: sources.length, icon: Rss, color: 'text-tactical-blue' },
     { label: 'GEOLOCATED', value: geoCount, icon: MapPin, color: 'text-purple-400' },
-  ], [signals.length, newCount, critCount, openCases, sources.length, geoCount, analytics]);
+  ], [signals.length, newCount, critCount, openCases, sources.length, geoCount, analytics, variantMeta.shortName]);
 
   const recent = useMemo(() => signals.slice(0, 8), [signals]);
 
+  const intelligenceCards = useMemo(() => {
+    const byVariant = {
+      world: [
+        { label: 'FLIGHTS TRACKED', value: liveFeeds.flights, icon: Plane, color: 'text-sky-400', to: '/airspace' },
+        { label: 'GDELT REPORTS', value: liveFeeds.gdelt, icon: Wifi, color: 'text-cyan-400', to: '/surveillance' },
+        { label: 'THREAT COUNTRIES', value: liveFeeds.highThreatCountries, icon: AlertTriangle, color: 'text-red-400', to: '/map' },
+        { label: 'NASA EVENTS', value: liveFeeds.nasaEvents, icon: Satellite, color: 'text-emerald-400', to: '/surveillance' },
+        { label: 'FIRE HOTSPOTS', value: liveFeeds.fires, icon: Flame, color: 'text-orange-400', to: '/surveillance' },
+      ],
+      tech: [
+        { label: 'CYBER IOCs', value: liveFeeds.cyberThreats, icon: Wifi, color: 'text-purple-400', to: '/surveillance' },
+        { label: 'RANSOMWARE', value: liveFeeds.ransomware, icon: AlertTriangle, color: 'text-rose-400', to: '/surveillance' },
+        { label: 'GDELT REPORTS', value: liveFeeds.gdelt, icon: Satellite, color: 'text-cyan-400', to: '/surveillance' },
+        { label: 'THREAT COUNTRIES', value: liveFeeds.highThreatCountries, icon: Telescope, color: 'text-red-400', to: '/map' },
+        { label: 'SPACE WEATHER', value: liveFeeds.spaceWeather, icon: Sun, color: 'text-yellow-400', to: '/surveillance' },
+      ],
+      finance: [
+        { label: 'RISK COUNTRIES', value: liveFeeds.highThreatCountries, icon: AlertTriangle, color: 'text-red-400', to: '/map' },
+        { label: 'RANSOMWARE', value: liveFeeds.ransomware, icon: Wifi, color: 'text-rose-400', to: '/surveillance' },
+        { label: 'GDELT REPORTS', value: liveFeeds.gdelt, icon: Satellite, color: 'text-cyan-400', to: '/surveillance' },
+        { label: 'FLIGHTS TRACKED', value: liveFeeds.flights, icon: Plane, color: 'text-sky-400', to: '/airspace' },
+        { label: 'FIRE HOTSPOTS', value: liveFeeds.fires, icon: Flame, color: 'text-orange-400', to: '/surveillance' },
+      ],
+      commodity: [
+        { label: 'FIRE HOTSPOTS', value: liveFeeds.fires, icon: Flame, color: 'text-orange-400', to: '/surveillance' },
+        { label: 'FLIGHTS TRACKED', value: liveFeeds.flights, icon: Plane, color: 'text-sky-400', to: '/airspace' },
+        { label: 'THREAT COUNTRIES', value: liveFeeds.highThreatCountries, icon: AlertTriangle, color: 'text-red-400', to: '/map' },
+        { label: 'GDELT REPORTS', value: liveFeeds.gdelt, icon: Satellite, color: 'text-cyan-400', to: '/surveillance' },
+        { label: 'SPACE WEATHER', value: liveFeeds.spaceWeather, icon: Sun, color: 'text-yellow-400', to: '/surveillance' },
+      ],
+      happy: [
+        { label: 'NASA EVENTS', value: liveFeeds.nasaEvents, icon: Satellite, color: 'text-emerald-400', to: '/surveillance' },
+        { label: 'SPACE WEATHER', value: liveFeeds.spaceWeather, icon: Sun, color: 'text-yellow-400', to: '/surveillance' },
+        { label: 'NEAR-EARTH OBJ', value: liveFeeds.neos, icon: Telescope, color: 'text-purple-400', to: '/surveillance' },
+        { label: 'HAZARDOUS NEO', value: liveFeeds.hazardousNeos, icon: AlertTriangle, color: 'text-red-400', to: '/surveillance' },
+        { label: 'FIRE HOTSPOTS', value: liveFeeds.fires, icon: Flame, color: 'text-orange-400', to: '/surveillance' },
+      ],
+    } as const;
+    return byVariant[variant];
+  }, [liveFeeds, variant]);
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <TopBar title="COMMAND DASHBOARD" />
+      <TopBar title={`${variantMeta.shortName} COMMAND DASHBOARD`} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="hud-border bg-surface-card px-3 py-2">
+          <div className="text-[9px] font-mono tracking-[0.18em] text-amber/40 uppercase">Monitor Focus</div>
+          <div className="mt-1 text-[11px] font-mono text-gray-300">{variantMeta.focus}</div>
+        </div>
+
         {/* Stat cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           {stats.map((st) => (
@@ -155,16 +243,10 @@ export function DashboardPage() {
             <div>
               <h2 className="text-[10px] font-display tracking-[0.15em] text-amber/50 uppercase mb-3 flex items-center gap-2">
                 <Wifi className="h-3 w-3 text-tactical-green animate-pulse" />
-                LIVE INTELLIGENCE FEEDS
+                LIVE {variantMeta.shortName} FEEDS
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                {[
-                  { label: 'FLIGHTS TRACKED', value: liveFeeds.flights, icon: Plane, color: 'text-sky-400', to: '/airspace' },
-                  { label: 'NASA EVENTS', value: liveFeeds.nasaEvents, icon: Satellite, color: 'text-emerald-400', to: '/surveillance' },
-                  { label: 'SPACE WEATHER', value: liveFeeds.spaceWeather, icon: Sun, color: 'text-yellow-400', to: '/surveillance' },
-                  { label: 'NEAR-EARTH OBJ', value: liveFeeds.neos, icon: Telescope, color: 'text-purple-400', to: '/surveillance' },
-                  { label: 'FIRE HOTSPOTS', value: liveFeeds.hazardousNeos, icon: Flame, color: 'text-orange-400', to: '/surveillance' },
-                ].map((feed) => (
+                {intelligenceCards.map((feed) => (
                   <a
                     key={feed.label}
                     href={feed.to}

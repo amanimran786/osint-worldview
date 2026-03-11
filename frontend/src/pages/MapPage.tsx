@@ -4,14 +4,17 @@ import { DataLayerPanel, useDataLayers } from '../components/DataLayerPanel';
 import { CityQuickJump } from '../components/CityQuickJump';
 import { VisualModeSelector } from '../components/VisualModeSelector';
 import type { City } from '../components/CityQuickJump';
-import type { VisualMode, GeoSignal } from '../types';
+import type { VisualMode, GeoSignal, DataLayerKey, DataLayerState } from '../types';
 import { Wifi, Maximize2, Globe, Map } from 'lucide-react';
 import * as api from '../api';
+import { useVariant } from '../contexts/VariantContext';
+import { MAP_PRESETS_BY_VARIANT, VARIANT_DEFAULT_LAYERS } from '../config/variantProfiles';
 
 const Globe3D = lazy(() => import('../components/Globe3D').then(m => ({ default: m.Globe3D })));
 
 export function MapPage() {
-  const { layers, data, loading, toggle, refresh, setLayers } = useDataLayers();
+  const { variant, variantMeta } = useVariant();
+  const { layers, data, loading, toggle, refresh, setLayers } = useDataLayers(variant);
   const [flyTo, setFlyTo] = useState<City | null>(null);
   const [activeCity, setActiveCity] = useState<string>();
   const [visualMode, setVisualMode] = useState<VisualMode>('normal');
@@ -37,6 +40,20 @@ export function MapPage() {
     setLayers(prev => prev.map(l => l.key === 'signals' ? { ...l, count: n } : l));
   }, [setLayers]);
 
+  const applyPreset = useCallback((enabledKeys: DataLayerKey[]) => {
+    const enabledSet = new Set(enabledKeys);
+    setLayers((prev: DataLayerState[]) => prev.map((layer) => ({
+      ...layer,
+      enabled: enabledSet.has(layer.key),
+    })));
+  }, [setLayers]);
+
+  const resetToVariantDefault = useCallback(() => {
+    applyPreset(VARIANT_DEFAULT_LAYERS[variant]);
+  }, [applyPreset, variant]);
+
+  const presets = MAP_PRESETS_BY_VARIANT[variant];
+
   const visualModeClass = {
     normal: '',
     crt: 'crt-mode',
@@ -54,12 +71,12 @@ export function MapPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-[12px] font-display tracking-[0.15em] text-amber uppercase text-glow-amber">
-              WORLD VIEW
+              {variantMeta.shortName} VIEW
             </h1>
             <div className="flex items-center gap-1.5">
               <Wifi className="h-3 w-3 text-tactical-green/60" />
               <span className="text-[9px] font-mono text-tactical-green/50 tracking-wider">
-                LIVE · {signalCount} FEEDS
+                LIVE · {signalCount} SIGNALS
               </span>
             </div>
           </div>
@@ -98,7 +115,26 @@ export function MapPage() {
 
         {/* Row 2: City Quick Jump (2D only) */}
         {viewMode === '2d' && (
-          <CityQuickJump onJump={handleCityJump} active={activeCity} />
+          <div className="space-y-2">
+            <CityQuickJump onJump={handleCityJump} active={activeCity} />
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              <button
+                onClick={resetToVariantDefault}
+                className="border border-amber/25 bg-amber/10 px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-amber whitespace-nowrap"
+              >
+                Variant Default
+              </button>
+              {presets.map((preset) => (
+                <button
+                  key={preset.key}
+                  onClick={() => applyPreset(preset.layers)}
+                  className="border border-amber/20 bg-amber/5 px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-amber/70 hover:bg-amber/10 hover:text-amber whitespace-nowrap"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

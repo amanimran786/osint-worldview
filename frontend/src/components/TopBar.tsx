@@ -2,10 +2,12 @@ import { RefreshCw, Wifi } from 'lucide-react';
 import { useStore } from '../store';
 import { SearchBar } from './SearchBar';
 import { useState, useEffect } from 'react';
+import { useVariant } from '../contexts/VariantContext';
 
 export function TopBar({ title }: { title: string }) {
   const loading = useStore((s) => s.loading);
   const pollAll = useStore((s) => s.pollAll);
+  const { variantMeta } = useVariant();
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -22,7 +24,9 @@ export function TopBar({ title }: { title: string }) {
         </h1>
         <div className="flex items-center gap-1.5">
           <Wifi className="h-3 w-3 text-tactical-green/60" />
-          <span className="text-[9px] font-mono text-tactical-green/50 tracking-wider">LIVE</span>
+          <span className="text-[9px] font-mono text-tactical-green/50 tracking-wider">
+            LIVE · {variantMeta.shortName}
+          </span>
         </div>
       </div>
 
@@ -30,6 +34,10 @@ export function TopBar({ title }: { title: string }) {
 
       {/* Right side */}
       <div className="flex items-center gap-4 shrink-0">
+        <span className="hidden lg:inline text-[9px] font-mono text-amber/35 tracking-wider">
+          CMD/CTRL+K
+        </span>
+
         {/* UTC Clock */}
         <span className="text-[10px] font-mono text-amber/40 tabular-nums tracking-wider">
           {time.toISOString().slice(11, 19)} UTC

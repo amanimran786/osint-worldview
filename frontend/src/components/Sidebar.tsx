@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
+import { useVariant } from '../contexts/VariantContext';
 
 const links = [
   { to: '/', label: 'Dashboard', icon: Activity },
@@ -38,21 +39,22 @@ const links = [
 
 export function Sidebar() {
   const { user, logout } = useAuth();
+  const { variant, variantMeta, variants, setVariant } = useVariant();
 
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-amber/10 bg-surface">
       {/* Brand */}
       <div className="flex h-14 items-center gap-2.5 px-4 border-b border-amber/10">
-        <Radio className="h-5 w-5 text-amber animate-blink-slow" />
-        <div className="flex flex-col">
-          <span className="text-[11px] font-display tracking-[0.15em] text-amber text-glow-amber">
-            WORLDVIEW
-          </span>
-          <span className="text-[8px] font-mono tracking-wider text-amber/30 uppercase">
-            OSINT Platform
-          </span>
+          <Radio className="h-5 w-5 text-amber animate-blink-slow" />
+          <div className="flex flex-col">
+            <span className="text-[11px] font-display tracking-[0.15em] text-amber text-glow-amber">
+              {variantMeta.shortName} VIEW
+            </span>
+            <span className="text-[8px] font-mono tracking-wider text-amber/30 uppercase">
+              {variantMeta.tagline}
+            </span>
+          </div>
         </div>
-      </div>
 
       {/* Classification strip */}
       <div className="bg-red-900/30 px-4 py-0.5 text-center">
@@ -86,6 +88,21 @@ export function Sidebar() {
 
       {/* Settings + Operator */}
       <div className="border-t border-amber/10 px-2 py-2 space-y-1">
+        <label className="block px-3 pt-1">
+          <span className="text-[8px] font-mono tracking-[0.2em] text-amber/30 uppercase">Variant</span>
+          <select
+            value={variant}
+            onChange={(e) => setVariant(e.target.value as typeof variant)}
+            className="mt-1 w-full border border-amber/20 bg-surface-card px-2 py-1.5 text-[10px] font-mono uppercase tracking-wider text-amber/80 focus:border-amber/40 focus:outline-none"
+          >
+            {variants.map((v) => (
+              <option key={v.id} value={v.id} className="bg-surface-card text-amber/90">
+                {v.shortName}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <NavLink
           to="/settings"
           className={({ isActive }) =>
@@ -127,7 +144,7 @@ export function Sidebar() {
           <span className="text-[9px] font-mono text-tactical-green/60 tracking-wider">SYSTEMS NOMINAL</span>
         </div>
         <div className="text-[8px] font-mono text-gray-700 tracking-wider">
-          v3.2.0 · GSOC
+          v3.2.0 · {variantMeta.name}
         </div>
       </div>
     </aside>
