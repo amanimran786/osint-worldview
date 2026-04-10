@@ -10,7 +10,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tauri Desktop](https://img.shields.io/badge/Desktop-Tauri-00D4AA?style=flat)](https://tauri.app)
 
-[**🌐 Live Demo**](https://worldview.app) · [**📖 Full Docs**](./docs/DOCUMENTATION.md) · [**🚀 Quick Start**](#quick-start) · [**📥 Downloads**](#downloads)
+[**🌐 Live Demo**](https://osint-worldview-cyan.vercel.app) · [**📖 Full Docs**](./docs/DOCUMENTATION.md) · [**🚀 Quick Start**](#quick-start) · [**📥 Downloads**](#downloads)
 
 </div>
 
@@ -379,4 +379,4 @@ If WorldView helps your work, please:
 
 ---
 
-**Built with ❤️ by [truthseeker](https://github.com/amanimran786)** | Open-sourced April 2026 | [Live Demo](https://worldview.app)
+**Built with ❤️ by [truthseeker](https://github.com/amanimran786)** | Open-sourced April 2026 | [Live Demo](https://osint-worldview-cyan.vercel.app)
