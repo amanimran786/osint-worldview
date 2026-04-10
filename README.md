@@ -358,6 +358,7 @@ You can use, modify, and redistribute WorldView as long as you keep it open-sour
 
 - **Bugs?** → [GitHub Issues](https://github.com/amanimran786/osint-worldview/issues)
 - **Ideas?** → [GitHub Discussions](https://github.com/amanimran786/osint-worldview/discussions)
+- **Security?** → [Security Audit](./SECURITY_AUDIT.md)
 - **Community?** → [Twitter/X @worldview_app](https://twitter.com/worldview_app)
 
 ---
