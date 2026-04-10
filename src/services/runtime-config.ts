@@ -2,6 +2,8 @@ import { getApiBaseUrl, isDesktopRuntime } from './runtime';
 import { invokeTauri } from './tauri-bridge';
 
 export type RuntimeSecretKey =
+  | 'JARVIS_API_URL'
+  | 'JARVIS_API_TOKEN'
   | 'GROQ_API_KEY'
   | 'OPENROUTER_API_KEY'
   | 'TAVILY_API_KEYS'
@@ -31,6 +33,7 @@ export type RuntimeSecretKey =
   | 'ICAO_API_KEY';
 
 export type RuntimeFeatureId =
+  | 'aiJarvis'
   | 'aiGroq'
   | 'aiOpenRouter'
   | 'stockNewsSearchTavily'
@@ -88,6 +91,7 @@ function getSidecarSecretValidateUrl(): string {
 }
 
 const defaultToggles: Record<RuntimeFeatureId, boolean> = {
+  aiJarvis: true,
   aiGroq: true,
   aiOpenRouter: true,
   stockNewsSearchTavily: true,
@@ -121,19 +125,26 @@ export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
     name: 'Ollama local summarization',
     description: 'Local LLM provider via OpenAI-compatible endpoint (Ollama or LM Studio, desktop-first).',
     requiredSecrets: ['OLLAMA_API_URL', 'OLLAMA_MODEL'],
-    fallback: 'Falls back to Groq, then OpenRouter, then local browser model.',
+    fallback: 'Falls back to Jarvis, then Groq, then OpenRouter, then local browser model.',
+  },
+  {
+    id: 'aiJarvis',
+    name: 'Jarvis AI summarization',
+    description: 'Jarvis local API provider (/chat) with open-source-first routing.',
+    requiredSecrets: ['JARVIS_API_URL', 'JARVIS_API_TOKEN'],
+    fallback: 'Falls back to local browser model first, then Groq, then OpenRouter.',
   },
   {
     id: 'aiGroq',
     name: 'Groq summarization',
-    description: 'Primary fast LLM provider used for AI summary generation.',
+    description: 'Paid cloud fallback provider used after free local summarization paths.',
     requiredSecrets: ['GROQ_API_KEY'],
-    fallback: 'Falls back to OpenRouter, then local browser model.',
+    fallback: 'Falls back to OpenRouter only after free local providers are exhausted.',
   },
   {
     id: 'aiOpenRouter',
     name: 'OpenRouter summarization',
-    description: 'Secondary LLM provider for AI summary fallback.',
+    description: 'Last-resort cloud fallback provider for AI summaries.',
     requiredSecrets: ['OPENROUTER_API_KEY'],
     fallback: 'Falls back to local browser model only.',
   },
@@ -315,6 +326,7 @@ const URL_SECRET_KEYS = new Set<RuntimeSecretKey>([
   'WS_RELAY_URL',
   'VITE_OPENSKY_RELAY_URL',
   'OLLAMA_API_URL',
+  'JARVIS_API_URL',
 ]);
 
 export interface SecretVerificationResult {
@@ -329,7 +341,7 @@ export function validateSecret(key: RuntimeSecretKey, value: string): { valid: b
   if (URL_SECRET_KEYS.has(key)) {
     try {
       const parsed = new URL(trimmed);
-      if (key === 'OLLAMA_API_URL') {
+      if (key === 'OLLAMA_API_URL' || key === 'JARVIS_API_URL') {
         if (!['http:', 'https:'].includes(parsed.protocol)) {
           return { valid: false, hint: 'Must be an http(s) URL' };
         }

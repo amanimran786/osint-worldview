@@ -7,6 +7,19 @@ export interface ProviderCredentials {
   extraBody?: Record<string, unknown>;
 }
 
+function jarvisModeUrlFromChatUrl(chatUrl: string): string {
+  try {
+    const parsed = new URL(chatUrl);
+    if (/\/chat\/?$/i.test(parsed.pathname)) {
+      parsed.pathname = parsed.pathname.replace(/\/chat\/?$/i, '/mode');
+      return parsed.toString();
+    }
+    return new URL('/mode', parsed).toString();
+  } catch {
+    return '';
+  }
+}
+
 const OLLAMA_HOST_ALLOWLIST = new Set([
   'localhost', '127.0.0.1', '::1', '[::1]', 'host.docker.internal',
 ]);
@@ -42,6 +55,27 @@ export function getProviderCredentials(provider: string): ProviderCredentials | 
       model: process.env.OLLAMA_MODEL || 'llama3.1:8b',
       headers,
       extraBody: { think: false },
+    };
+  }
+
+  if (provider === 'jarvis') {
+    const rawBaseUrl = String(process.env.JARVIS_API_URL || '').trim();
+    if (!rawBaseUrl) return null;
+    let apiUrl = '';
+    try {
+      apiUrl = /\/chat\/?$/i.test(rawBaseUrl)
+        ? rawBaseUrl.replace(/\/+$/, '')
+        : new URL('/chat', rawBaseUrl).toString();
+    } catch {
+      return null;
+    }
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = String(process.env.JARVIS_API_TOKEN || '').trim();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return {
+      apiUrl,
+      model: process.env.JARVIS_MODEL || 'jarvis-open-source',
+      headers,
     };
   }
 
@@ -96,7 +130,7 @@ export function stripThinkingTags(text: string): string {
   return s;
 }
 
-const PROVIDER_CHAIN = ['ollama', 'groq', 'openrouter'] as const;
+const PROVIDER_CHAIN = ['ollama', 'jarvis', 'groq', 'openrouter'] as const;
 
 export interface LlmCallOptions {
   messages: Array<{ role: string; content: string }>;
@@ -136,16 +170,40 @@ export async function callLlm(opts: LlmCallOptions): Promise<LlmCallResult | nul
     }
 
     try {
+      const isJarvis = providerName === 'jarvis';
+      if (isJarvis && String(process.env.JARVIS_ENFORCE_OPEN_SOURCE ?? '1').trim() !== '0') {
+        const modeUrl = jarvisModeUrlFromChatUrl(creds.apiUrl);
+        if (modeUrl) {
+          try {
+            await fetch(modeUrl, {
+              method: 'POST',
+              headers: { ...creds.headers, 'User-Agent': CHROME_UA },
+              body: JSON.stringify({ mode: 'open-source' }),
+              signal: AbortSignal.timeout(Math.min(timeoutMs, 4000)),
+            });
+          } catch {
+            // Best-effort only; continue with chat request.
+          }
+        }
+      }
+      const jarvisMessage = messages
+        .map((m) => `${String(m.role || 'user').toUpperCase()}: ${String(m.content || '')}`)
+        .join('\n\n');
       const resp = await fetch(creds.apiUrl, {
         method: 'POST',
         headers: { ...creds.headers, 'User-Agent': CHROME_UA },
-        body: JSON.stringify({
-          ...creds.extraBody,
-          model: creds.model,
-          messages,
-          temperature,
-          max_tokens: maxTokens,
-        }),
+        body: isJarvis
+          ? JSON.stringify({
+            message: jarvisMessage,
+            stream: false,
+          })
+          : JSON.stringify({
+            ...creds.extraBody,
+            model: creds.model,
+            messages,
+            temperature,
+            max_tokens: maxTokens,
+          }),
         signal: AbortSignal.timeout(timeoutMs),
       });
 
@@ -156,17 +214,24 @@ export async function callLlm(opts: LlmCallOptions): Promise<LlmCallResult | nul
       }
 
       const data = (await resp.json()) as {
+        response?: string;
+        model?: string;
         choices?: Array<{ message?: { content?: string } }>;
         usage?: { total_tokens?: number };
       };
 
-      let content = data.choices?.[0]?.message?.content?.trim() || '';
+      let content = isJarvis
+        ? String(data.response || '').trim()
+        : (data.choices?.[0]?.message?.content?.trim() || '');
       if (!content) {
         if (forcedProvider) return null;
         continue;
       }
 
-      const tokens = data.usage?.total_tokens ?? 0;
+      const tokens = isJarvis ? 0 : (data.usage?.total_tokens ?? 0);
+      const resolvedModel = isJarvis
+        ? (String(data.model || '').trim() || creds.model)
+        : creds.model;
 
       if (shouldStrip) {
         content = stripThinkingTags(content);
@@ -182,7 +247,7 @@ export async function callLlm(opts: LlmCallOptions): Promise<LlmCallResult | nul
         continue;
       }
 
-      return { content, model: creds.model, provider: providerName, tokens };
+      return { content, model: resolvedModel, provider: providerName, tokens };
     } catch (err) {
       console.warn(`[llm:${providerName}] ${(err as Error).message}`);
       if (forcedProvider) return null;

@@ -1,6 +1,8 @@
 import type { RuntimeSecretKey, RuntimeFeatureId } from './runtime-config';
 
 export const SIGNUP_URLS: Partial<Record<RuntimeSecretKey, string>> = {
+  JARVIS_API_URL: 'https://github.com/amanimran786/jarvis-ai',
+  JARVIS_API_TOKEN: 'https://github.com/amanimran786/jarvis-ai',
   GROQ_API_KEY: 'https://console.groq.com/keys',
   OPENROUTER_API_KEY: 'https://openrouter.ai/settings/keys',
   TAVILY_API_KEYS: 'https://app.tavily.com/home',
@@ -30,6 +32,7 @@ export const SIGNUP_URLS: Partial<Record<RuntimeSecretKey, string>> = {
 export const PLAINTEXT_KEYS = new Set<RuntimeSecretKey>([
   'OLLAMA_API_URL',
   'OLLAMA_MODEL',
+  'JARVIS_API_URL',
   'WS_RELAY_URL',
   'VITE_OPENSKY_RELAY_URL',
 ]);
@@ -37,6 +40,8 @@ export const PLAINTEXT_KEYS = new Set<RuntimeSecretKey>([
 export const MASKED_SENTINEL = '__WM_MASKED__';
 
 export const HUMAN_LABELS: Record<RuntimeSecretKey, string> = {
+  JARVIS_API_URL: 'Jarvis API URL',
+  JARVIS_API_TOKEN: 'Jarvis API Token',
   GROQ_API_KEY: 'Groq API Key',
   OPENROUTER_API_KEY: 'OpenRouter API Key',
   TAVILY_API_KEYS: 'Tavily API Keys',
@@ -76,7 +81,7 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
   {
     id: 'ai',
     label: 'AI & Summarization',
-    features: ['aiOllama', 'aiGroq', 'aiOpenRouter'],
+    features: ['aiOllama', 'aiJarvis', 'aiGroq', 'aiOpenRouter'],
   },
   {
     id: 'economy',

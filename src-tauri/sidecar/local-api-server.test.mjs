@@ -693,6 +693,34 @@ test('accepts OLLAMA_MODEL via /api/local-env-update', async () => {
   }
 });
 
+test('accepts JARVIS_API_URL via /api/local-env-update', async () => {
+  const localApi = await setupApiDir({});
+
+  const app = await createLocalApiServer({
+    port: 0,
+    apiDir: localApi.apiDir,
+    logger: { log() { }, warn() { }, error() { } },
+  });
+  const { port } = await app.start();
+
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/api/local-env-update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'JARVIS_API_URL', value: 'http://127.0.0.1:8765' }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.key, 'JARVIS_API_URL');
+    assert.equal(process.env.JARVIS_API_URL, 'http://127.0.0.1:8765');
+  } finally {
+    delete process.env.JARVIS_API_URL;
+    await app.close();
+    await localApi.cleanup();
+  }
+});
+
 test('rejects unknown key via /api/local-env-update', async () => {
   const localApi = await setupApiDir({});
 
@@ -715,6 +743,46 @@ test('rejects unknown key via /api/local-env-update', async () => {
   } finally {
     await app.close();
     await localApi.cleanup();
+  }
+});
+
+test('validates JARVIS_API_URL via /api/local-validate-secret (reachable endpoint)', async () => {
+  // Stand up a mock Jarvis server that responds to /status
+  const mockJarvis = createServer((req, res) => {
+    if (req.url === '/status') {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ status: 'online' }));
+    } else {
+      res.writeHead(404);
+      res.end('not found');
+    }
+  });
+  const jarvisPort = await listen(mockJarvis);
+
+  const localApi = await setupApiDir({});
+  const app = await createLocalApiServer({
+    port: 0,
+    apiDir: localApi.apiDir,
+    logger: { log() { }, warn() { }, error() { } },
+  });
+  const { port } = await app.start();
+
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/api/local-validate-secret`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'JARVIS_API_URL', value: `http://127.0.0.1:${jarvisPort}` }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.valid, true);
+    assert.equal(body.message, 'Jarvis endpoint verified');
+  } finally {
+    await app.close();
+    await localApi.cleanup();
+    await new Promise((resolve, reject) => {
+      mockJarvis.close((err) => (err ? reject(err) : resolve()));
+    });
   }
 });
 
@@ -755,6 +823,31 @@ test('validates OLLAMA_API_URL via /api/local-validate-secret (reachable endpoin
     await new Promise((resolve, reject) => {
       mockOllama.close((err) => (err ? reject(err) : resolve()));
     });
+  }
+});
+
+test('validates JARVIS_API_TOKEN stores token', async () => {
+  const localApi = await setupApiDir({});
+  const app = await createLocalApiServer({
+    port: 0,
+    apiDir: localApi.apiDir,
+    logger: { log() { }, warn() { }, error() { } },
+  });
+  const { port } = await app.start();
+
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/api/local-validate-secret`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'JARVIS_API_TOKEN', value: 'jarvis-token-123456' }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.valid, true);
+    assert.equal(body.message, 'Jarvis token stored');
+  } finally {
+    await app.close();
+    await localApi.cleanup();
   }
 });
 

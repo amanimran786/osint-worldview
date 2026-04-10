@@ -1,7 +1,7 @@
 /**
  * Summarization Service with Fallback Chain
  * Server-side Redis caching handles cross-user deduplication
- * Fallback: Ollama -> Groq -> OpenRouter -> Browser T5
+ * Fallback: Ollama -> Jarvis -> Groq -> OpenRouter -> Browser T5
  *
  * Uses NewsServiceClient.summarizeArticle() RPC instead of legacy
  * per-provider fetch endpoints.
@@ -17,7 +17,7 @@ import { NewsServiceClient, type SummarizeArticleResponse } from '@/generated/cl
 import { createCircuitBreaker } from '@/utils';
 import { buildSummaryCacheKey } from '@/utils/summary-cache-key';
 
-export type SummarizationProvider = 'ollama' | 'groq' | 'openrouter' | 'browser' | 'cache';
+export type SummarizationProvider = 'ollama' | 'jarvis' | 'groq' | 'openrouter' | 'browser' | 'cache';
 
 export interface SummarizationResult {
   summary: string;
@@ -29,7 +29,7 @@ export interface SummarizationResult {
 export type ProgressCallback = (step: number, total: number, message: string) => void;
 
 export interface SummarizeOptions {
-  skipCloudProviders?: boolean;  // true = skip Ollama/Groq/OpenRouter, go straight to browser T5
+  skipCloudProviders?: boolean;  // true = skip API providers, go straight to browser T5
   skipBrowserFallback?: boolean; // true = skip browser T5 fallback
 }
 
@@ -48,11 +48,17 @@ interface ApiProviderDef {
   label: string;
 }
 
-const API_PROVIDERS: ApiProviderDef[] = [
+const FREE_API_PROVIDERS: ApiProviderDef[] = [
   { featureId: 'aiOllama',      provider: 'ollama',     label: 'Ollama' },
+  { featureId: 'aiJarvis',      provider: 'jarvis',     label: 'Jarvis' },
+];
+
+const PAID_API_PROVIDERS: ApiProviderDef[] = [
   { featureId: 'aiGroq',        provider: 'groq',       label: 'Groq AI' },
   { featureId: 'aiOpenRouter',  provider: 'openrouter', label: 'OpenRouter' },
 ];
+
+const API_PROVIDERS: ApiProviderDef[] = [...FREE_API_PROVIDERS, ...PAID_API_PROVIDERS];
 
 let lastAttemptedProvider = 'none';
 
@@ -151,7 +157,7 @@ async function runApiChain(
 }
 
 /**
- * Generate a summary using the fallback chain: Ollama -> Groq -> OpenRouter -> Browser T5
+ * Generate a summary using the fallback chain: Ollama -> Jarvis -> Browser T5 -> Groq -> OpenRouter
  * Server-side Redis caching is handled by the SummarizeArticle RPC handler
  * @param geoContext Optional geographic signal context to include in the prompt
  */
@@ -201,43 +207,50 @@ async function generateSummaryInternal(
     const modelReady = mlWorker.isAvailable && mlWorker.isModelLoaded('summarization-beta');
 
     if (modelReady) {
-      const totalSteps = 1 + API_PROVIDERS.length;
-      // Model already loaded -- use browser T5-small first
-      if (!options?.skipBrowserFallback) {
-        onProgress?.(1, totalSteps, 'Running local AI model (beta)...');
-        const browserResult = await tryBrowserT5(headlines, 'summarization-beta');
-        if (browserResult) {
-          const groqProvider = API_PROVIDERS.find(p => p.provider === 'groq');
-          if (groqProvider && !options?.skipCloudProviders) tryApiProvider(groqProvider, headlines, geoContext).catch(() => {});
-
-          return browserResult;
-        }
+      const totalSteps = 1 + FREE_API_PROVIDERS.length + PAID_API_PROVIDERS.length;
+      // Free provider chain first (Ollama -> Jarvis)
+      if (!options?.skipCloudProviders) {
+        const freeChain = await runApiChain(FREE_API_PROVIDERS, headlines, geoContext, undefined, onProgress, 1, totalSteps);
+        if (freeChain) return freeChain;
       }
 
-      // Warm model failed inference -- fallback through API providers
+      // Browser model is the third free option.
+      if (!options?.skipBrowserFallback) {
+        onProgress?.(1 + FREE_API_PROVIDERS.length, totalSteps, 'Running local AI model (beta)...');
+        const browserResult = await tryBrowserT5(headlines, 'summarization-beta');
+        if (browserResult) return browserResult;
+      }
+
+      // Paid providers only after free options are exhausted.
       if (!options?.skipCloudProviders) {
-        const chainResult = await runApiChain(API_PROVIDERS, headlines, geoContext, undefined, onProgress, 2, totalSteps);
-        if (chainResult) return chainResult;
+        const paidOffset = 2 + FREE_API_PROVIDERS.length;
+        const paidChain = await runApiChain(PAID_API_PROVIDERS, headlines, geoContext, undefined, onProgress, paidOffset, totalSteps);
+        if (paidChain) return paidChain;
       }
     } else {
-      const totalSteps = API_PROVIDERS.length + 2;
+      const totalSteps = FREE_API_PROVIDERS.length + PAID_API_PROVIDERS.length + 2;
       if (mlWorker.isAvailable && !options?.skipBrowserFallback) {
         mlWorker.loadModel('summarization-beta').catch(() => {});
       }
 
-      // API providers while model loads
+      // Free provider chain while model loads.
       if (!options?.skipCloudProviders) {
-        const chainResult = await runApiChain(API_PROVIDERS, headlines, geoContext, undefined, onProgress, 1, totalSteps);
-        if (chainResult) {
-          return chainResult;
-        }
+        const freeChain = await runApiChain(FREE_API_PROVIDERS, headlines, geoContext, undefined, onProgress, 1, totalSteps);
+        if (freeChain) return freeChain;
       }
 
-      // Last resort: try browser T5 (may have finished loading by now)
+      // Third free option: browser T5 (may have finished loading by now).
       if (mlWorker.isAvailable && !options?.skipBrowserFallback) {
-        onProgress?.(API_PROVIDERS.length + 1, totalSteps, 'Waiting for local AI model...');
+        onProgress?.(FREE_API_PROVIDERS.length + 1, totalSteps, 'Waiting for local AI model...');
         const browserResult = await tryBrowserT5(headlines, 'summarization-beta');
         if (browserResult) return browserResult;
+      }
+
+      // Paid providers only after free options are exhausted.
+      if (!options?.skipCloudProviders) {
+        const paidOffset = FREE_API_PROVIDERS.length + 2;
+        const paidChain = await runApiChain(PAID_API_PROVIDERS, headlines, geoContext, undefined, onProgress, paidOffset, totalSteps);
+        if (paidChain) return paidChain;
       }
 
       onProgress?.(totalSteps, totalSteps, 'No providers available');
@@ -247,19 +260,23 @@ async function generateSummaryInternal(
     return null;
   }
 
-  // Normal mode: API chain -> Browser T5
-  const totalSteps = API_PROVIDERS.length + 1;
-  let chainResult: SummarizationResult | null = null;
-
+  // Normal mode: free providers -> browser -> paid providers
+  const totalSteps = FREE_API_PROVIDERS.length + PAID_API_PROVIDERS.length + 1;
   if (!options?.skipCloudProviders) {
-    chainResult = await runApiChain(API_PROVIDERS, headlines, geoContext, lang, onProgress, 1, totalSteps);
+    const freeChain = await runApiChain(FREE_API_PROVIDERS, headlines, geoContext, lang, onProgress, 1, totalSteps);
+    if (freeChain) return freeChain;
   }
-  if (chainResult) return chainResult;
 
   if (!options?.skipBrowserFallback) {
-    onProgress?.(totalSteps, totalSteps, 'Loading local AI model...');
+    onProgress?.(FREE_API_PROVIDERS.length + 1, totalSteps, 'Loading local AI model...');
     const browserResult = await tryBrowserT5(headlines);
     if (browserResult) return browserResult;
+  }
+
+  if (!options?.skipCloudProviders) {
+    const paidOffset = FREE_API_PROVIDERS.length + 2;
+    const paidChain = await runApiChain(PAID_API_PROVIDERS, headlines, geoContext, lang, onProgress, paidOffset, totalSteps);
+    if (paidChain) return paidChain;
   }
 
   console.warn('[Summarization] All providers failed');

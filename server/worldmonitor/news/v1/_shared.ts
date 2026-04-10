@@ -152,6 +152,27 @@ export function getProviderCredentials(provider: string): ProviderCredentials | 
     };
   }
 
+  if (provider === 'jarvis') {
+    const rawBaseUrl = String(process.env.JARVIS_API_URL || '').trim();
+    if (!rawBaseUrl) return null;
+    let apiUrl = '';
+    try {
+      apiUrl = /\/chat\/?$/i.test(rawBaseUrl)
+        ? rawBaseUrl.replace(/\/+$/, '')
+        : new URL('/chat', rawBaseUrl).toString();
+    } catch {
+      return null;
+    }
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = String(process.env.JARVIS_API_TOKEN || '').trim();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return {
+      apiUrl,
+      model: process.env.JARVIS_MODEL || 'jarvis-open-source',
+      headers,
+    };
+  }
+
   if (provider === 'groq') {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) return null;

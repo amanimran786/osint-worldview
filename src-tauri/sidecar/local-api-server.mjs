@@ -136,6 +136,7 @@ globalThis.fetch = async function ipv4Fetch(input, init) {
 };
 
 const ALLOWED_ENV_KEYS = new Set([
+  'JARVIS_API_URL', 'JARVIS_API_TOKEN',
   'GROQ_API_KEY', 'OPENROUTER_API_KEY', 'TAVILY_API_KEYS', 'BRAVE_API_KEYS', 'SERPAPI_API_KEYS', 'FRED_API_KEY', 'EIA_API_KEY',
   'CLOUDFLARE_API_TOKEN', 'ACLED_ACCESS_TOKEN', 'URLHAUS_AUTH_KEY',
   'OTX_API_KEY', 'ABUSEIPDB_API_KEY', 'WINGBITS_API_KEY', 'WS_RELAY_URL',
@@ -906,6 +907,23 @@ async function validateSecretAgainstProvider(key, rawValue, context = {}) {
       }
       return ok('Ollama endpoint verified');
     }
+
+    case 'JARVIS_API_URL': {
+      let statusUrl;
+      try {
+        const parsed = new URL(value);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return fail('Must be an http(s) URL');
+        statusUrl = /\/status\/?$/i.test(value) ? value : new URL('/status', value).toString();
+      } catch {
+        return fail('Invalid URL');
+      }
+      const response = await fetchWithTimeout(statusUrl, { method: 'GET' }, 8000);
+      if (!response.ok) return fail(`Jarvis probe failed (${response.status})`);
+      return ok('Jarvis endpoint verified');
+    }
+
+    case 'JARVIS_API_TOKEN':
+      return ok('Jarvis token stored');
 
     case 'OLLAMA_MODEL':
       return ok('Model name stored');

@@ -26,6 +26,19 @@ export function hasReasoningPreamble(text: string): boolean {
   return TASK_NARRATION.test(trimmed) || PROMPT_ECHO.test(trimmed);
 }
 
+function jarvisModeUrlFromChatUrl(chatUrl: string): string {
+  try {
+    const parsed = new URL(chatUrl);
+    if (/\/chat\/?$/i.test(parsed.pathname)) {
+      parsed.pathname = parsed.pathname.replace(/\/chat\/?$/i, '/mode');
+      return parsed.toString();
+    }
+    return new URL('/mode', parsed).toString();
+  } catch {
+    return '';
+  }
+}
+
 // ======================================================================
 // SummarizeArticle: Multi-provider LLM summarization with Redis caching
 // Ported from api/_summarize-handler.js
@@ -49,6 +62,7 @@ export async function summarizeArticle(
   // Provider credential check
   const skipReasons: Record<string, string> = {
     ollama: 'OLLAMA_API_URL not configured',
+    jarvis: 'JARVIS_API_URL not configured',
     groq: 'GROQ_API_KEY not configured',
     openrouter: 'OPENROUTER_API_KEY not configured',
   };
@@ -102,20 +116,42 @@ export async function summarizeArticle(
           lang,
         });
 
+        const isJarvis = provider === 'jarvis';
+        if (isJarvis && String(process.env.JARVIS_ENFORCE_OPEN_SOURCE ?? '1').trim() !== '0') {
+          const modeUrl = jarvisModeUrlFromChatUrl(apiUrl);
+          if (modeUrl) {
+            try {
+              await fetch(modeUrl, {
+                method: 'POST',
+                headers: { ...providerHeaders, 'User-Agent': CHROME_UA },
+                body: JSON.stringify({ mode: 'open-source' }),
+                signal: AbortSignal.timeout(4000),
+              });
+            } catch {
+              // Best-effort only; continue with chat request.
+            }
+          }
+        }
+        const jarvisMessage = `${systemPrompt}\n\n${userPrompt}\n\nReturn only the final summary text with no extra commentary.`;
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { ...providerHeaders, 'User-Agent': CHROME_UA },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
-            temperature: 0.3,
-            max_tokens: 100,
-            top_p: 0.9,
-            ...extraBody,
-          }),
+          body: isJarvis
+            ? JSON.stringify({
+              message: jarvisMessage,
+              stream: false,
+            })
+            : JSON.stringify({
+              model,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+              ],
+              temperature: 0.3,
+              max_tokens: 100,
+              top_p: 0.9,
+              ...extraBody,
+            }),
           signal: AbortSignal.timeout(25_000),
         });
 
@@ -126,9 +162,14 @@ export async function summarizeArticle(
         }
 
         const data = await response.json() as any;
-        const tokens = (data.usage?.total_tokens as number) || 0;
+        const tokens = provider === 'jarvis' ? 0 : ((data.usage?.total_tokens as number) || 0);
         const message = data.choices?.[0]?.message;
-        let rawContent = typeof message?.content === 'string' ? message.content.trim() : '';
+        let rawContent = provider === 'jarvis'
+          ? (typeof data.response === 'string' ? data.response.trim() : '')
+          : (typeof message?.content === 'string' ? message.content.trim() : '');
+        const resolvedModel = provider === 'jarvis'
+          ? (typeof data.model === 'string' && data.model.trim() ? data.model.trim() : model)
+          : model;
 
         rawContent = rawContent
           .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -157,7 +198,7 @@ export async function summarizeArticle(
           return null;
         }
 
-        return rawContent ? { summary: rawContent, model, tokens } : null;
+        return rawContent ? { summary: rawContent, model: resolvedModel, tokens } : null;
       },
     );
 
