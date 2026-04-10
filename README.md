@@ -94,6 +94,7 @@ All 5 run from **one codebase** — switch between them with one click.
 
 ### 🌐 Option 1: Web (Easiest, No Setup)
 Just go to **[worldview.app](https://worldview.app)** — it works instantly.
+Note: the hosted site cannot directly call local models running on your own laptop.
 
 ### 💻 Option 2: Local Development (5 Minutes)
 ```bash
@@ -110,27 +111,32 @@ npm run dev
 # Open http://localhost:5173
 ```
 
-### 🤖 Option 3: Run AI Locally (No Internet)
-Requires Docker/Ollama:
+### 🤖 Option 3: Browser + Local AI (Self-Hosted on Your Mac)
+Use this if you want browser access with local Ollama/Jarvis models.
 ```bash
-# 1. Install Ollama (ollama.ai)
-brew install ollama  # macOS
-# or download from ollama.ai
+# 1) Start Jarvis locally (separate terminal)
+cd ~/jarvis-ai
+./run.sh --no-ui
 
-# 2. Pull a model
-ollama pull mistral
+# 2) In this repo, create local env config for AI providers
+cp .env.example .env.local
+# Then set:
+#   JARVIS_API_URL=http://127.0.0.1:8765
+#   JARVIS_API_TOKEN=<must match your Jarvis token>
+#   OLLAMA_API_URL=http://127.0.0.1:11434
+#   OLLAMA_MODEL=deepseek-r1:14b (or your preferred local model)
 
-# 3. Start Ollama service
+# 3) Start Ollama locally
 ollama serve
 
-# 4. In another terminal, start WorldView
+# 4) Start WorldView locally
 npm run dev
 
-# 5. Enable "Local (Ollama)" in Settings → AI Providers
-# Now all AI summaries run 100% on your machine — no internet needed!
+# 5) Open http://localhost:5173 and enable local AI in Settings
+# This browser session now uses your machine-local AI stack.
 ```
 
-### 🖥️ Option 4: Desktop App
+### 🖥️ Option 4: Desktop App (Recommended for Local-First)
 ```bash
 # Build native app (requires Rust + Node.js)
 npm run tauri dev
@@ -247,7 +253,7 @@ Start with these:
 ```
 New headline arrives
          ↓
-Try Local Ollama → If offline/unavailable
+Try Local Ollama/Jarvis (desktop or self-hosted local browser) → If unavailable
          ↓
 Try Groq Free → If exhausted
          ↓
