@@ -1,0 +1,301 @@
+/* ============================================================
+   Retro-Futuristic Glow Effects & Neon Styling
+   ============================================================ */
+
+/* Neon glow text effect */
+.neon-glow {
+  text-shadow: 0 0 10px rgba(255, 136, 68, 0.5);
+}
+
+.neon-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+.neon-glow-green {
+  text-shadow: 0 0 10px rgba(68, 255, 136, 0.5);
+}
+
+/* Card border glow */
+.card-glow {
+  border-color: var(--neon-orange);
+  box-shadow: 0 0 12px rgba(255, 136, 68, 0.2), 
+              inset 0 0 20px rgba(255, 136, 68, 0.05);
+}
+
+.card-glow-cyan {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 204, 255, 0.2), 
+              inset 0 0 20px rgba(0, 204, 255, 0.05);
+}
+
+.card-glow-green {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 12px rgba(68, 255, 136, 0.2), 
+              inset 0 0 20px rgba(68, 255, 136, 0.05);
+}
+
+/* Enhanced button glow */
+button.glow-button:hover {
+  box-shadow: 0 0 20px rgba(255, 136, 68, 0.4),
+              0 0 40px rgba(255, 136, 68, 0.2);
+  text-shadow: 0 0 8px rgba(255, 136, 68, 0.4);
+}
+
+button.glow-button.active {
+  box-shadow: 0 0 20px rgba(255, 136, 68, 0.6),
+              0 0 40px rgba(255, 136, 68, 0.3),
+              inset 0 0 20px rgba(255, 136, 68, 0.1);
+}
+
+/* Cyan glow variant */
+button.glow-button-cyan:hover {
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.4),
+              0 0 40px rgba(0, 204, 255, 0.2);
+  text-shadow: 0 0 8px rgba(0, 204, 255, 0.4);
+}
+
+button.glow-button-cyan.active {
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.6),
+              0 0 40px rgba(0, 204, 255, 0.3),
+              inset 0 0 20px rgba(0, 204, 255, 0.1);
+}
+
+/* Status indicators with glow */
+.status-indicator-glow {
+  box-shadow: 0 0 8px rgba(68, 255, 136, 0.6);
+}
+
+.status-indicator-alert {
+  box-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
+}
+
+.status-indicator-warning {
+  box-shadow: 0 0 8px rgba(255, 136, 68, 0.6);
+}
+
+/* Hover glow effect on cards */
+.panel:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 2px 20px rgba(0, 204, 255, 0.15),
+              0 0 10px rgba(0, 204, 255, 0.1);
+}
+
+/* Focus state with glow */
+button:focus,
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 204, 255, 0.3),
+              inset 0 0 12px rgba(0, 204, 255, 0.05);
+}
+
+/* Input field enhanced */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
+  background: rgba(0, 204, 255, 0.02);
+}
+
+/* Link glow on hover */
+a {
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(0, 204, 255, 0.3);
+}
+
+a.accent-link {
+  color: var(--neon-orange);
+}
+
+a.accent-link:hover {
+  color: var(--neon-orange);
+  text-shadow: 0 0 8px rgba(255, 136, 68, 0.4);
+}
+
+/* Badge glows */
+.badge {
+  transition: all 0.2s ease;
+}
+
+.badge.critical {
+  background: rgba(255, 51, 51, 0.15);
+  color: #ff3333;
+  border: 1px solid rgba(255, 51, 51, 0.3);
+  box-shadow: 0 0 8px rgba(255, 51, 51, 0.2);
+}
+
+.badge.critical:hover {
+  box-shadow: 0 0 12px rgba(255, 51, 51, 0.4);
+}
+
+.badge.warning {
+  background: rgba(255, 136, 68, 0.15);
+  color: #ff8844;
+  border: 1px solid rgba(255, 136, 68, 0.3);
+  box-shadow: 0 0 8px rgba(255, 136, 68, 0.2);
+}
+
+.badge.warning:hover {
+  box-shadow: 0 0 12px rgba(255, 136, 68, 0.4);
+}
+
+.badge.success {
+  background: rgba(68, 255, 136, 0.15);
+  color: #44ff88;
+  border: 1px solid rgba(68, 255, 136, 0.3);
+  box-shadow: 0 0 8px rgba(68, 255, 136, 0.2);
+}
+
+.badge.success:hover {
+  box-shadow: 0 0 12px rgba(68, 255, 136, 0.4);
+}
+
+.badge.info {
+  background: rgba(0, 204, 255, 0.15);
+  color: #00ccff;
+  border: 1px solid rgba(0, 204, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.2);
+}
+
+.badge.info:hover {
+  box-shadow: 0 0 12px rgba(0, 204, 255, 0.4);
+}
+
+/* Data layer toggle with glow on active */
+.layer-toggle.active {
+  background: rgba(0, 204, 255, 0.15);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 204, 255, 0.3),
+              inset 0 0 12px rgba(0, 204, 255, 0.05);
+}
+
+.layer-toggle:hover {
+  border-color: var(--neon-orange);
+  box-shadow: 0 0 10px rgba(255, 136, 68, 0.2);
+}
+
+/* Command palette / search box glow */
+.command-palette,
+.search-box {
+  border: 1px solid var(--border);
+  box-shadow: inset 0 0 10px rgba(0, 204, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.command-palette:focus-within,
+.search-box:focus-within {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.2),
+              inset 0 0 15px rgba(0, 204, 255, 0.05);
+  background: rgba(0, 204, 255, 0.02);
+}
+
+/* Pulsing animation for live indicators */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 8px rgba(68, 255, 136, 0.5),
+                0 0 16px rgba(68, 255, 136, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(68, 255, 136, 0.8),
+                0 0 24px rgba(68, 255, 136, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(68, 255, 136, 0.5),
+                0 0 16px rgba(68, 255, 136, 0.2);
+  }
+}
+
+.live-indicator {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Menu / dropdown glow */
+.dropdown-menu,
+.popover {
+  background: var(--surface);
+  border: 1px solid var(--border-accent);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(0, 204, 255, 0.1);
+}
+
+/* Tooltip with glow */
+.tooltip {
+  background: var(--surface);
+  border: 1px solid var(--border-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5),
+              0 0 12px rgba(0, 204, 255, 0.15);
+  color: var(--text);
+}
+
+/* Code/terminal-like blocks */
+.terminal-block,
+.code-block {
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid var(--border-accent-orange);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  padding: 12px;
+  box-shadow: inset 0 0 12px rgba(255, 136, 68, 0.05),
+              0 0 8px rgba(255, 136, 68, 0.1);
+}
+
+.terminal-block:hover {
+  box-shadow: inset 0 0 12px rgba(255, 136, 68, 0.1),
+              0 0 12px rgba(255, 136, 68, 0.15);
+}
+
+/* Alert/warning box with glow */
+.alert-box {
+  background: rgba(255, 51, 51, 0.08);
+  border: 1px solid rgba(255, 51, 51, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+  box-shadow: inset 0 0 12px rgba(255, 51, 51, 0.05),
+              0 0 12px rgba(255, 51, 51, 0.15);
+}
+
+.alert-box.warning {
+  background: rgba(255, 136, 68, 0.08);
+  border-color: rgba(255, 136, 68, 0.3);
+  box-shadow: inset 0 0 12px rgba(255, 136, 68, 0.05),
+              0 0 12px rgba(255, 136, 68, 0.15);
+}
+
+.alert-box.success {
+  background: rgba(68, 255, 136, 0.08);
+  border-color: rgba(68, 255, 136, 0.3);
+  box-shadow: inset 0 0 12px rgba(68, 255, 136, 0.05),
+              0 0 12px rgba(68, 255, 136, 0.15);
+}
+
+/* Subtle separator line with glow */
+.separator {
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(0, 204, 255, 0.2),
+    transparent);
+  height: 1px;
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.1);
+}
