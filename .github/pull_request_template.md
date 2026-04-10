@@ -1,36 +1,34 @@
-## Summary
+## 📝 Description
+<!-- What does this PR do? -->
 
-<!-- Brief description of what this PR does -->
+## 🎯 Related Issue
+<!-- Link to the issue: Fixes #123 -->
 
-## Type of change
+## 🔄 Changes
+<!-- List the key changes -->
+- [ ] Change 1
+- [ ] Change 2
+- [ ] Change 3
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] New data source / feed
-- [ ] New map layer
-- [ ] Refactor / code cleanup
-- [ ] Documentation
-- [ ] CI / Build / Infrastructure
+## ✅ Testing
+<!-- How did you test this? -->
+- [ ] Local testing
+- [ ] Unit tests pass
+- [ ] E2E tests pass
+- [ ] Browser compatibility checked
 
-## Affected areas
+## 📸 Screenshots (if applicable)
+<!-- Show before/after or new UI -->
 
-- [ ] Map / Globe
-- [ ] News panels / RSS feeds
-- [ ] AI Insights / World Brief
-- [ ] Market Radar / Crypto
-- [ ] Desktop app (Tauri)
-- [ ] API endpoints (`/api/*`)
-- [ ] Config / Settings
-- [ ] Other: <!-- specify -->
+## 🚀 Deployment Notes
+<!-- Any special steps needed? -->
 
-## Checklist
+## 📋 Checklist
+- [ ] Code follows style guidelines
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] No breaking changes
+- [ ] Ready for review
 
-- [ ] Tested on [worldview.app](https://worldview.app) variant
-- [ ] Tested on [tech.worldview.app](https://tech.worldview.app) variant (if applicable)
-- [ ] New RSS feed domains added to `api/rss-proxy.js` allowlist (if adding feeds)
-- [ ] No API keys or secrets committed
-- [ ] TypeScript compiles without errors (`npm run typecheck`)
-
-## Screenshots
-
-<!-- If applicable, add screenshots or screen recordings -->
+## 🎬 Demo (if applicable)
+<!-- Video, GIF, or live link showing the changes -->
