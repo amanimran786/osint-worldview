@@ -19,6 +19,8 @@ import { CHROME_UA } from '../../../_shared/constants';
 const CACHE_KEY = 'theater-posture:sebuf:v1';
 const STALE_CACHE_KEY = 'theater-posture:sebuf:stale:v1';
 const BACKUP_CACHE_KEY = 'theater-posture:sebuf:backup:v1';
+const REDIS_FLIGHTS_KEY = 'military:flights:v1';
+const REDIS_FLIGHTS_STALE_KEY = 'military:flights:stale:v1';
 const CACHE_TTL = 900; // 15 minutes
 const STALE_TTL = 86400;
 const BACKUP_TTL = 604800;
@@ -85,24 +87,36 @@ async function fetchMilitaryFlightsFromOpenSky(): Promise<RawFlight[]> {
 
   if (!baseUrl) return [];
 
+  const regionResults = await Promise.allSettled(
+    THEATER_QUERY_REGIONS.map(async (region) => {
+      const params = `lamin=${region.lamin}&lamax=${region.lamax}&lomin=${region.lomin}&lomax=${region.lomax}`;
+      const resp = await fetch(`${baseUrl}?${params}`, {
+        headers: getRelayRequestHeaders(),
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      });
+      if (!resp.ok) throw new Error(`OpenSky API error: ${resp.status} for ${region.name}`);
+      const data = (await resp.json()) as { states?: Array<[string, string, ...unknown[]]> };
+      return parseOpenSkyStates(data);
+    }),
+  );
+
   const seenIds = new Set<string>();
   const allFlights: RawFlight[] = [];
+  let hadSuccess = false;
 
-  for (const region of THEATER_QUERY_REGIONS) {
-    const params = `lamin=${region.lamin}&lamax=${region.lamax}&lomin=${region.lomin}&lomax=${region.lomax}`;
-    const resp = await fetch(`${baseUrl}?${params}`, {
-      headers: getRelayRequestHeaders(),
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-    });
-    if (!resp.ok) throw new Error(`OpenSky API error: ${resp.status} for ${region.name}`);
-
-    const data = (await resp.json()) as { states?: Array<[string, string, ...unknown[]]> };
-    for (const flight of parseOpenSkyStates(data)) {
+  for (const result of regionResults) {
+    if (result.status !== 'fulfilled') continue;
+    hadSuccess = true;
+    for (const flight of result.value) {
       if (!seenIds.has(flight.id)) {
         seenIds.add(flight.id);
         allFlights.push(flight);
       }
     }
+  }
+
+  if (!hadSuccess) {
+    throw new Error('OpenSky API unavailable for all posture regions');
   }
 
   return allFlights;
@@ -172,6 +186,60 @@ async function fetchMilitaryFlightsFromWingbits(): Promise<RawFlight[] | null> {
   }
 }
 
+function parseFlightType(rawType: unknown, callsign: string): RawFlight['aircraftType'] {
+  const normalized = String(rawType || '').toLowerCase();
+  if (normalized.includes('tanker')) return 'tanker';
+  if (normalized.includes('awacs')) return 'awacs';
+  if (normalized.includes('fighter')) return 'fighter';
+  if (normalized.includes('transport')) return 'transport';
+  if (normalized.includes('recon')) return 'reconnaissance';
+  if (normalized.includes('drone') || normalized.includes('uav')) return 'drone';
+  if (normalized.includes('bomber')) return 'bomber';
+  return detectAircraftType(callsign);
+}
+
+function parseCachedMilitaryFlights(payload: unknown): RawFlight[] {
+  if (!payload || typeof payload !== 'object') return [];
+  const flights = (payload as { flights?: unknown }).flights;
+  if (!Array.isArray(flights)) return [];
+
+  const out: RawFlight[] = [];
+  for (const flight of flights) {
+    if (!flight || typeof flight !== 'object') continue;
+    const f = flight as Record<string, unknown>;
+    const lat = Number(f.lat);
+    const lon = Number(f.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+    const callsign = String(f.callsign || '').trim();
+    const id = String(f.id || f.hexCode || '').trim() || `${callsign || 'flight'}-${lat.toFixed(3)}-${lon.toFixed(3)}`;
+    out.push({
+      id,
+      callsign,
+      lat,
+      lon,
+      altitude: Number(f.altitude) || 0,
+      heading: Number(f.heading) || 0,
+      speed: Number(f.speed) || 0,
+      aircraftType: parseFlightType(f.aircraftType, callsign),
+    });
+  }
+  return out;
+}
+
+async function readRedisKeyAnyPrefix(key: string): Promise<unknown | null> {
+  return (await getCachedJson(key)) ?? (await getCachedJson(key, true));
+}
+
+async function fetchMilitaryFlightsFromRedisCache(): Promise<RawFlight[]> {
+  const fresh = await readRedisKeyAnyPrefix(REDIS_FLIGHTS_KEY);
+  const parsedFresh = parseCachedMilitaryFlights(fresh);
+  if (parsedFresh.length > 0) return parsedFresh;
+
+  const stale = await readRedisKeyAnyPrefix(REDIS_FLIGHTS_STALE_KEY);
+  return parseCachedMilitaryFlights(stale);
+}
+
 // ========================================================================
 // Theater posture calculation
 // ========================================================================
@@ -230,14 +298,21 @@ async function fetchTheaterPostureFresh(): Promise<GetTheaterPostureResponse> {
     flights = [];
   }
 
-  // Wingbits is a fallback only when OpenSky is unavailable/empty.
+  // Redis-backed snapshot fallback (same source used by /api/military-flights).
+  if (flights.length === 0) {
+    flights = await fetchMilitaryFlightsFromRedisCache();
+  }
+
+  // Wingbits is a final fallback when OpenSky/Redis are unavailable.
   if (flights.length === 0) {
     const wingbitsFlights = await fetchMilitaryFlightsFromWingbits();
     if (wingbitsFlights && wingbitsFlights.length > 0) {
       flights = wingbitsFlights;
-    } else {
-      throw new Error('Both OpenSky and Wingbits unavailable');
     }
+  }
+
+  if (flights.length === 0) {
+    throw new Error('OpenSky, Redis, and Wingbits unavailable');
   }
 
   const theaters = calculatePostures(flights);

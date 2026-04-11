@@ -6144,10 +6144,19 @@ a.prediction-link:hover {
   background: var(--bg);
   border: 1px solid var(--border);
   cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
 }
 
 .panel-toggle-item:hover {
   border-color: var(--text-dim);
+}
+
+.panel-toggle-item:focus-visible,
+.modal-close:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
 }
 
 .panel-toggle-item.active {

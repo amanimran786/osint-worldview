@@ -106,7 +106,6 @@ import { classifyWithAI } from '@/services/threat-classifier';
 import { ingestHeadlines } from '@/services/trending-keywords';
 import type { ListFeedDigestResponse } from '@/generated/client/worldmonitor/news/v1/service_client';
 import type { GetSectorSummaryResponse, ListMarketQuotesResponse } from '@/generated/client/worldmonitor/market/v1/service_client';
-import { mountCommunityWidget } from '@/components/CommunityWidget';
 import { ResearchServiceClient } from '@/generated/client/worldmonitor/research/v1/service_client';
 import {
   MarketPanel,
@@ -995,8 +994,6 @@ export class DataLoaderManager implements AppModule {
 
     this.ctx.allNews = collectedNews;
     this.ctx.initialLoadComplete = true;
-    mountCommunityWidget();
-
     this.ctx.map?.updateHotspotActivity(this.ctx.allNews);
 
     this.updateMonitorResults();
@@ -1115,6 +1112,7 @@ export class DataLoaderManager implements AppModule {
 
   async loadMarkets(): Promise<void> {
     try {
+      const hasFinnhubKey = getSecretState('FINNHUB_API_KEY').present;
       const customEntries = getMarketWatchlistEntries();
       const effectiveSymbols = (() => {
         if (customEntries.length === 0) return MARKET_SYMBOLS;
@@ -1165,7 +1163,7 @@ export class DataLoaderManager implements AppModule {
       if (stocksResult.rateLimited && stocksResult.data.length === 0) {
         const rlMsg = 'Market data temporarily unavailable (rate limited) — retrying shortly';
         this.ctx.panels['commodities']?.showError(rlMsg);
-      } else if (stocksResult.skipped) {
+      } else if (!hasFinnhubKey || stocksResult.skipped) {
         this.ctx.statusPanel?.updateApi('Finnhub', { status: 'error' });
         if (stocksResult.data.length === 0) {
           this.ctx.panels['markets']?.showConfigError(finnhubConfigMsg);
@@ -1180,6 +1178,9 @@ export class DataLoaderManager implements AppModule {
       if (hydratedSectors?.sectors?.length) {
         const mapped = hydratedSectors.sectors.map((s) => ({ name: s.name, change: s.change }));
         heatmapPanel?.renderHeatmap(mapped);
+      } else if (!hasFinnhubKey) {
+        // Avoid triggering remote sector quote fetches when Finnhub is not configured.
+        this.ctx.panels['heatmap']?.showConfigError(finnhubConfigMsg);
       } else if (!stocksResult.skipped) {
         const sectorsResult = await fetchMultipleStocks(
           SECTORS.map((s) => ({ ...s, display: s.name })),
@@ -1202,6 +1203,18 @@ export class DataLoaderManager implements AppModule {
       const mapCommodity = (c: MarketData) => ({ display: c.display, price: c.price, change: c.change, sparkline: c.sparkline });
 
       if (commoditiesPanel) {
+        const showCommodityFailure = (message: string): void => {
+          const panel = commoditiesPanel as unknown as {
+            showError?: (msg?: string) => void;
+            showRetrying?: (msg?: string, countdownSeconds?: number) => void;
+          };
+          if (typeof panel.showError === 'function') {
+            panel.showError(message);
+          } else {
+            panel.showRetrying?.(message);
+          }
+        };
+
         // Hydrate commodities from bootstrap (same pattern as sectors/markets)
         const hydratedCommodities = getHydratedData('commodityQuotes') as ListMarketQuotesResponse | undefined;
         let commoditiesLoaded = stocksResult.rateLimited && stocksResult.data.length === 0;
@@ -1223,9 +1236,17 @@ export class DataLoaderManager implements AppModule {
           }
         }
 
+        const commodityCooldown = getCircuitBreakerCooldownInfo('Commodity Quotes');
+        if (!commoditiesLoaded && commodityCooldown.onCooldown) {
+          showCommodityFailure(
+            `Commodities feed temporarily unavailable (retry in ~${commodityCooldown.remainingSeconds}s).`
+          );
+          commoditiesLoaded = true;
+        }
+
         for (let attempt = 0; attempt < 3 && !commoditiesLoaded; attempt++) {
           if (attempt > 0) {
-            commoditiesPanel.showRetrying();
+            commoditiesPanel.showRetrying(undefined, 20);
             await new Promise(r => setTimeout(r, 20_000));
           }
           const commoditiesResult = await fetchMultipleStocks(COMMODITIES, {
@@ -1236,10 +1257,26 @@ export class DataLoaderManager implements AppModule {
           if (mapped.some(d => d.price !== null)) {
             commoditiesPanel.renderCommodities(mapped);
             commoditiesLoaded = true;
+            break;
+          }
+
+          if (commoditiesResult.rateLimited) {
+            showCommodityFailure('Commodities data temporarily unavailable (rate limited).');
+            commoditiesLoaded = true;
+            break;
+          }
+
+          const cooldownInfo = getCircuitBreakerCooldownInfo('Commodity Quotes');
+          if (cooldownInfo.onCooldown) {
+            showCommodityFailure(
+              `Commodities feed temporarily unavailable (retry in ~${cooldownInfo.remainingSeconds}s).`
+            );
+            commoditiesLoaded = true;
+            break;
           }
         }
         if (!commoditiesLoaded) {
-          commoditiesPanel.renderCommodities([]);
+          showCommodityFailure('Commodities data temporarily unavailable.');
         }
       }
     } catch {

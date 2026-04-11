@@ -53,6 +53,17 @@ const bisEerBreaker = createCircuitBreaker<GetBisExchangeRatesResponse>({ name: 
 const bisCreditBreaker = createCircuitBreaker<GetBisCreditResponse>({ name: 'BIS Credit', cacheTtlMs: 30 * 60 * 1000, persistCache: true });
 
 const emptyFredBatchFallback: GetFredSeriesBatchResponse = { results: {}, fetched: 0, requested: 0 };
+const fredBreakers = new Map<string, ReturnType<typeof createCircuitBreaker<GetFredSeriesResponse>>>();
+function getFredBreaker(seriesId: string) {
+  if (!fredBreakers.has(seriesId)) {
+    fredBreakers.set(seriesId, createCircuitBreaker<GetFredSeriesResponse>({
+      name: `FRED:${seriesId}`,
+      cacheTtlMs: 15 * 60 * 1000,
+      persistCache: true,
+    }));
+  }
+  return fredBreakers.get(seriesId)!;
+}
 const fredBatchBreaker = createCircuitBreaker<GetFredSeriesBatchResponse>({ name: 'FRED Batch', cacheTtlMs: 15 * 60 * 1000, persistCache: true });
 const emptyWbFallback: ListWorldBankIndicatorsResponse = { data: [], pagination: undefined };
 const emptyEiaFallback: GetEnergyPricesResponse = { prices: [] };
@@ -106,8 +117,10 @@ export async function fetchFredData(): Promise<FredSeries[]> {
       // 404 deploy-skew fallback: batch endpoint not yet deployed, use per-item calls
       if (err instanceof ApiError && err.statusCode === 404) {
         const items = await Promise.all(FRED_SERIES.map((c) =>
-          client.getFredSeries({ seriesId: c.id, limit: 120 }, { signal: AbortSignal.timeout(20_000) })
-            .catch(() => ({ series: undefined }) as GetFredSeriesResponse),
+          getFredBreaker(c.id).execute(
+            () => client.getFredSeries({ seriesId: c.id, limit: 120 }, { signal: AbortSignal.timeout(20_000) }),
+            ({ series: undefined }) as GetFredSeriesResponse,
+          ),
         ));
         const fallbackResults: Record<string, NonNullable<GetFredSeriesResponse['series']>> = {};
         for (const item of items) {

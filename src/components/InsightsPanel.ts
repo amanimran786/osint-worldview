@@ -19,6 +19,7 @@ import type { ClusteredEvent, FocalPoint, MilitaryFlight } from '@/types';
 
 export class InsightsPanel extends Panel {
   private lastBriefUpdate = 0;
+  private lastBriefFailureAt = 0;
   private cachedBrief: string | null = null;
   private lastMissedStories: AnalyzedHeadline[] = [];
   private lastConvergenceZones: RegionalConvergence[] = [];
@@ -28,6 +29,7 @@ export class InsightsPanel extends Panel {
   private aiFlowUnsubscribe: (() => void) | null = null;
   private updateGeneration = 0;
   private static readonly BRIEF_COOLDOWN_MS = 120000; // 2 min cooldown (API has limits)
+  private static readonly BRIEF_RETRY_BACKOFF_MS = 300000; // 5 min retry backoff after provider failure
   private static readonly BRIEF_CACHE_KEY = 'summary:world-brief';
 
   constructor() {
@@ -432,7 +434,10 @@ export class InsightsPanel extends Panel {
       let worldBrief = this.cachedBrief;
       const now = Date.now();
 
-      if (!worldBrief || now - this.lastBriefUpdate > InsightsPanel.BRIEF_COOLDOWN_MS) {
+      const briefStale = !worldBrief || now - this.lastBriefUpdate > InsightsPanel.BRIEF_COOLDOWN_MS;
+      const retryBlocked = this.lastBriefFailureAt > 0 && (now - this.lastBriefFailureAt) < InsightsPanel.BRIEF_RETRY_BACKOFF_MS;
+
+      if (briefStale && !retryBlocked) {
         this.setProgress(3, totalSteps, t('components.insights.generatingBrief'));
 
         // Pass focal point context + theater posture to AI for correlation-aware summarization
@@ -452,8 +457,14 @@ export class InsightsPanel extends Panel {
           worldBrief = result.summary;
           this.cachedBrief = worldBrief;
           this.lastBriefUpdate = now;
+          this.lastBriefFailureAt = 0;
           void setPersistentCache(InsightsPanel.BRIEF_CACHE_KEY, { summary: worldBrief });
+        } else {
+          // Avoid hammering local providers on rapid update loops after a failure.
+          this.lastBriefFailureAt = now;
         }
+      } else if (retryBlocked) {
+        this.setProgress(3, totalSteps, 'Brief provider cooling down...');
       } else {
         this.setProgress(3, totalSteps, 'Using cached brief...');
       }
@@ -829,6 +840,7 @@ export class InsightsPanel extends Panel {
     // Reset brief cache so new provider settings take effect immediately
     this.cachedBrief = null;
     this.lastBriefUpdate = 0;
+    this.lastBriefFailureAt = 0;
     try {
       await deletePersistentCache(InsightsPanel.BRIEF_CACHE_KEY);
     } catch {

@@ -12,10 +12,13 @@ interface CountryHit {
   name: string;
 }
 
-const COUNTRY_GEOJSON_URL = 'https://maps.worldview.app/countries.geojson';
+const COUNTRY_LOCAL_GEOJSON_URL = '/data/countries.geojson';
+const COUNTRY_REMOTE_GEOJSON_URLS = [
+  'https://maps.worldmonitor.app/countries.geojson',
+];
 
 /** Optional higher-resolution boundary overrides sourced from Natural Earth (served from R2 CDN). */
-const COUNTRY_OVERRIDES_URL = 'https://maps.worldview.app/country-boundary-overrides.geojson';
+const COUNTRY_OVERRIDES_URL = 'https://maps.worldmonitor.app/country-boundary-overrides.geojson';
 const COUNTRY_OVERRIDE_TIMEOUT_MS = 3_000;
 
 const POLITICAL_OVERRIDES: Record<string, string> = { 'CN-TW': 'TW' };
@@ -252,14 +255,29 @@ async function ensureLoaded(): Promise<void> {
     if (typeof fetch !== 'function') return;
 
     try {
-      const response = await fetch(COUNTRY_GEOJSON_URL);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      let data: FeatureCollection<Geometry> | null = null;
+      let lastLoadError: unknown = null;
+      const countrySources = [COUNTRY_LOCAL_GEOJSON_URL, ...COUNTRY_REMOTE_GEOJSON_URLS];
+
+      for (const sourceUrl of countrySources) {
+        try {
+          const response = await fetch(sourceUrl);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const parsed = await response.json() as FeatureCollection<Geometry>;
+          if (parsed?.type === 'FeatureCollection' && Array.isArray(parsed.features)) {
+            data = parsed;
+            break;
+          }
+        } catch (err) {
+          lastLoadError = err;
+        }
       }
 
-      const data = await response.json() as FeatureCollection<Geometry>;
-      if (!data || data.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
-        return;
+      if (!data) {
+        if (lastLoadError) throw lastLoadError;
+        throw new Error('countries.geojson could not be loaded from any source');
       }
 
       loadedGeoJson = data;

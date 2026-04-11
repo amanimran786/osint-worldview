@@ -61,10 +61,10 @@ export class SupplyChainPanel extends Panel {
     `;
 
     const activeHasData = this.activeTab === 'chokepoints'
-      ? (this.chokepointData?.chokepoints?.length ?? 0) > 0
+      ? (this.chokepointData?.chokepoints.length ?? 0) > 0
       : this.activeTab === 'shipping'
-        ? (this.shippingData?.indices?.length ?? 0) > 0
-        : (this.mineralsData?.minerals?.length ?? 0) > 0;
+        ? (this.shippingData?.indices.length ?? 0) > 0
+        : (this.mineralsData?.minerals.length ?? 0) > 0;
     const activeData = this.activeTab === 'chokepoints' ? this.chokepointData
       : this.activeTab === 'shipping' ? this.shippingData
       : this.mineralsData;

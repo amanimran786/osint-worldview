@@ -57,7 +57,7 @@ export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
   gpsJamming:               def('gpsJamming',               '&#128225;', 'gpsJamming',               'GPS Jamming', ['flat', 'globe'], _desktop ? 'locked' : undefined),
   ciiChoropleth:            def('ciiChoropleth',            '&#127758;', 'ciiChoropleth',            'CII Instability', ['flat'], _desktop ? 'enhanced' : undefined),
   dayNight:                 def('dayNight',                 '&#127763;', 'dayNight',                 'Day/Night', ['flat']),
-  sanctions:                def('sanctions',                '&#128683;', 'sanctions',                'Sanctions', []),
+  sanctions:                def('sanctions',                '&#128683;', 'sanctions',                'Sanctions', ['flat', 'globe']),
   startupHubs:              def('startupHubs',              '&#128640;', 'startupHubs',              'Startup Hubs'),
   techHQs:                  def('techHQs',                  '&#127970;', 'techHQs',                  'Tech HQs'),
   accelerators:             def('accelerators',             '&#9889;',   'accelerators',             'Accelerators'),
@@ -81,6 +81,7 @@ export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
 const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
   full: [
     'iranAttacks', 'hotspots', 'conflicts',
+    'sanctions',
     'bases', 'nuclear', 'irradiators', 'spaceports',
     'cables', 'pipelines', 'datacenters', 'military',
     'ais', 'tradeRoutes', 'flights', 'protests',
@@ -96,6 +97,7 @@ const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
   ],
   finance: [
     'stockExchanges', 'financialCenters', 'centralBanks', 'commodityHubs',
+    'sanctions',
     'gulfInvestments', 'tradeRoutes', 'cables', 'pipelines',
     'outages', 'weather', 'economic', 'waterways',
     'natural', 'cyberThreats', 'dayNight',
@@ -106,6 +108,7 @@ const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
   ],
   commodity: [
     'miningSites', 'processingPlants', 'commodityPorts', 'commodityHubs',
+    'sanctions',
     'minerals', 'pipelines', 'waterways', 'tradeRoutes',
     'ais', 'economic', 'fires', 'climate',
     'natural', 'weather', 'outages', 'dayNight',
@@ -220,21 +223,41 @@ export function resolveLayerLabel(def: LayerDefinition, tFn?: (key: string) => s
 export function bindLayerSearch(container: HTMLElement): void {
   const searchInput = container.querySelector('.layer-search') as HTMLInputElement | null;
   if (!searchInput) return;
-  searchInput.addEventListener('input', () => {
-    const q = searchInput.value.trim().toLowerCase();
-    const synonymHits = new Set<string>();
-    if (q) {
-      for (const [alias, keys] of Object.entries(LAYER_SYNONYMS)) {
-        if (alias.includes(q)) keys.forEach(k => synonymHits.add(k));
-      }
+
+  const normalize = (value: string): string =>
+    value
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .normalize('NFKD')
+      .toLowerCase()
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+
+  const aliasesByLayer = new Map<string, string[]>();
+  for (const [alias, keys] of Object.entries(LAYER_SYNONYMS)) {
+    const normalizedAlias = normalize(alias);
+    for (const key of keys) {
+      const layerKey = String(key);
+      const existing = aliasesByLayer.get(layerKey) ?? [];
+      existing.push(normalizedAlias);
+      aliasesByLayer.set(layerKey, existing);
     }
+  }
+
+  searchInput.addEventListener('input', () => {
+    const queryTokens = normalize(searchInput.value).split(/\s+/).filter(Boolean);
     container.querySelectorAll('.layer-toggle').forEach(label => {
       const el = label as HTMLElement;
       if (el.hasAttribute('data-layer-hidden')) return;
-      if (!q) { el.style.display = ''; return; }
+      if (queryTokens.length === 0) { el.style.display = ''; return; }
       const key = label.getAttribute('data-layer') || '';
-      const text = label.textContent?.toLowerCase() || '';
-      const match = text.includes(q) || key.toLowerCase().includes(q) || synonymHits.has(key);
+      const text = label.textContent || '';
+      const searchable = [
+        normalize(text),
+        normalize(key),
+        ...(aliasesByLayer.get(key) ?? []),
+      ];
+      const match = queryTokens.every(token => searchable.some(src => src.includes(token)));
       el.style.display = match ? '' : 'none';
     });
   });

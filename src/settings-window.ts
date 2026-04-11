@@ -40,10 +40,10 @@ export function initSettingsWindow(): void {
     const panelHtml = panelEntries
       .map(
         ([key, panel]) => `
-        <div class="panel-toggle-item ${panel.enabled ? 'active' : ''}" data-panel="${key}">
+        <button type="button" class="panel-toggle-item ${panel.enabled ? 'active' : ''}" data-panel="${key}" aria-pressed="${panel.enabled}" aria-label="${escapeHtml(getLocalizedPanelName(key, panel.name))}: ${panel.enabled ? 'enabled' : 'disabled'}">
           <div class="panel-toggle-checkbox">${panel.enabled ? '✓' : ''}</div>
           <span class="panel-toggle-label">${getLocalizedPanelName(key, panel.name)}</span>
-        </div>
+        </button>
       `
       )
       .join('');
@@ -51,9 +51,9 @@ export function initSettingsWindow(): void {
     const grid = document.getElementById('panelToggles');
     if (grid) {
       grid.innerHTML = panelHtml;
-      grid.querySelectorAll('.panel-toggle-item').forEach((item) => {
+      grid.querySelectorAll<HTMLButtonElement>('.panel-toggle-item').forEach((item) => {
         item.addEventListener('click', () => {
-          const panelKey = (item as HTMLElement).dataset.panel!;
+          const panelKey = item.dataset.panel!;
           const config = panelSettings[panelKey];
           if (config) {
             config.enabled = !config.enabled;
@@ -66,16 +66,16 @@ export function initSettingsWindow(): void {
   }
 
   appEl.innerHTML = `
-    <div class="settings-window-shell">
-      <div class="settings-window-header">
+    <main class="settings-window-shell" role="main">
+      <div class="settings-window-header" role="banner">
         <div class="settings-window-header-text">
           <span class="settings-window-title">${escapeHtml(t('header.settings'))}</span>
           <p class="settings-window-caption">${escapeHtml(t('header.panelDisplayCaption'))}</p>
         </div>
-        <button type="button" class="modal-close" id="settingsWindowClose">×</button>
+        <button type="button" class="modal-close" id="settingsWindowClose" aria-label="Close settings">×</button>
       </div>
-      <div class="panel-toggle-grid" id="panelToggles"></div>
-    </div>
+      <div class="panel-toggle-grid" id="panelToggles" role="group" aria-label="Panel visibility toggles"></div>
+    </main>
   `;
 
   document.getElementById('settingsWindowClose')?.addEventListener('click', () => {

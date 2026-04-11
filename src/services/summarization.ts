@@ -1,7 +1,7 @@
 /**
  * Summarization Service with Fallback Chain
  * Server-side Redis caching handles cross-user deduplication
- * Fallback: Ollama -> Jarvis -> Groq -> OpenRouter -> Browser T5
+ * Fallback: Jarvis -> Ollama -> Groq -> OpenRouter -> Browser T5
  *
  * Uses NewsServiceClient.summarizeArticle() RPC instead of legacy
  * per-provider fetch endpoints.
@@ -49,8 +49,8 @@ interface ApiProviderDef {
 }
 
 const FREE_API_PROVIDERS: ApiProviderDef[] = [
-  { featureId: 'aiOllama',      provider: 'ollama',     label: 'Ollama' },
   { featureId: 'aiJarvis',      provider: 'jarvis',     label: 'Jarvis' },
+  { featureId: 'aiOllama',      provider: 'ollama',     label: 'Ollama' },
 ];
 
 const PAID_API_PROVIDERS: ApiProviderDef[] = [
@@ -157,7 +157,7 @@ async function runApiChain(
 }
 
 /**
- * Generate a summary using the fallback chain: Ollama -> Jarvis -> Browser T5 -> Groq -> OpenRouter
+ * Generate a summary using the fallback chain: Jarvis -> Ollama -> Browser T5 -> Groq -> OpenRouter
  * Server-side Redis caching is handled by the SummarizeArticle RPC handler
  * @param geoContext Optional geographic signal context to include in the prompt
  */
@@ -208,7 +208,7 @@ async function generateSummaryInternal(
 
     if (modelReady) {
       const totalSteps = 1 + FREE_API_PROVIDERS.length + PAID_API_PROVIDERS.length;
-      // Free provider chain first (Ollama -> Jarvis)
+      // Free provider chain first (Jarvis -> Ollama)
       if (!options?.skipCloudProviders) {
         const freeChain = await runApiChain(FREE_API_PROVIDERS, headlines, geoContext, undefined, onProgress, 1, totalSteps);
         if (freeChain) return freeChain;

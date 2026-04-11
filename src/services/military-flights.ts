@@ -28,6 +28,7 @@ const isLocalhostRuntime = typeof window !== 'undefined' && ['localhost', '127.0
 // Cache configuration — 2 min for Redis (web), 15 min for direct OpenSky (desktop)
 const CACHE_TTL = isDesktopRuntime() ? 15 * 60 * 1000 : 2 * 60 * 1000;
 let flightCache: { data: MilitaryFlight[]; timestamp: number } | null = null;
+const STREAM_INIT_TIMEOUT_MS = 30_000;
 
 // Track flight history for trails
 const flightHistory = new Map<string, { positions: [number, number][]; lastUpdate: number }>();
@@ -71,6 +72,7 @@ interface MilitaryFlightsResponse {
 async function fetchFromRedis(): Promise<MilitaryFlight[]> {
   const resp = await fetch('/api/military-flights', {
     headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(STREAM_INIT_TIMEOUT_MS),
   });
   if (!resp.ok) {
     throw new Error(`military-flights API ${resp.status}`);
@@ -205,7 +207,10 @@ async function fetchQueryRegion(region: QueryRegion): Promise<RegionResult> {
   if (isLocalhostRuntime && DIRECT_OPENSKY_BASE_URL) urls.push(`${DIRECT_OPENSKY_BASE_URL}?${query}`);
   try {
     for (const url of urls) {
-      const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const response = await fetch(url, {
+        headers: { 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(STREAM_INIT_TIMEOUT_MS),
+      });
       if (!response.ok) continue;
       const data: OpenSkyResponse = await response.json();
       return { name: region.name, flights: parseOpenSkyResponse(data), ok: true };

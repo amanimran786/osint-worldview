@@ -17,7 +17,7 @@
 import Globe from 'globe.gl';
 import { isDesktopRuntime } from '@/services/runtime';
 import type { GlobeInstance, ConfigOptions } from 'globe.gl';
-import { INTEL_HOTSPOTS, CONFLICT_ZONES, MILITARY_BASES, NUCLEAR_FACILITIES, SPACEPORTS, ECONOMIC_CENTERS, STRATEGIC_WATERWAYS, CRITICAL_MINERALS, UNDERSEA_CABLES } from '@/config/geo';
+import { INTEL_HOTSPOTS, CONFLICT_ZONES, MILITARY_BASES, NUCLEAR_FACILITIES, SPACEPORTS, ECONOMIC_CENTERS, STRATEGIC_WATERWAYS, CRITICAL_MINERALS, UNDERSEA_CABLES, SANCTIONED_COUNTRIES } from '@/config/geo';
 import { PIPELINES } from '@/config/pipelines';
 import { t } from '@/services/i18n';
 import { SITE_VARIANT } from '@/config/variant';
@@ -324,7 +324,7 @@ interface GlobePath {
 interface GlobePolygon {
   coords: number[][][];
   name: string;
-  _kind: 'cii' | 'conflict' | 'imageryFootprint' | 'forecastCone';
+  _kind: 'cii' | 'sanctions' | 'conflict' | 'imageryFootprint' | 'forecastCone';
   level?: string;
   score?: number;
 
@@ -385,7 +385,7 @@ export class GlobeMap {
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private flushMaxTimer: ReturnType<typeof setTimeout> | null = null;
   private _pulseEnabled = true;
-  private reversedRingCache = new Map<string, number[][][]>();
+  private polygonRingCache = new Map<string, number[][][]>();
 
   // Idle rendering: pause globe animation when nothing changes
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
@@ -741,6 +741,7 @@ export class GlobeMap {
       .polygonGeoJsonGeometry((d: GlobePolygon) => ({ type: 'Polygon', coordinates: d.coords }))
       .polygonCapColor((d: GlobePolygon) => {
         if (d._kind === 'cii') return GlobeMap.CII_GLOBE_COLORS[d.level!] ?? 'rgba(0,0,0,0)';
+        if (d._kind === 'sanctions') return GlobeMap.SANCTIONS_GLOBE_COLORS[(d.level as 'severe' | 'high' | 'moderate')] ?? 'rgba(0,0,0,0)';
         if (d._kind === 'conflict') return GlobeMap.CONFLICT_CAP[d.intensity!] ?? GlobeMap.CONFLICT_CAP.low;
         if (d._kind === 'imageryFootprint') return 'rgba(0,0,0,0)';
         if (d._kind === 'forecastCone') return 'rgba(255,140,60,0.2)';
@@ -748,6 +749,7 @@ export class GlobeMap {
       })
       .polygonSideColor((d: GlobePolygon) => {
         if (d._kind === 'cii') return 'rgba(0,0,0,0)';
+        if (d._kind === 'sanctions') return 'rgba(0,0,0,0)';
         if (d._kind === 'conflict') return GlobeMap.CONFLICT_SIDE[d.intensity!] ?? GlobeMap.CONFLICT_SIDE.low;
         if (d._kind === 'imageryFootprint') return 'rgba(0,0,0,0)';
         if (d._kind === 'forecastCone') return 'rgba(255,140,60,0.1)';
@@ -755,6 +757,7 @@ export class GlobeMap {
       })
       .polygonStrokeColor((d: GlobePolygon) => {
         if (d._kind === 'cii') return 'rgba(80,80,80,0.3)';
+        if (d._kind === 'sanctions') return 'rgba(120,80,40,0.45)';
         if (d._kind === 'conflict') return GlobeMap.CONFLICT_STROKE[d.intensity!] ?? GlobeMap.CONFLICT_STROKE.low;
         if (d._kind === 'imageryFootprint') return '#00b4ff';
         if (d._kind === 'forecastCone') return 'rgba(255,140,60,0.5)';
@@ -762,11 +765,13 @@ export class GlobeMap {
       })
       .polygonAltitude((d: GlobePolygon) => {
         if (d._kind === 'cii') return 0.002;
+        if (d._kind === 'sanctions') return 0.0015;
         if (d._kind === 'conflict') return GlobeMap.CONFLICT_ALT[d.intensity!] ?? GlobeMap.CONFLICT_ALT.low;
         return 0.005;
       })
       .polygonLabel((d: GlobePolygon) => {
         if (d._kind === 'cii') return `<b>${escapeHtml(d.name)}</b><br/>CII: ${d.score}/100 (${escapeHtml(d.level ?? '')})`;
+        if (d._kind === 'sanctions') return `<b>${escapeHtml(d.name)}</b><br/>Sanctions: ${escapeHtml(d.level ?? 'none')}`;
         if (d._kind === 'conflict') {
           let label = `<b>${escapeHtml(d.name)}</b>`;
           if (d.parties?.length) label += `<br/>Parties: ${d.parties.map(p => escapeHtml(p)).join(', ')}`;
@@ -810,7 +815,9 @@ export class GlobeMap {
     // Navigate to initial view
     this.setView(this.currentView);
 
-    // dayNight toggle excluded by catalog (renderers: ['flat'])
+    // dayNight is not supported on globe mode.
+    this.layers.dayNight = false;
+    this.hideLayerToggle('dayNight');
 
     // Flush any data that arrived before init completed
     this.flushMarkers();
@@ -831,7 +838,7 @@ export class GlobeMap {
     getCountriesGeoJson().then(geojson => {
       if (geojson && !this.destroyed) {
         this.countriesGeoData = geojson;
-        this.reversedRingCache.clear();
+        this.polygonRingCache.clear();
         this.flushPolygons();
       }
     }).catch(err => { if (import.meta.env.DEV) console.warn('[GlobeMap] Failed to load countries GeoJSON', err); });
@@ -1545,19 +1552,35 @@ export class GlobeMap {
     high:     'rgba(220, 50, 20, 0.45)',
     critical: 'rgba(140, 10, 0, 0.50)',
   };
+  private static readonly SANCTIONS_BY_ISO2: Record<string, 'severe' | 'high' | 'moderate'> = {
+    KP: SANCTIONED_COUNTRIES[408] ?? 'severe',
+    SS: SANCTIONED_COUNTRIES[728] ?? 'severe',
+    SY: SANCTIONED_COUNTRIES[760] ?? 'severe',
+    IR: SANCTIONED_COUNTRIES[364] ?? 'high',
+    RU: SANCTIONED_COUNTRIES[643] ?? 'high',
+    BY: SANCTIONED_COUNTRIES[112] ?? 'high',
+    VE: SANCTIONED_COUNTRIES[862] ?? 'moderate',
+    MM: SANCTIONED_COUNTRIES[104] ?? 'moderate',
+    CG: SANCTIONED_COUNTRIES[178] ?? 'moderate',
+  };
+  private static readonly SANCTIONS_GLOBE_COLORS: Record<'severe' | 'high' | 'moderate', string> = {
+    severe: 'rgba(255, 0, 0, 0.45)',
+    high: 'rgba(255, 110, 0, 0.38)',
+    moderate: 'rgba(255, 200, 0, 0.30)',
+  };
   private static readonly CONFLICT_CAP: Record<string, string> = { high: 'rgba(255,40,40,0.25)', medium: 'rgba(255,120,0,0.20)', low: 'rgba(255,200,0,0.15)' };
   private static readonly CONFLICT_SIDE: Record<string, string> = { high: 'rgba(255,40,40,0.12)', medium: 'rgba(255,120,0,0.08)', low: 'rgba(255,200,0,0.06)' };
   private static readonly CONFLICT_STROKE: Record<string, string> = { high: '#ff3030', medium: '#ff8800', low: '#ffcc00' };
   private static readonly CONFLICT_ALT: Record<string, number> = { high: 0.006, medium: 0.004, low: 0.003 };
 
-  private getReversedRing(zoneId: string, countryIso: string, ringIdx: number, ring: number[][][]): number[][][] {
-    const key = `${zoneId}:${countryIso}:${ringIdx}`;
-    let cached = this.reversedRingCache.get(key);
-    if (!cached) {
-      cached = ring.map((r: number[][]) => [...r].reverse());
-      this.reversedRingCache.set(key, cached);
-    }
-    return cached;
+  private getPolygonRingsForGlobe(cacheKey: string, rings: number[][][]): number[][][] {
+    const cached = this.polygonRingCache.get(cacheKey);
+    if (cached) return cached;
+    // Globe polygons can invert to "whole world fill" when ring winding is not what
+    // the renderer expects; normalize by reversing all rings consistently.
+    const normalized = rings.map((r) => [...r].reverse());
+    this.polygonRingCache.set(cacheKey, normalized);
+    return normalized;
   }
 
   private flushPolygons(): void {
@@ -1579,8 +1602,9 @@ export class GlobeMap {
             if (!geom) continue;
             const rings = geom.type === 'Polygon' ? [geom.coordinates] : geom.type === 'MultiPolygon' ? geom.coordinates : [];
             for (let ri = 0; ri < rings.length; ri++) {
+              const ring = rings[ri] as number[][][];
               polys.push({
-                coords: this.getReversedRing(z.id, code, ri, rings[ri] as number[][][]),
+                coords: this.getPolygonRingsForGlobe(`conflict:${z.id}:${code}:${ri}`, ring),
                 name: z.name,
                 _kind: 'conflict',
                 intensity: z.intensity ?? 'low',
@@ -1602,8 +1626,37 @@ export class GlobeMap {
         if (!geom) continue;
         const rings = geom.type === 'Polygon' ? [geom.coordinates] : geom.type === 'MultiPolygon' ? geom.coordinates : [];
         const name = (feat.properties?.name as string) ?? code;
-        for (const ring of rings) {
-          polys.push({ coords: ring, name, _kind: 'cii', level: entry.level, score: entry.score });
+        for (let ri = 0; ri < rings.length; ri++) {
+          const ring = rings[ri] as number[][][];
+          polys.push({
+            coords: this.getPolygonRingsForGlobe(`cii:${code}:${ri}`, ring),
+            name,
+            _kind: 'cii',
+            level: entry.level,
+            score: entry.score,
+          });
+        }
+      }
+    }
+
+    if (this.layers.sanctions && this.countriesGeoData) {
+      for (const feat of this.countriesGeoData.features) {
+        const code = String(feat.properties?.['ISO3166-1-Alpha-2'] ?? '').toUpperCase();
+        const level = GlobeMap.SANCTIONS_BY_ISO2[code];
+        if (!level || !code) continue;
+        const geom = feat.geometry;
+        if (!geom) continue;
+        const rings = geom.type === 'Polygon' ? [geom.coordinates] : geom.type === 'MultiPolygon' ? geom.coordinates : [];
+        const name = (feat.properties?.name as string) ?? code;
+        for (let ri = 0; ri < rings.length; ri++) {
+          const ring = rings[ri] as number[][][];
+          polys.push({
+            coords: this.getPolygonRingsForGlobe(`sanctions:${code}:${ri}`, ring),
+            name,
+            _kind: 'sanctions',
+            level,
+            score: undefined,
+          });
         }
       }
     }
@@ -1856,6 +1909,7 @@ export class GlobeMap {
 
   private static readonly LAYER_CHANNELS: Map<string, { markers: boolean; arcs: boolean; paths: boolean; polygons: boolean }> = new Map([
     ['ciiChoropleth', { markers: false, arcs: false, paths: false, polygons: true }],
+    ['sanctions',     { markers: false, arcs: false, paths: false, polygons: true }],
     ['tradeRoutes',   { markers: false, arcs: true,  paths: false, polygons: false }],
     ['pipelines',     { markers: false, arcs: false, paths: true,  polygons: false }],
     ['conflicts',     { markers: true,  arcs: false, paths: false, polygons: true }],
@@ -1879,10 +1933,10 @@ export class GlobeMap {
 
   public setLayers(layers: MapLayers): void {
     const prev = this.layers;
-    this.layers = { ...layers };
+    this.layers = { ...layers, dayNight: false };
     let needMarkers = false, needArcs = false, needPaths = false, needPolygons = false;
-    for (const k of Object.keys(layers) as (keyof MapLayers)[]) {
-      if (prev[k] === layers[k]) continue;
+    for (const k of Object.keys(this.layers) as (keyof MapLayers)[]) {
+      if (prev[k] === this.layers[k]) continue;
       const ch = GlobeMap.LAYER_CHANNELS.get(k);
       if (!ch) { needMarkers = true; continue; }
       if (ch.markers)  needMarkers = true;
@@ -1894,9 +1948,9 @@ export class GlobeMap {
     if (needArcs)     this.flushArcs();
     if (needPaths)    this.flushPaths();
     if (needPolygons) this.flushPolygons();
-    if (prev.satellites !== layers.satellites) {
-      if (this.satBeamGroup) this.satBeamGroup.visible = !!layers.satellites;
-      if (layers.satellites) {
+    if (prev.satellites !== this.layers.satellites) {
+      if (this.satBeamGroup) this.satBeamGroup.visible = !!this.layers.satellites;
+      if (this.layers.satellites) {
         this.fetchImageryForViewport();
       } else {
         if (this.imageryFetchTimer) { clearTimeout(this.imageryFetchTimer); this.imageryFetchTimer = null; }
@@ -1909,6 +1963,7 @@ export class GlobeMap {
   }
 
   public enableLayer(layer: keyof MapLayers): void {
+    if (layer === 'dayNight') return;
     if (this.layers[layer]) return;
     (this.layers as any)[layer] = true;
     const toggle = this.layerTogglesEl?.querySelector(`.layer-toggle[data-layer="${layer}"] input`) as HTMLInputElement | null;
@@ -2832,7 +2887,7 @@ export class GlobeMap {
     if (this.flushTimer) { clearTimeout(this.flushTimer); this.flushTimer = null; }
     if (this.flushMaxTimer) { clearTimeout(this.flushMaxTimer); this.flushMaxTimer = null; }
     if (this.autoRotateTimer) clearTimeout(this.autoRotateTimer);
-    this.reversedRingCache.clear();
+    this.polygonRingCache.clear();
     this.hideTooltip();
     if (this.satHoverStyle) { this.satHoverStyle.remove(); this.satHoverStyle = null; }
     this.controls = null;

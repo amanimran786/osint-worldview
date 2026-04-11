@@ -183,6 +183,45 @@ npm run tauri dev
 
 ---
 
+## 📡 Data Feeds & API Keys
+
+WorldView aggregates **100+ data sources**. Most work out-of-the-box, but some require free API registration for optimal reliability.
+
+### ✅ Free/Always Working (No Setup)
+- **OpenSky ADS-B**: Military aircraft tracking (public API)
+- **RSS Feeds**: 500+ news sources (cached globally)
+- **Bloomberg, Reuters, AP, BBC**: Via RSS proxy
+- **Wikipedia, GitHub Trends**: Direct access
+
+### 🔑 Free with Registration (Recommended)
+
+| Data Source | Use Case | Signup | Setup |
+|---|---|---|---|
+| **GDELT** | Global events & media intelligence | [gdeltproject.org/api](https://gdeltproject.org/api.html) | `GDELT_API_KEY` |
+| **ACLED** | Armed conflict & protest events | [acleddata.com](https://acleddata.com/dashboard/api) | `ACLED_ACCESS_TOKEN` |
+| **NASA FIRMS** | Real-time fire detections | [firms.modaps.eosdis.nasa.gov](https://firms.modaps.eosdis.nasa.gov/) | `NASA_FIRMS_API_KEY` |
+| **AISStream** | Live vessel positions | [aisstream.io](https://aisstream.io/) | `AISSTREAM_API_KEY` |
+| **Finnhub** | Stock/market data | [finnhub.io](https://finnhub.io/) | `FINNHUB_API_KEY` |
+| **EIA** | Oil prices & energy | [eia.gov/opendata](https://www.eia.gov/opendata/) | `EIA_API_KEY` |
+
+### 🚀 Setup Example
+```bash
+# Copy example config
+cp .env.example .env.local
+
+# Add your API keys (all optional)
+echo "GDELT_API_KEY=your_key" >> .env.local
+echo "ACLED_ACCESS_TOKEN=your_token" >> .env.local
+echo "NASA_FIRMS_API_KEY=your_key" >> .env.local
+
+# Restart the app
+npm run dev
+```
+
+**Note**: Without API keys, feeds gracefully degrade to cached/empty data. The app still works fully.
+
+---
+
 ## 🏗️ Architecture at a Glance
 
 ```

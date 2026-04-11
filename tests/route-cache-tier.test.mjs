@@ -9,7 +9,7 @@ const root = resolve(__dirname, '..');
 
 function extractGetRoutes() {
   const generatedDir = join(root, 'src', 'generated', 'server', 'worldmonitor');
-  const routes = [];
+  const routes = new Set();
 
   function walk(dir) {
     for (const entry of readdirSync(dir)) {
@@ -18,17 +18,21 @@ function extractGetRoutes() {
         walk(full);
       } else if (entry === 'service_server.ts') {
         const src = readFileSync(full, 'utf-8');
-        const re = /method:\s*"GET",[\s\S]*?path:\s*"([^"]+)"/g;
+        const legacyGetRouteRe = /method:\s*"GET",[\s\S]*?path:\s*"([^"]+)"/g;
+        const makeHandlerGetRouteRe = /makeHandler\(\s*"[^"]+"\s*,\s*"([^"]+)"/g;
         let m;
-        while ((m = re.exec(src)) !== null) {
-          routes.push(m[1]);
+        while ((m = legacyGetRouteRe.exec(src)) !== null) {
+          routes.add(m[1]);
+        }
+        while ((m = makeHandlerGetRouteRe.exec(src)) !== null) {
+          routes.add(m[1]);
         }
       }
     }
   }
 
   walk(generatedDir);
-  return routes.sort();
+  return Array.from(routes).sort();
 }
 
 function extractCacheTierKeys() {

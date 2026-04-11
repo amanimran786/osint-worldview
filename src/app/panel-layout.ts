@@ -309,10 +309,10 @@ export class PanelLayoutManager implements AppModule {
             <span class="site-footer-sub">Realtime intelligence platform</span>
           </div>
         </div>
-        <nav>
+        <nav aria-label="WorldView quick links">
           <a href="/">Dashboard</a>
           <a href="/pro">Pro</a>
-          <a href="/blog/">Blog</a>
+          <a href="/blog">Blog</a>
           <a href="/?settings=1">Settings</a>
           <a href="/#mapSection">Map</a>
           <a href="/#panelsGrid">Panels</a>

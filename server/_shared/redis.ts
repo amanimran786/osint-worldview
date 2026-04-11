@@ -76,7 +76,12 @@ function estimateRecordCount(obj: unknown): number {
 const seedMetaLastWrite = new Map<string, number>();
 const SEED_META_THROTTLE_MS = 300_000; // 5 minutes
 
+function shouldWriteSeedMeta(): boolean {
+  return process.env.VERCEL_ENV === 'production';
+}
+
 function writeSeedMeta(cacheKey: string, recordCount: number): void {
+  if (!shouldWriteSeedMeta()) return;
   const now = Date.now();
   const last = seedMetaLastWrite.get(cacheKey) ?? 0;
   if (now - last < SEED_META_THROTTLE_MS) return;

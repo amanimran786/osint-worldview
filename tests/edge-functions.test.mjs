@@ -67,6 +67,7 @@ describe('Legacy api/*.js endpoint allowlist', () => {
     'geo.js',
     'gpsjam.js',
     'health.js',
+    'jarvis-osint.js',
     'military-flights.js',
     'og-story.js',
     'opensky.js',

@@ -36,6 +36,38 @@ import { trackFeatureToggle } from '@/services/analytics';
 let activeSection = 'overview';
 let settingsManager: SettingsManager;
 let _diagCleanup: (() => void) | null = null;
+let focusSectionHeadingOnRender = false;
+
+const SETTINGS_SECTION_ORDER = ['overview', ...SETTINGS_CATEGORIES.map((cat) => cat.id), 'debug'];
+
+function getSectionTabId(sectionId: string): string {
+  return `settings-tab-${sectionId}`;
+}
+
+function focusVisibleSectionHeading(area: HTMLElement): void {
+  if (!focusSectionHeadingOnRender) return;
+  focusSectionHeadingOnRender = false;
+  const heading = area.querySelector<HTMLElement>('.settings-section-header h2');
+  if (!heading) return;
+  heading.setAttribute('tabindex', '-1');
+  heading.focus();
+}
+
+function setFeatureCardExpanded(card: HTMLElement, expanded: boolean): void {
+  card.classList.toggle('expanded', expanded);
+  const header = card.querySelector<HTMLElement>('[data-feat-toggle-expand]');
+  if (header) {
+    header.setAttribute('aria-expanded', String(expanded));
+  }
+  const body = card.querySelector<HTMLElement>('.settings-feat-body');
+  if (body) {
+    body.hidden = !expanded;
+  }
+}
+
+function getSecretControlId(featureId: RuntimeFeatureId, key: RuntimeSecretKey): string {
+  return `settings-secret-${featureId}-${key}`.toLowerCase();
+}
 
 function setActionStatus(message: string, tone: 'ok' | 'error' = 'ok'): void {
   const statusEl = document.getElementById('settingsActionStatus');
@@ -113,8 +145,9 @@ function renderSidebar(): void {
 
   const progress = getTotalProgress();
   const overviewDotClass = progress.ready === progress.total ? 'dot-ok' : progress.ready > 0 ? 'dot-partial' : 'dot-warn';
+  const overviewActive = activeSection === 'overview';
   items.push(`
-    <button class="settings-nav-item${activeSection === 'overview' ? ' active' : ''}" data-section="overview" role="tab" aria-selected="${activeSection === 'overview'}">
+    <button id="${getSectionTabId('overview')}" class="settings-nav-item${overviewActive ? ' active' : ''}" data-section="overview" role="tab" aria-selected="${overviewActive}" aria-controls="contentArea" tabindex="${overviewActive ? '0' : '-1'}">
       ${SIDEBAR_ICONS.overview}
       <span class="settings-nav-label">Overview</span>
       <span class="settings-nav-dot ${overviewDotClass}"></span>
@@ -126,8 +159,9 @@ function renderSidebar(): void {
   for (const cat of SETTINGS_CATEGORIES) {
     const { ready, total } = getFeatureStatusCounts(cat);
     const dotClass = ready === total ? 'dot-ok' : ready > 0 ? 'dot-partial' : 'dot-warn';
+    const isActive = activeSection === cat.id;
     items.push(`
-      <button class="settings-nav-item${activeSection === cat.id ? ' active' : ''}" data-section="${cat.id}" role="tab" aria-selected="${activeSection === cat.id}">
+      <button id="${getSectionTabId(cat.id)}" class="settings-nav-item${isActive ? ' active' : ''}" data-section="${cat.id}" role="tab" aria-selected="${isActive}" aria-controls="contentArea" tabindex="${isActive ? '0' : '-1'}">
         ${SIDEBAR_ICONS[cat.id] || ''}
         <span class="settings-nav-label">${escapeHtml(cat.label)}</span>
         <span class="settings-nav-count">${ready}/${total}</span>
@@ -139,7 +173,7 @@ function renderSidebar(): void {
   items.push('<div class="settings-nav-sep"></div>');
 
   items.push(`
-    <button class="settings-nav-item${activeSection === 'debug' ? ' active' : ''}" data-section="debug" role="tab" aria-selected="${activeSection === 'debug'}">
+    <button id="${getSectionTabId('debug')}" class="settings-nav-item${activeSection === 'debug' ? ' active' : ''}" data-section="debug" role="tab" aria-selected="${activeSection === 'debug'}" aria-controls="contentArea" tabindex="${activeSection === 'debug' ? '0' : '-1'}">
       ${SIDEBAR_ICONS.debug}
       <span class="settings-nav-label">Debug &amp; Logs</span>
     </button>
@@ -157,6 +191,8 @@ function renderSection(sectionId: string): void {
   if (_diagCleanup) { _diagCleanup(); _diagCleanup = null; }
   activeSection = sectionId;
   renderSidebar();
+  area.setAttribute('aria-labelledby', getSectionTabId(sectionId));
+  area.dataset.section = sectionId;
 
   area.classList.add('fade-out');
   area.classList.remove('fade-in');
@@ -174,6 +210,7 @@ function renderSection(sectionId: string): void {
     requestAnimationFrame(() => {
       area.classList.remove('fade-out');
       area.classList.add('fade-in');
+      focusVisibleSectionHeading(area);
     });
   });
 }
@@ -200,6 +237,9 @@ function renderOverview(area: HTMLElement): void {
   }).join('');
 
   area.innerHTML = `
+    <div class="settings-section-header">
+      <h2>Overview</h2>
+    </div>
     <div class="settings-overview">
       <div class="settings-ov-progress">
         <svg class="settings-ov-ring" viewBox="0 0 100 100" width="120" height="120">
@@ -222,13 +262,14 @@ function renderOverview(area: HTMLElement): void {
         <p class="wm-section-desc">${t('modals.settingsWindow.worldMonitor.apiKey.description')}</p>
         <div class="wm-key-row">
           <div class="wm-input-wrap">
-            <input type="password" class="wm-input" data-wm-key-input
+            <label class="settings-sr-only" for="wmApiKeyInput">${t('modals.settingsWindow.worldMonitor.apiKey.title')}</label>
+            <input id="wmApiKeyInput" type="password" class="wm-input" data-wm-key-input
               placeholder="${t('modals.settingsWindow.worldMonitor.apiKey.placeholder')}"
-              autocomplete="off" spellcheck="false"
+              autocomplete="off" spellcheck="false" aria-describedby="wmApiKeyStatus"
               ${wmState.present ? `value="${MASKED_SENTINEL}"` : ''} />
-            <button type="button" class="wm-toggle-vis" data-wm-toggle title="Show/hide">&#x1f441;</button>
+            <button type="button" class="wm-toggle-vis" data-wm-toggle title="Show/hide key" aria-controls="wmApiKeyInput" aria-label="Show API key">&#x1f441;</button>
           </div>
-          <span class="wm-badge ${wmStatusClass}">${wmStatusText}</span>
+          <span class="wm-badge ${wmStatusClass}" id="wmApiKeyStatus">${wmStatusText}</span>
         </div>
       </section>
 
@@ -250,10 +291,22 @@ function renderOverview(area: HTMLElement): void {
 }
 
 function initOverviewListeners(area: HTMLElement): void {
-  area.querySelector('[data-wm-toggle]')?.addEventListener('click', () => {
-    const input = area.querySelector<HTMLInputElement>('[data-wm-key-input]');
-    if (input) input.type = input.type === 'password' ? 'text' : 'password';
+  const wmKeyInput = area.querySelector<HTMLInputElement>('[data-wm-key-input]');
+  const wmToggle = area.querySelector<HTMLButtonElement>('[data-wm-toggle]');
+
+  const syncWmToggleLabel = () => {
+    if (!wmToggle || !wmKeyInput) return;
+    const visible = wmKeyInput.type === 'text';
+    wmToggle.setAttribute('aria-pressed', String(visible));
+    wmToggle.setAttribute('aria-label', visible ? 'Hide API key' : 'Show API key');
+    wmToggle.title = visible ? 'Hide key' : 'Show key';
+  };
+
+  wmToggle?.addEventListener('click', () => {
+    if (wmKeyInput) wmKeyInput.type = wmKeyInput.type === 'password' ? 'text' : 'password';
+    syncWmToggleLabel();
   });
+  syncWmToggleLabel();
 
   area.querySelector<HTMLInputElement>('[data-wm-key-input]')?.addEventListener('input', (e) => {
     const input = e.target as HTMLInputElement;
@@ -294,24 +347,26 @@ function renderFeatureSection(area: HTMLElement, cat: SettingsCategory): void {
     const pillLabel = available ? 'Ready' : allStaged ? 'Staged' : 'Needs keys';
     const secretRows = effectiveSecrets.map(key => renderSecretInput(key, feature.id)).join('');
     const fallbackHtml = (available || allStaged) ? '' : `<p class="settings-feat-fallback">${escapeHtml(feature.fallback)}</p>`;
+    const featureLabelId = `settings-feat-title-${feature.id}`;
+    const featureBodyId = `settings-feat-body-${feature.id}`;
 
     return `
       <div class="settings-feat ${borderClass}" data-feature-id="${feature.id}">
-        <div class="settings-feat-header" data-feat-toggle-expand="${feature.id}">
+        <div class="settings-feat-header" data-feat-toggle-expand="${feature.id}" role="button" tabindex="0" aria-expanded="false" aria-controls="${featureBodyId}">
           <label class="settings-feat-toggle-label" data-click-stop>
             <div class="settings-feat-switch">
-              <input type="checkbox" data-toggle="${feature.id}" ${enabled ? 'checked' : ''} />
+              <input type="checkbox" data-toggle="${feature.id}" ${enabled ? 'checked' : ''} aria-label="Enable ${escapeHtml(feature.name)}" />
               <span class="settings-feat-slider"></span>
             </div>
           </label>
           <div class="settings-feat-info">
-            <span class="settings-feat-name">${escapeHtml(feature.name)}</span>
+            <span class="settings-feat-name" id="${featureLabelId}">${escapeHtml(feature.name)}</span>
             <span class="settings-feat-desc">${escapeHtml(feature.description)}</span>
           </div>
           <span class="settings-feat-pill ${pillClass}">${pillLabel}</span>
           <span class="settings-feat-chevron">&#x25B8;</span>
         </div>
-        <div class="settings-feat-body">
+        <div class="settings-feat-body" id="${featureBodyId}" role="region" aria-labelledby="${featureLabelId}" hidden>
           ${secretRows}
           ${fallbackHtml}
         </div>
@@ -346,6 +401,10 @@ function renderSecretInput(key: RuntimeSecretKey, _featureId: RuntimeFeatureId):
     : state.valid ? 'ok' : 'warn';
   const inputClass = pending ? (validated === false ? 'invalid' : 'valid-staged') : '';
   const hintText = pending && validated === false ? (message || 'Invalid value') : null;
+  const inputId = getSecretControlId(_featureId, key);
+  const statusId = `${inputId}-status`;
+  const hintId = `${inputId}-hint`;
+  const describedBy = hintText ? `${statusId} ${hintId}` : statusId;
 
   if (key === 'OLLAMA_MODEL') {
     const storedModel = pending
@@ -353,15 +412,15 @@ function renderSecretInput(key: RuntimeSecretKey, _featureId: RuntimeFeatureId):
       : getRuntimeConfigSnapshot().secrets[key]?.value || '';
     return `
       <div class="settings-secret-row">
-        <div class="settings-secret-label">${escapeHtml(label)}</div>
-        <span class="settings-secret-status ${statusClass}">${escapeHtml(statusText)}</span>
-        <select data-model-select data-feature="${_featureId}" class="${inputClass}">
+        <label class="settings-secret-label" for="${inputId}">${escapeHtml(label)}</label>
+        <span class="settings-secret-status ${statusClass}" id="${statusId}">${escapeHtml(statusText)}</span>
+        <select id="${inputId}" data-model-select data-feature="${_featureId}" class="${inputClass}" aria-describedby="${describedBy}">
           ${storedModel ? `<option value="${escapeHtml(storedModel)}" selected>${escapeHtml(storedModel)}</option>` : '<option value="" selected disabled>Loading models...</option>'}
         </select>
-        <input type="text" data-model-manual data-feature="${_featureId}" class="${inputClass} hidden-input"
-          placeholder="Or type model name" autocomplete="off"
+        <input id="${inputId}-manual" type="text" data-model-manual data-feature="${_featureId}" class="${inputClass} hidden-input"
+          placeholder="Or type model name" autocomplete="off" aria-label="${escapeHtml(label)} manual entry"
           ${storedModel ? `value="${escapeHtml(storedModel)}"` : ''}>
-        ${hintText ? `<span class="settings-secret-hint">${escapeHtml(hintText)}</span>` : ''}
+        ${hintText ? `<span class="settings-secret-hint" id="${hintId}">${escapeHtml(hintText)}</span>` : ''}
       </div>
     `;
   }
@@ -372,25 +431,42 @@ function renderSecretInput(key: RuntimeSecretKey, _featureId: RuntimeFeatureId):
 
   return `
     <div class="settings-secret-row">
-      <div class="settings-secret-label">${escapeHtml(label)}</div>
-      <span class="settings-secret-status ${statusClass}">${escapeHtml(statusText)}</span>
+      <label class="settings-secret-label" for="${inputId}">${escapeHtml(label)}</label>
+      <span class="settings-secret-status ${statusClass}" id="${statusId}">${escapeHtml(statusText)}</span>
       <div class="settings-input-wrapper${showGetKey ? ' has-suffix' : ''}">
-        <input type="${isPlaintext ? 'text' : 'password'}" data-secret="${key}" data-feature="${_featureId}"
-          placeholder="${pending ? 'Staged' : 'Enter value...'}" autocomplete="off" class="${inputClass}"
+        <input id="${inputId}" type="${isPlaintext ? 'text' : 'password'}" data-secret="${key}" data-feature="${_featureId}"
+          placeholder="${pending ? 'Staged' : 'Enter value...'}" autocomplete="off" class="${inputClass}" aria-describedby="${describedBy}"
           ${pending ? `value="${isPlaintext ? escapeHtml(settingsManager.getPending(key) || '') : MASKED_SENTINEL}"` : (isPlaintext && state.present ? `value="${escapeHtml(getRuntimeConfigSnapshot().secrets[key]?.value || '')}"` : '')}>
         ${getKeyHtml}
       </div>
-      ${hintText ? `<span class="settings-secret-hint">${escapeHtml(hintText)}</span>` : ''}
+      ${hintText ? `<span class="settings-secret-hint" id="${hintId}">${escapeHtml(hintText)}</span>` : ''}
     </div>
   `;
 }
 
 function initFeatureSectionListeners(area: HTMLElement): void {
   area.querySelectorAll<HTMLElement>('[data-feat-toggle-expand]').forEach(header => {
+    const card = header.closest<HTMLElement>('.settings-feat');
+    if (!card) return;
+    setFeatureCardExpanded(card, card.classList.contains('expanded'));
+
+    const toggleExpanded = () => {
+      if (!card) return;
+      setFeatureCardExpanded(card, !card.classList.contains('expanded'));
+    };
+
     header.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).closest('[data-click-stop]')) return;
-      const card = header.closest('.settings-feat');
-      card?.classList.toggle('expanded');
+      toggleExpanded();
+    });
+
+    header.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-click-stop]')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleExpanded();
+      }
     });
   });
 
@@ -520,6 +596,7 @@ function updateFeatureCardStatus(featureId: RuntimeFeatureId): void {
 
   const wasExpanded = card.classList.contains('expanded');
   card.className = `settings-feat ${available ? 'ready' : allStaged ? 'staged' : 'needs'}${wasExpanded ? ' expanded' : ''}`;
+  setFeatureCardExpanded(card, wasExpanded);
 
   const pill = card.querySelector('.settings-feat-pill');
   if (pill) {
@@ -795,7 +872,7 @@ function handleSearch(query: string): void {
   }
 
   if (matches.length === 0) {
-    area.innerHTML = `<div class="settings-search-empty"><p>No features match "${escapeHtml(query)}"</p></div>`;
+    area.innerHTML = `<div class="settings-search-empty" role="status"><p>No features match "${escapeHtml(query)}"</p></div>`;
     return;
   }
 
@@ -810,24 +887,26 @@ function handleSearch(query: string): void {
     const pillClass = available ? 'ok' : allStaged ? 'staged' : 'warn';
     const pillLabel = available ? 'Ready' : allStaged ? 'Staged' : 'Needs keys';
     const secretRows = effectiveSecrets.map(key => renderSecretInput(key, feature.id)).join('');
+    const featureLabelId = `settings-feat-title-${feature.id}`;
+    const featureBodyId = `settings-feat-body-${feature.id}`;
 
     return `
       <div class="settings-feat ${borderClass} expanded" data-feature-id="${feature.id}">
-        <div class="settings-feat-header" data-feat-toggle-expand="${feature.id}">
+        <div class="settings-feat-header" data-feat-toggle-expand="${feature.id}" role="button" tabindex="0" aria-expanded="true" aria-controls="${featureBodyId}">
           <label class="settings-feat-toggle-label" data-click-stop>
             <div class="settings-feat-switch">
-              <input type="checkbox" data-toggle="${feature.id}" ${enabled ? 'checked' : ''} />
+              <input type="checkbox" data-toggle="${feature.id}" ${enabled ? 'checked' : ''} aria-label="Enable ${escapeHtml(feature.name)}" />
               <span class="settings-feat-slider"></span>
             </div>
           </label>
           <div class="settings-feat-info">
-            <span class="settings-feat-name">${highlightMatch(feature.name, query)}</span>
+            <span class="settings-feat-name" id="${featureLabelId}">${highlightMatch(feature.name, query)}</span>
             <span class="settings-feat-desc">${highlightMatch(feature.description, query)}</span>
           </div>
           <span class="settings-feat-pill ${pillClass}">${pillLabel}</span>
           <span class="settings-feat-chevron">&#x25B8;</span>
         </div>
-        <div class="settings-feat-body">
+        <div class="settings-feat-body" id="${featureBodyId}" role="region" aria-labelledby="${featureLabelId}">
           <div class="settings-feat-cat-tag">${escapeHtml(catLabel)}</div>
           ${secretRows}
         </div>
@@ -869,11 +948,48 @@ async function initSettingsWindow(): Promise<void> {
     }
   });
 
+  document.getElementById('sidebarNav')?.addEventListener('keydown', (e) => {
+    const key = e.key;
+    if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(key)) return;
+
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('#sidebarNav [role="tab"]'));
+    if (tabs.length === 0) return;
+    const sectionOrder = SETTINGS_SECTION_ORDER.filter((sectionId) =>
+      tabs.some((tab) => tab.dataset.section === sectionId)
+    );
+    if (sectionOrder.length === 0) return;
+    const currentIndex = tabs.findIndex((tab) => tab.dataset.section === activeSection);
+    const activeIndex = currentIndex >= 0 ? currentIndex : 0;
+    const activeSectionId = tabs[activeIndex]?.dataset.section ?? sectionOrder[0] ?? 'overview';
+    const currentOrderIndex = sectionOrder.indexOf(activeSectionId);
+    const safeCurrentIndex = currentOrderIndex >= 0 ? currentOrderIndex : 0;
+
+    let nextOrderIndex = safeCurrentIndex;
+    if (key === 'Home') nextOrderIndex = 0;
+    else if (key === 'End') nextOrderIndex = sectionOrder.length - 1;
+    else if (key === 'ArrowUp' || key === 'ArrowLeft') nextOrderIndex = (safeCurrentIndex - 1 + sectionOrder.length) % sectionOrder.length;
+    else if (key === 'ArrowDown' || key === 'ArrowRight') nextOrderIndex = (safeCurrentIndex + 1) % sectionOrder.length;
+
+    e.preventDefault();
+    const nextSectionId = sectionOrder[nextOrderIndex] ?? activeSectionId;
+    const nextTab = tabs.find((tab) => tab.dataset.section === nextSectionId);
+    if (!nextTab) return;
+    nextTab.focus();
+    focusSectionHeadingOnRender = true;
+    renderSection(nextSectionId);
+  });
+
   const searchInput = document.getElementById('settingsSearch') as HTMLInputElement | null;
   let searchTimeout: ReturnType<typeof setTimeout>;
   searchInput?.addEventListener('input', () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => handleSearch(searchInput.value), 200);
+  });
+  searchInput?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!searchInput.value) return;
+    searchInput.value = '';
+    handleSearch('');
   });
 
   document.getElementById('okBtn')?.addEventListener('click', () => {

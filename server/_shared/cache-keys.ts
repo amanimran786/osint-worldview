@@ -24,8 +24,8 @@ export const BOOTSTRAP_CACHE_KEYS: Record<string, string> = {
   techReadiness:    'economic:worldbank-techreadiness:v1',
   progressData:     'economic:worldbank-progress:v1',
   renewableEnergy:  'economic:worldbank-renewable:v1',
-  positiveGeoEvents: 'positive-events:geo-bootstrap:v1',
-  theaterPosture:   'theater-posture:sebuf:stale:v1',
+  positiveGeoEvents: 'positive_events:geo-bootstrap:v1',
+  theaterPosture:   'theater_posture:sebuf:stale:v1',
   riskScores:       'risk:scores:sebuf:stale:v1',
   naturalEvents:    'natural:events:v1',
   flightDelays:     'aviation:delays-bootstrap:v1',
@@ -38,6 +38,8 @@ export const BOOTSTRAP_CACHE_KEYS: Record<string, string> = {
   iranEvents:       'conflict:iran-events:v1',
   ucdpEvents:       'conflict:ucdp-events:v1',
   temporalAnomalies: 'temporal:anomalies:v1',
+  weatherAlerts:    'weather:alerts:v1',
+  spending:         'economic:spending:v1',
 };
 
 export const BOOTSTRAP_TIERS: Record<string, 'slow' | 'fast'> = {
@@ -54,4 +56,5 @@ export const BOOTSTRAP_TIERS: Record<string, 'slow' | 'fast'> = {
   marketQuotes: 'fast', commodityQuotes: 'fast', positiveGeoEvents: 'fast',
   flightDelays: 'fast', insights: 'fast', predictions: 'fast',
   iranEvents: 'fast', temporalAnomalies: 'fast',
+  weatherAlerts: 'fast', spending: 'fast',
 };

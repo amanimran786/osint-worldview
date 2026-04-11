@@ -83,6 +83,7 @@ import {
   FINANCIAL_CENTERS,
   CENTRAL_BANKS,
   COMMODITY_HUBS,
+  SANCTIONED_COUNTRIES,
   GULF_INVESTMENTS,
   MINING_SITES,
   PROCESSING_PLANTS,
@@ -1488,6 +1489,10 @@ export class DeckGLMap {
     if (mapLayers.ciiChoropleth) {
       const ciiLayer = this.createCIIChoroplethLayer();
       if (ciiLayer) layers.push(ciiLayer);
+    }
+    if (mapLayers.sanctions) {
+      const sanctionsLayer = this.createSanctionsChoroplethLayer();
+      if (sanctionsLayer) layers.push(sanctionsLayer);
     }
     // Phase 8: Species recovery zones
     if (mapLayers.speciesRecovery && this.speciesRecoveryZones.length > 0) {
@@ -3139,6 +3144,24 @@ export class DeckGLMap {
     critical: '#b91c1c', high: '#dc2626', elevated: '#f59e0b', normal: '#eab308', low: '#22c55e',
   };
 
+  private static readonly SANCTIONS_BY_ISO2: Record<string, 'severe' | 'high' | 'moderate'> = {
+    KP: SANCTIONED_COUNTRIES[408] ?? 'severe',
+    SS: SANCTIONED_COUNTRIES[728] ?? 'severe',
+    SY: SANCTIONED_COUNTRIES[760] ?? 'severe',
+    IR: SANCTIONED_COUNTRIES[364] ?? 'high',
+    RU: SANCTIONED_COUNTRIES[643] ?? 'high',
+    BY: SANCTIONED_COUNTRIES[112] ?? 'high',
+    VE: SANCTIONED_COUNTRIES[862] ?? 'moderate',
+    MM: SANCTIONED_COUNTRIES[104] ?? 'moderate',
+    CG: SANCTIONED_COUNTRIES[178] ?? 'moderate',
+  };
+
+  private static readonly SANCTIONS_LEVEL_COLORS: Record<'severe' | 'high' | 'moderate', [number, number, number, number]> = {
+    severe: [255, 0, 0, 130],
+    high: [255, 100, 0, 115],
+    moderate: [255, 200, 0, 100],
+  };
+
   private createCIIChoroplethLayer(): GeoJsonLayer | null {
     if (!this.countriesGeoJsonData || this.ciiScoresMap.size === 0) return null;
     const scores = this.ciiScoresMap;
@@ -3158,6 +3181,27 @@ export class DeckGLMap {
       lineWidthMinPixels: 0.5,
       pickable: true,
       updateTriggers: { getFillColor: [this.ciiScoresVersion] },
+    });
+  }
+
+  private createSanctionsChoroplethLayer(): GeoJsonLayer | null {
+    if (!this.countriesGeoJsonData) return null;
+    const colors = DeckGLMap.SANCTIONS_LEVEL_COLORS;
+    const levels = DeckGLMap.SANCTIONS_BY_ISO2;
+    return new GeoJsonLayer({
+      id: 'sanctions-choropleth-layer',
+      data: this.countriesGeoJsonData,
+      filled: true,
+      stroked: true,
+      getFillColor: (feature: { properties?: Record<string, unknown> }) => {
+        const code = String(feature.properties?.['ISO3166-1-Alpha-2'] ?? '').toUpperCase();
+        const level = levels[code];
+        return level ? colors[level] : [0, 0, 0, 0];
+      },
+      getLineColor: [80, 80, 80, 80] as [number, number, number, number],
+      getLineWidth: 1,
+      lineWidthMinPixels: 0.5,
+      pickable: true,
     });
   }
 
@@ -3424,6 +3468,15 @@ export class DeckGLMap {
         const levelColor = DeckGLMap.CII_LEVEL_HEX[ciiEntry.level] ?? '#888';
         return { html: `<div class="deckgl-tooltip"><strong>${text(ciiName)}</strong><br/>CII: <span style="color:${levelColor};font-weight:600">${ciiEntry.score}/100</span><br/><span style="text-transform:capitalize;opacity:.7">${text(ciiEntry.level)}</span></div>` };
       }
+      case 'sanctions-choropleth-layer': {
+        const sanctionsName = obj.properties?.name ?? 'Unknown';
+        const sanctionsCode = String(obj.properties?.['ISO3166-1-Alpha-2'] ?? '').toUpperCase();
+        const sanctionsLevel = DeckGLMap.SANCTIONS_BY_ISO2[sanctionsCode];
+        if (!sanctionsLevel) {
+          return { html: `<div class="deckgl-tooltip"><strong>${text(sanctionsName)}</strong><br/><span style="opacity:.7">${t('components.deckgl.layerHelp.labels.sanctions')}: none</span></div>` };
+        }
+        return { html: `<div class="deckgl-tooltip"><strong>${text(sanctionsName)}</strong><br/>${t('components.deckgl.layerHelp.labels.sanctions')}: <span style="text-transform:capitalize;font-weight:600">${text(sanctionsLevel)}</span></div>` };
+      }
       case 'species-recovery-layer': {
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.commonName)}</strong><br/>${text(obj.recoveryZone?.name ?? obj.region)}<br/><span style="opacity:.7">Status: ${text(obj.recoveryStatus)}</span></div>` };
       }
@@ -3465,6 +3518,7 @@ export class DeckGLMap {
   private static readonly CHOROPLETH_LAYER_IDS = new Set([
     'cii-choropleth-layer',
     'happiness-choropleth-layer',
+    'sanctions-choropleth-layer',
   ]);
 
   private handleClick(info: PickingInfo): void {

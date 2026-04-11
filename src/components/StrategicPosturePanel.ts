@@ -11,11 +11,13 @@ import { buildNewsContext } from '@/utils/news-context';
 export class StrategicPosturePanel extends Panel {
   private postures: TheaterPostureSummary[] = [];
   private vesselTimeouts: ReturnType<typeof setTimeout>[] = [];
+  private acquiringTimeout: ReturnType<typeof setTimeout> | null = null;
   private loadingElapsedInterval: ReturnType<typeof setInterval> | null = null;
   private loadingStartTime: number = 0;
   private onLocationClick?: (lat: number, lon: number) => void;
   private lastTimestamp: string = '';
   private isStale: boolean = false;
+  private readonly streamInitTimeoutMs = 35_000;
 
   constructor(private getLatestNews?: () => NewsItem[]) {
     super({
@@ -52,6 +54,7 @@ export class StrategicPosturePanel extends Panel {
   }
 
   public override showLoading(): void {
+    this.clearAcquiringTimeout();
     this.loadingStartTime = Date.now();
     this.setContent(`
       <div class="posture-panel">
@@ -82,6 +85,35 @@ export class StrategicPosturePanel extends Panel {
       </div>
     `);
     this.startLoadingTimer();
+  }
+
+  private clearAcquiringTimeout(): void {
+    if (this.acquiringTimeout) {
+      clearTimeout(this.acquiringTimeout);
+      this.acquiringTimeout = null;
+    }
+  }
+
+  private armAcquiringTimeout(): void {
+    this.clearAcquiringTimeout();
+    this.acquiringTimeout = setTimeout(() => {
+      if (!this.element?.isConnected || this.postures.length > 0 || !this.isPanelVisible()) return;
+      this.showStreamTimeout();
+    }, this.streamInitTimeoutMs);
+  }
+
+  private async fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    try {
+      return await Promise.race([
+        promise,
+        new Promise<T>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('STREAM_INIT_TIMEOUT')), timeoutMs);
+        }),
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
   }
 
   private startLoadingTimer(): void {
@@ -125,7 +157,10 @@ export class StrategicPosturePanel extends Panel {
     try {
       // Fetch aircraft data from server
       this.showLoadingStage('aircraft');
-      const data = await fetchCachedTheaterPosture(this.signal);
+      const data = await this.fetchWithTimeout(
+        fetchCachedTheaterPosture(this.signal),
+        this.streamInitTimeoutMs,
+      );
       if (!this.element?.isConnected) return;
       if (!data || !data.postures?.length) {
         this.showNoData();
@@ -148,6 +183,7 @@ export class StrategicPosturePanel extends Panel {
       this.showLoadingStage('analysis');
       this.updateBadges();
       this.render();
+      this.clearAcquiringTimeout();
 
       // If we rendered stale localStorage data, re-fetch fresh after a short delay
       if (this.isStale) {
@@ -157,6 +193,10 @@ export class StrategicPosturePanel extends Panel {
       }
     } catch (error) {
       if (this.isAbortError(error)) return;
+      if (error instanceof Error && error.message === 'STREAM_INIT_TIMEOUT') {
+        this.showStreamTimeout();
+        return;
+      }
       console.error('[StrategicPosturePanel] Fetch error:', error);
       this.showFetchError();
     }
@@ -302,6 +342,7 @@ export class StrategicPosturePanel extends Panel {
 
   private showNoData(): void {
     this.stopLoadingTimer();
+    this.armAcquiringTimeout();
     this.setContent(`
       <div class="posture-panel">
         <div class="posture-no-data">
@@ -329,6 +370,7 @@ export class StrategicPosturePanel extends Panel {
 
   private showFetchError(): void {
     this.stopLoadingTimer();
+    this.clearAcquiringTimeout();
     this.setContent(`
       <div class="posture-panel">
         <div class="posture-no-data">
@@ -339,6 +381,26 @@ export class StrategicPosturePanel extends Panel {
           </div>
           <div class="posture-error-hint">
             <strong>${t('components.strategicPosture.rateLimitedTip')}</strong>
+          </div>
+          <button class="posture-retry-btn" data-panel-retry>↻ ${t('components.strategicPosture.tryAgain')}</button>
+        </div>
+      </div>
+    `);
+    this.setRetryCallback(() => this.refresh());
+  }
+
+  private showStreamTimeout(): void {
+    this.stopLoadingTimer();
+    this.clearAcquiringTimeout();
+    const timeoutSeconds = Math.round(this.streamInitTimeoutMs / 1000);
+    this.setContent(`
+      <div class="posture-panel">
+        <div class="posture-no-data">
+          <div class="posture-no-data-icon">TIMEOUT</div>
+          <div class="posture-no-data-title">ADS-B feed timeout</div>
+          <div class="posture-no-data-desc">
+            Military flight data did not initialize within ${timeoutSeconds} seconds.
+            The feed may be temporarily unavailable.
           </div>
           <button class="posture-retry-btn" data-panel-retry>↻ ${t('components.strategicPosture.tryAgain')}</button>
         </div>
@@ -558,6 +620,7 @@ export class StrategicPosturePanel extends Panel {
   }
 
   public destroy(): void {
+    this.clearAcquiringTimeout();
     this.stopLoadingTimer();
     this.vesselTimeouts.forEach(t => clearTimeout(t));
     this.vesselTimeouts = [];

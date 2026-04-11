@@ -133,9 +133,20 @@ export interface ProviderCredentials {
   extraBody?: Record<string, unknown>;
 }
 
+function resolveJarvisBaseUrl(): string {
+  const configured = String(process.env.JARVIS_API_URL || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (configured.length > 0) return configured[0]!;
+  const port = String(process.env.JARVIS_API_PORT || '').trim();
+  if (/^\d+$/.test(port)) return `http://127.0.0.1:${port}`;
+  return 'http://127.0.0.1:8865';
+}
+
 export function getProviderCredentials(provider: string): ProviderCredentials | null {
   if (provider === 'ollama') {
-    const baseUrl = process.env.OLLAMA_API_URL;
+    const baseUrl = String(process.env.OLLAMA_API_URL || 'http://127.0.0.1:11434').trim();
     if (!baseUrl) return null;
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     const apiKey = process.env.OLLAMA_API_KEY;
@@ -146,20 +157,20 @@ export function getProviderCredentials(provider: string): ProviderCredentials | 
     const ollamaMaxTokens = Number.isFinite(rawMax) ? Math.min(Math.max(rawMax, 50), 2000) : 300;
     return {
       apiUrl: new URL('/v1/chat/completions', baseUrl).toString(),
-      model: process.env.OLLAMA_MODEL || 'llama3.1:8b',
+      model: process.env.OLLAMA_MODEL || 'jarvis-local:latest',
       headers,
       extraBody: { think: false, max_tokens: ollamaMaxTokens },
     };
   }
 
   if (provider === 'jarvis') {
-    const rawBaseUrl = String(process.env.JARVIS_API_URL || '').trim();
+    const rawBaseUrl = resolveJarvisBaseUrl();
     if (!rawBaseUrl) return null;
     let apiUrl = '';
     try {
-      apiUrl = /\/chat\/?$/i.test(rawBaseUrl)
-        ? rawBaseUrl.replace(/\/+$/, '')
-        : new URL('/chat', rawBaseUrl).toString();
+      apiUrl = /\/chat(?:\/raw)?\/?$/i.test(rawBaseUrl)
+        ? rawBaseUrl.replace(/\/chat(?:\/raw)?\/?$/i, '/chat/raw')
+        : new URL('/chat/raw', rawBaseUrl).toString();
     } catch {
       return null;
     }
