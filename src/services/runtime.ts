@@ -342,7 +342,7 @@ export function startSmartPollLoop(
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     activeController = controller;
 
-    const applyResult = (result) => {
+    const applyResult = (result: boolean | void) => {
       if (result === false) {
         backoffMultiplier = Math.min(backoffMultiplier * 2, maxBackoffMultiplier);
       } else {
