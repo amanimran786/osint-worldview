@@ -1,6 +1,7 @@
 import { setCachedJson } from '../../../_shared/redis';
+import { callLlm } from '../../../_shared/llm';
+import { shouldForceLocalLlm } from '../../../_shared/local-mode';
 import { sha256Hex } from './_shared';
-import { CHROME_UA } from '../../../_shared/constants';
 
 const VALID_LEVELS = ['critical', 'high', 'medium', 'low', 'info'];
 const VALID_CATEGORIES = [
@@ -13,16 +14,8 @@ const CLASSIFY_CACHE_TTL = 86400;
 const SKIP_SENTINEL_TTL = 1800;
 const BATCH_SIZE = 50;
 
-const DEFAULT_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const DEFAULT_MODEL = 'llama-3.1-8b-instant';
-
 function sanitizeTitle(title: string): string {
   return title.replace(/[\n\r]/g, ' ').replace(/\|/g, '/').slice(0, 200).trim();
-}
-
-function isValidUrl(url: string): boolean {
-  if (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1')) return true;
-  return url.startsWith('https://');
 }
 
 const SYSTEM_PROMPT = `You classify news headlines by threat level and category. Return ONLY a JSON array, no other text.
@@ -37,17 +30,10 @@ Focus: geopolitical events, conflicts, disasters, diplomacy. Classify by real-wo
 
 export async function batchClassifyTitles(
   titles: string[],
+  requestUrl?: string,
 ): Promise<Map<string, { level: string; category: string }>> {
   const results = new Map<string, { level: string; category: string }>();
-
-  const apiKey = process.env.LLM_API_KEY || process.env.GROQ_API_KEY;
-  const apiUrl = process.env.LLM_API_URL || DEFAULT_API_URL;
-  const model = process.env.LLM_MODEL || DEFAULT_MODEL;
-
-  if (!apiKey) return results;
-
-  const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT === 'production';
-  if (isProd && !isValidUrl(apiUrl)) return results;
+  const localOnly = shouldForceLocalLlm(requestUrl);
 
   for (let batch = 0; batch < titles.length; batch += BATCH_SIZE) {
     const chunk = titles.slice(batch, batch + BATCH_SIZE);
@@ -55,28 +41,18 @@ export async function batchClassifyTitles(
     const prompt = sanitized.map((t, i) => `${i}|${t}`).join('\n');
 
     try {
-      const resp = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'User-Agent': CHROME_UA,
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0,
-          max_tokens: chunk.length * 40,
-        }),
-        signal: AbortSignal.timeout(30_000),
+      const llm = await callLlm({
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: prompt },
+        ],
+        provider: localOnly ? undefined : 'groq',
+        temperature: 0,
+        maxTokens: chunk.length * 40,
+        timeoutMs: 30_000,
+        localOnly,
       });
-
-      if (!resp.ok) continue;
-      const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
-      const raw = data.choices?.[0]?.message?.content?.trim();
+      const raw = llm?.content?.trim();
       if (!raw) continue;
 
       let parsed: Array<{ i?: number; l?: string; c?: string }>;

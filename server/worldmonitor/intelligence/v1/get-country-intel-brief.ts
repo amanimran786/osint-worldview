@@ -5,14 +5,16 @@ import type {
 } from '../../../../src/generated/server/worldmonitor/intelligence/v1/service_server';
 
 import { cachedFetchJson } from '../../../_shared/redis';
-import { UPSTREAM_TIMEOUT_MS, GROQ_API_URL, GROQ_MODEL, TIER1_COUNTRIES, sha256Hex } from './_shared';
-import { CHROME_UA } from '../../../_shared/constants';
+import { callLlm } from '../../../_shared/llm';
+import { shouldForceLocalLlm } from '../../../_shared/local-mode';
+import { UPSTREAM_TIMEOUT_MS, TIER1_COUNTRIES, sha256Hex } from './_shared';
 
 // ========================================================================
 // Constants
 // ========================================================================
 
 const INTEL_CACHE_TTL = 7200;
+const DEFAULT_MODEL = 'jarvis-open-source';
 
 // ========================================================================
 // RPC handler
@@ -22,18 +24,16 @@ export async function getCountryIntelBrief(
   ctx: ServerContext,
   req: GetCountryIntelBriefRequest,
 ): Promise<GetCountryIntelBriefResponse> {
+  const localOnly = shouldForceLocalLlm(ctx?.request?.url);
   const empty: GetCountryIntelBriefResponse = {
     countryCode: req.countryCode,
     countryName: '',
     brief: '',
-    model: GROQ_MODEL,
+    model: DEFAULT_MODEL,
     generatedAt: Date.now(),
   };
 
   if (!req.countryCode) return empty;
-
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) return empty;
 
   let contextSnapshot = '';
   let lang = 'en';
@@ -77,31 +77,25 @@ Rules:
           userPromptParts.push(`Context snapshot:\n${contextSnapshot}`);
         }
 
-        const resp = await fetch(GROQ_API_URL, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'User-Agent': CHROME_UA },
-          body: JSON.stringify({
-            model: GROQ_MODEL,
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPromptParts.join('\n\n') },
-            ],
-            temperature: 0.4,
-            max_tokens: 900,
-          }),
-          signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+        const llm = await callLlm({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPromptParts.join('\n\n') },
+          ],
+          provider: localOnly ? undefined : 'groq',
+          temperature: 0.4,
+          maxTokens: 900,
+          timeoutMs: UPSTREAM_TIMEOUT_MS,
+          localOnly,
         });
-
-        if (!resp.ok) return null;
-        const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
-        const brief = data.choices?.[0]?.message?.content?.trim() || '';
+        const brief = llm?.content?.trim() || '';
         if (!brief) return null;
 
         return {
           countryCode: req.countryCode,
           countryName,
           brief,
-          model: GROQ_MODEL,
+          model: llm?.model || DEFAULT_MODEL,
           generatedAt: Date.now(),
         };
       } catch {

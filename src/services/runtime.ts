@@ -13,6 +13,7 @@ const DEFAULT_REMOTE_HOSTS: Record<string, string> = {
 
 const DEFAULT_LOCAL_API_PORT = 46123;
 const FORCE_DESKTOP_RUNTIME = import.meta.env.VITE_DESKTOP_RUNTIME === '1';
+const FORCE_HARD_LOCAL_MODE = import.meta.env.VITE_HARD_LOCAL_MODE === '1';
 
 let _resolvedPort: number | null = null;
 let _portPromise: Promise<number> | null = null;
@@ -95,6 +96,21 @@ export function isDesktopRuntime(): boolean {
     locationHost: window.location?.host ?? '',
     locationOrigin: window.location?.origin ?? '',
   });
+}
+
+function isLocalhostHostname(hostname: string): boolean {
+  const normalized = hostname.toLowerCase();
+  return normalized === 'localhost'
+    || normalized === '127.0.0.1'
+    || normalized === '0.0.0.0'
+    || normalized === '::1'
+    || normalized === '[::1]';
+}
+
+export function isHardLocalMode(): boolean {
+  if (FORCE_HARD_LOCAL_MODE) return true;
+  if (typeof window === 'undefined') return false;
+  return isLocalhostHostname(window.location?.hostname ?? '');
 }
 
 export function getApiBaseUrl(): string {
@@ -285,8 +301,13 @@ export function startSmartPollLoop(
 
   const computeDelay = (baseMs: number): number => {
     const jitterRange = baseMs * jitterFraction;
-    const jittered = baseMs + ((Math.random() * 2 - 1) * jitterRange);
-    return Math.max(minIntervalMs, Math.round(jittered));
+    const random = Math.random();
+    const boundedRandom = Number.isFinite(random) ? Math.min(1, Math.max(0, random)) : 0.5;
+    const jittered = baseMs + ((boundedRandom * 2 - 1) * jitterRange);
+    const minJittered = baseMs - jitterRange;
+    const maxJittered = baseMs + jitterRange;
+    const clamped = Math.min(maxJittered, Math.max(minJittered, jittered));
+    return Math.max(minIntervalMs, Math.round(clamped));
   };
 
   const scheduleNext = () => {
@@ -300,7 +321,7 @@ export function startSmartPollLoop(
     }, computeDelay(base));
   };
 
-  const runOnce = async (reason: SmartPollReason): Promise<void> => {
+  const runOnce = (reason: SmartPollReason) => {
     if (!active) return;
 
     const hidden = isDocumentHidden();
@@ -321,27 +342,53 @@ export function startSmartPollLoop(
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     activeController = controller;
 
-    try {
-      const result = await poll({
-        signal: controller?.signal,
-        reason,
-        isHidden: hidden,
-      });
-
+    const applyResult = (result) => {
       if (result === false) {
         backoffMultiplier = Math.min(backoffMultiplier * 2, maxBackoffMultiplier);
       } else {
         backoffMultiplier = 1;
       }
-    } catch (error) {
+    };
+
+    const handleError = (error: unknown) => {
       if (!controller?.signal.aborted && !isAbortError(error)) {
         backoffMultiplier = Math.min(backoffMultiplier * 2, maxBackoffMultiplier);
         if (onError) onError(error);
       }
-    } finally {
+    };
+
+    const finalize = () => {
       if (activeController === controller) activeController = null;
       inFlight = false;
       scheduleNext();
+    };
+
+    try {
+      const result = poll({
+        signal: controller?.signal,
+        reason,
+        isHidden: hidden,
+      });
+
+      if (result instanceof Promise) {
+        result.then(
+          (resolved) => {
+            applyResult(resolved);
+            finalize();
+          },
+          (error) => {
+            handleError(error);
+            finalize();
+          },
+        );
+        return;
+      }
+
+      applyResult(result);
+      finalize();
+    } catch (error) {
+      handleError(error);
+      finalize();
     }
   };
 
@@ -426,7 +473,7 @@ export async function waitForSidecarReady(timeoutMs = 3000): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const res = await fetch(`${baseUrl}/api/service-status`, { method: 'GET' });
+      const res = await fetch(`${baseUrl}/api/infrastructure/v1/list-service-statuses`, { method: 'GET' });
       if (res.ok) return true;
     } catch {
       // sidecar not ready yet

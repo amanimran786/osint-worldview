@@ -136,6 +136,40 @@ npm run dev
 # This browser session now uses your machine-local AI stack.
 ```
 
+### 🔒 Localhost Hard-Local Profile (Default for Clones)
+When you run on `localhost`, WorldView now enforces a **hard local AI profile**:
+- Local LLM providers only (Jarvis/Ollama)
+- Cloud LLM providers (Groq/OpenRouter) are blocked unless you explicitly opt in
+- Live world data stays internet-backed (RSS, ADS-B/AIS, public datasets)
+
+```bash
+# 1) Clone + install
+git clone https://github.com/amanimran786/osint-worldview.git
+cd osint-worldview
+npm install
+
+# 2) Create local config
+cp .env.example .env.local
+
+# 3) Set your local AI endpoints/models (required for local AI)
+printf "\nJARVIS_API_URL=http://127.0.0.1:8765\nJARVIS_API_TOKEN=your_token\nOLLAMA_API_URL=http://127.0.0.1:11434\nOLLAMA_MODEL=deepseek-r1:14b\n" >> .env.local
+
+# 4) (Optional) Force hard-local mode even off localhost
+printf "\nVITE_HARD_LOCAL_MODE=1\n" >> .env.local
+
+# 5) Run local services + app
+ollama serve
+npm run dev
+```
+
+#### Optional Cloud LLM Opt-In (Manual)
+Cloud LLMs remain **user-supplied only**. Nothing paid is bundled.
+
+```bash
+# Add only if you want cloud fallback:
+printf "\nGROQ_API_KEY=your_key_here\nOPENROUTER_API_KEY=your_key_here\n" >> .env.local
+```
+
 ### 🖥️ Option 4: Desktop App (Recommended for Local-First)
 ```bash
 # Build native app (requires Rust + Node.js)

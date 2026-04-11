@@ -20,6 +20,31 @@ function jarvisModeUrlFromChatUrl(chatUrl: string): string {
   }
 }
 
+function buildJarvisApiCandidates(primaryApiUrl: string): string[] {
+  const out: string[] = [];
+  const add = (url: string) => {
+    if (url && !out.includes(url)) out.push(url);
+  };
+  add(primaryApiUrl);
+  try {
+    const parsed = new URL(primaryApiUrl);
+    const isLocalHost = parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost';
+    if (!isLocalHost) return out;
+    if (parsed.port === '8765') {
+      const alt = new URL(parsed.toString());
+      alt.port = '8865';
+      add(alt.toString());
+    } else if (parsed.port === '8865') {
+      const alt = new URL(parsed.toString());
+      alt.port = '8765';
+      add(alt.toString());
+    }
+  } catch {
+    // Keep primary only when URL parsing fails.
+  }
+  return out;
+}
+
 const OLLAMA_HOST_ALLOWLIST = new Set([
   'localhost', '127.0.0.1', '::1', '[::1]', 'host.docker.internal',
 ]);
@@ -29,9 +54,20 @@ function isSidecar(): boolean {
     (process.env?.LOCAL_API_MODE || '').includes('sidecar');
 }
 
+function resolveJarvisBaseUrl(): string {
+  const configured = String(process.env.JARVIS_API_URL || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (configured.length > 0) return configured[0]!;
+  const port = String(process.env.JARVIS_API_PORT || '').trim();
+  if (/^\d+$/.test(port)) return `http://127.0.0.1:${port}`;
+  return 'http://127.0.0.1:8865';
+}
+
 export function getProviderCredentials(provider: string): ProviderCredentials | null {
   if (provider === 'ollama') {
-    const baseUrl = process.env.OLLAMA_API_URL;
+    const baseUrl = String(process.env.OLLAMA_API_URL || 'http://127.0.0.1:11434').trim();
     if (!baseUrl) return null;
 
     if (!isSidecar()) {
@@ -52,20 +88,20 @@ export function getProviderCredentials(provider: string): ProviderCredentials | 
 
     return {
       apiUrl: new URL('/v1/chat/completions', baseUrl).toString(),
-      model: process.env.OLLAMA_MODEL || 'llama3.1:8b',
+      model: process.env.OLLAMA_MODEL || 'jarvis-local:latest',
       headers,
       extraBody: { think: false },
     };
   }
 
   if (provider === 'jarvis') {
-    const rawBaseUrl = String(process.env.JARVIS_API_URL || '').trim();
+    const rawBaseUrl = resolveJarvisBaseUrl();
     if (!rawBaseUrl) return null;
     let apiUrl = '';
     try {
-      apiUrl = /\/chat\/?$/i.test(rawBaseUrl)
-        ? rawBaseUrl.replace(/\/+$/, '')
-        : new URL('/chat', rawBaseUrl).toString();
+      apiUrl = /\/chat(?:\/raw)?\/?$/i.test(rawBaseUrl)
+        ? rawBaseUrl.replace(/\/chat(?:\/raw)?\/?$/i, '/chat/raw')
+        : new URL('/chat/raw', rawBaseUrl).toString();
     } catch {
       return null;
     }
@@ -130,7 +166,9 @@ export function stripThinkingTags(text: string): string {
   return s;
 }
 
-const PROVIDER_CHAIN = ['ollama', 'jarvis', 'groq', 'openrouter'] as const;
+const LOCAL_PROVIDER_CHAIN = ['jarvis', 'ollama'] as const;
+const PAID_PROVIDERS = new Set(['groq', 'openrouter']);
+const PROVIDER_CHAIN = [...LOCAL_PROVIDER_CHAIN, 'groq', 'openrouter'] as const;
 
 export interface LlmCallOptions {
   messages: Array<{ role: string; content: string }>;
@@ -138,6 +176,7 @@ export interface LlmCallOptions {
   maxTokens?: number;
   timeoutMs?: number;
   provider?: string;
+  localOnly?: boolean;
   stripThinkingTags?: boolean;
   validate?: (content: string) => boolean;
 }
@@ -156,11 +195,18 @@ export async function callLlm(opts: LlmCallOptions): Promise<LlmCallResult | nul
     maxTokens = 1500,
     timeoutMs = 25_000,
     provider: forcedProvider,
+    localOnly = false,
     stripThinkingTags: shouldStrip = true,
     validate,
   } = opts;
 
-  const providers = forcedProvider ? [forcedProvider] : [...PROVIDER_CHAIN];
+  if (forcedProvider && localOnly && PAID_PROVIDERS.has(forcedProvider)) {
+    return null;
+  }
+
+  const providers = forcedProvider
+    ? [forcedProvider]
+    : (localOnly ? [...LOCAL_PROVIDER_CHAIN] : [...PROVIDER_CHAIN]);
 
   for (const providerName of providers) {
     const creds = getProviderCredentials(providerName);
@@ -171,41 +217,64 @@ export async function callLlm(opts: LlmCallOptions): Promise<LlmCallResult | nul
 
     try {
       const isJarvis = providerName === 'jarvis';
+      const providerTimeoutMs = providerName === 'ollama'
+        ? Math.max(timeoutMs, 120_000)
+        : providerName === 'jarvis'
+          ? Math.max(timeoutMs, 60_000)
+          : timeoutMs;
+      const jarvisApiCandidates = isJarvis ? buildJarvisApiCandidates(creds.apiUrl) : [creds.apiUrl];
       if (isJarvis && String(process.env.JARVIS_ENFORCE_OPEN_SOURCE ?? '1').trim() !== '0') {
-        const modeUrl = jarvisModeUrlFromChatUrl(creds.apiUrl);
-        if (modeUrl) {
-          try {
-            await fetch(modeUrl, {
-              method: 'POST',
-              headers: { ...creds.headers, 'User-Agent': CHROME_UA },
-              body: JSON.stringify({ mode: 'open-source' }),
-              signal: AbortSignal.timeout(Math.min(timeoutMs, 4000)),
-            });
-          } catch {
-            // Best-effort only; continue with chat request.
+        for (const candidate of jarvisApiCandidates) {
+          const modeUrl = jarvisModeUrlFromChatUrl(candidate);
+          if (modeUrl) {
+            try {
+              await fetch(modeUrl, {
+                method: 'POST',
+                headers: { ...creds.headers, 'User-Agent': CHROME_UA },
+                body: JSON.stringify({ mode: 'open-source' }),
+                signal: AbortSignal.timeout(Math.min(providerTimeoutMs, 4000)),
+              });
+            } catch {
+              // Best-effort only; continue with chat request.
+            }
           }
         }
       }
       const jarvisMessage = messages
         .map((m) => `${String(m.role || 'user').toUpperCase()}: ${String(m.content || '')}`)
         .join('\n\n');
-      const resp = await fetch(creds.apiUrl, {
-        method: 'POST',
-        headers: { ...creds.headers, 'User-Agent': CHROME_UA },
-        body: isJarvis
-          ? JSON.stringify({
-            message: jarvisMessage,
-            stream: false,
-          })
-          : JSON.stringify({
-            ...creds.extraBody,
-            model: creds.model,
-            messages,
-            temperature,
-            max_tokens: maxTokens,
-          }),
-        signal: AbortSignal.timeout(timeoutMs),
-      });
+      let resp: Response | null = null;
+      let lastError: unknown = null;
+      const providerCandidates = isJarvis ? jarvisApiCandidates : [creds.apiUrl];
+      for (const candidateUrl of providerCandidates) {
+        try {
+          const candidateResp = await fetch(candidateUrl, {
+            method: 'POST',
+            headers: { ...creds.headers, 'User-Agent': CHROME_UA },
+            body: isJarvis
+              ? JSON.stringify({
+                message: jarvisMessage,
+                stream: false,
+              })
+              : JSON.stringify({
+                ...creds.extraBody,
+                model: creds.model,
+                messages,
+                temperature,
+                max_tokens: maxTokens,
+              }),
+            signal: AbortSignal.timeout(providerTimeoutMs),
+          });
+          resp = candidateResp;
+          if (candidateResp.ok || !isJarvis) break;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+
+      if (!resp) {
+        throw (lastError instanceof Error ? lastError : new Error('No provider response'));
+      }
 
       if (!resp.ok) {
         console.warn(`[llm:${providerName}] HTTP ${resp.status}`);

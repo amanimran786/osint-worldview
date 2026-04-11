@@ -643,6 +643,8 @@ describe('country intel brief caching behavior', { concurrency: 1 }, () => {
     return importPatchedTsModule('server/worldmonitor/intelligence/v1/get-country-intel-brief.ts', {
       './_shared': resolve(root, 'server/worldmonitor/intelligence/v1/_shared.ts'),
       '../../../_shared/constants': resolve(root, 'server/_shared/constants.ts'),
+      '../../../_shared/llm': resolve(root, 'server/_shared/llm.ts'),
+      '../../../_shared/local-mode': resolve(root, 'server/_shared/local-mode.ts'),
       '../../../_shared/redis': resolve(root, 'server/_shared/redis.ts'),
     });
   }

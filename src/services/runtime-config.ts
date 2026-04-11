@@ -1,4 +1,4 @@
-import { getApiBaseUrl, isDesktopRuntime } from './runtime';
+import { getApiBaseUrl, isDesktopRuntime, isHardLocalMode } from './runtime';
 import { invokeTauri } from './tauri-bridge';
 
 export type RuntimeSecretKey =
@@ -80,6 +80,20 @@ export interface RuntimeConfig {
 }
 
 const TOGGLES_STORAGE_KEY = 'worldmonitor-runtime-feature-toggles';
+const HARD_LOCAL_DISABLED_FEATURES = new Set<RuntimeFeatureId>([
+  'aiGroq',
+  'aiOpenRouter',
+]);
+
+function applyHardLocalOverrides(toggles: Record<RuntimeFeatureId, boolean>): Record<RuntimeFeatureId, boolean> {
+  if (!isHardLocalMode()) return toggles;
+  const next = { ...toggles };
+  for (const featureId of HARD_LOCAL_DISABLED_FEATURES) {
+    next[featureId] = false;
+  }
+  return next;
+}
+
 function getSidecarEnvUpdateUrl(): string {
   return `${getApiBaseUrl()}/api/local-env-update`;
 }
@@ -124,14 +138,14 @@ export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
     id: 'aiOllama',
     name: 'Ollama local summarization',
     description: 'Local LLM provider via OpenAI-compatible endpoint (Ollama or LM Studio, desktop-first).',
-    requiredSecrets: ['OLLAMA_API_URL', 'OLLAMA_MODEL'],
+    requiredSecrets: [],
     fallback: 'Falls back to Jarvis, then Groq, then OpenRouter, then local browser model.',
   },
   {
     id: 'aiJarvis',
     name: 'Jarvis AI summarization',
     description: 'Jarvis local API provider (/chat) with open-source-first routing.',
-    requiredSecrets: ['JARVIS_API_URL', 'JARVIS_API_TOKEN'],
+    requiredSecrets: [],
     fallback: 'Falls back to local browser model first, then Groq, then OpenRouter.',
   },
   {
@@ -314,11 +328,11 @@ function readEnvSecret(key: RuntimeSecretKey): string {
 function readStoredToggles(): Record<RuntimeFeatureId, boolean> {
   try {
     const stored = localStorage.getItem(TOGGLES_STORAGE_KEY);
-    if (!stored) return { ...defaultToggles };
+    if (!stored) return applyHardLocalOverrides({ ...defaultToggles });
     const parsed = JSON.parse(stored) as Partial<Record<RuntimeFeatureId, boolean>>;
-    return { ...defaultToggles, ...parsed };
+    return applyHardLocalOverrides({ ...defaultToggles, ...parsed });
   } catch {
-    return { ...defaultToggles };
+    return applyHardLocalOverrides({ ...defaultToggles });
   }
 }
 
@@ -436,6 +450,7 @@ export function getSecretState(key: RuntimeSecretKey): { present: boolean; valid
 
 export function isFeatureAvailable(featureId: RuntimeFeatureId): boolean {
   if (!isFeatureEnabled(featureId)) return false;
+  if (isHardLocalMode() && HARD_LOCAL_DISABLED_FEATURES.has(featureId)) return false;
 
   // Cloud/web deployments validate credentials server-side.
   // Desktop runtime validates local secrets client-side for capability gating.
@@ -454,7 +469,8 @@ export function getEffectiveSecrets(feature: RuntimeFeatureDefinition): RuntimeS
 }
 
 export function setFeatureToggle(featureId: RuntimeFeatureId, enabled: boolean): void {
-  runtimeConfig.featureToggles[featureId] = enabled;
+  const nextEnabled = isHardLocalMode() && HARD_LOCAL_DISABLED_FEATURES.has(featureId) ? false : enabled;
+  runtimeConfig.featureToggles[featureId] = nextEnabled;
   localStorage.setItem(TOGGLES_STORAGE_KEY, JSON.stringify(runtimeConfig.featureToggles));
   notifyConfigChanged();
 }

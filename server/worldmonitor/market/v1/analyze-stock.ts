@@ -5,6 +5,7 @@ import type {
   StockAnalysisHeadline,
 } from '../../../../src/generated/server/worldmonitor/market/v1/service_server';
 import { callLlm } from '../../../_shared/llm';
+import { shouldForceLocalLlm } from '../../../_shared/local-mode';
 import { cachedFetchJson } from '../../../_shared/redis';
 import { CHROME_UA, yahooGate } from '../../../_shared/constants';
 import { UPSTREAM_TIMEOUT_MS, sanitizeSymbol } from './_shared';
@@ -596,6 +597,7 @@ async function buildAiOverlay(
   name: string,
   technical: TechnicalSnapshot,
   headlines: StockAnalysisHeadline[],
+  localOnly: boolean,
 ): Promise<AiOverlay> {
   const fallback = getFallbackOverlay(name, technical, headlines);
   const llm = await callLlm({
@@ -643,6 +645,7 @@ async function buildAiOverlay(
     temperature: 0.2,
     maxTokens: 500,
     timeoutMs: 20_000,
+    localOnly,
     validate: (content) => {
       try {
         const parsed = JSON.parse(content) as Record<string, unknown>;
@@ -818,9 +821,10 @@ function buildEmptyAnalysisResponse(symbol: string, name: string, includeNews: b
 }
 
 export async function analyzeStock(
-  _ctx: ServerContext,
+  ctx: ServerContext,
   req: AnalyzeStockRequest,
 ): Promise<AnalyzeStockResponse> {
+  const localOnly = shouldForceLocalLlm(ctx?.request?.url);
   const symbol = sanitizeSymbol(req.symbol || '');
   if (!symbol) {
     return buildEmptyAnalysisResponse('', '', false);
@@ -829,7 +833,7 @@ export async function analyzeStock(
   const name = (req.name || symbol).trim().slice(0, 120) || symbol;
   const includeNews = req.includeNews === true;
   const nameSuffix = name !== symbol ? `:${name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 30).toLowerCase()}` : '';
-  const cacheKey = `market:analyze-stock:v1:${symbol}:${includeNews ? 'news' : 'no-news'}${nameSuffix}`;
+  const cacheKey = `market:analyze-stock:v1:${symbol}:${includeNews ? 'news' : 'no-news'}:${localOnly ? 'local' : 'mixed'}${nameSuffix}`;
 
   const cached = await cachedFetchJson<AnalyzeStockResponse>(cacheKey, CACHE_TTL_SECONDS, async () => {
     const history = await fetchYahooHistory(symbol);
@@ -838,7 +842,7 @@ export async function analyzeStock(
     const technical = buildTechnicalSnapshot(history.candles);
     technical.currency = history.currency || 'USD';
     const headlines = includeNews ? (await searchRecentStockHeadlines(symbol, name, NEWS_LIMIT)).headlines : [];
-    const overlay = await buildAiOverlay(symbol, name, technical, headlines);
+    const overlay = await buildAiOverlay(symbol, name, technical, headlines, localOnly);
     const analysisAt = history.candles[history.candles.length - 1]?.timestamp || Date.now();
     const response = buildAnalysisResponse({
       symbol,

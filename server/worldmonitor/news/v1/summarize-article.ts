@@ -5,6 +5,7 @@ import type {
 } from '../../../../src/generated/server/worldmonitor/news/v1/service_server';
 
 import { cachedFetchJsonWithMeta } from '../../../_shared/redis';
+import { shouldForceLocalLlm } from '../../../_shared/local-mode';
 import {
   CACHE_TTL_SECONDS,
   deduplicateHeadlines,
@@ -26,6 +27,12 @@ export function hasReasoningPreamble(text: string): boolean {
   return TASK_NARRATION.test(trimmed) || PROMPT_ECHO.test(trimmed);
 }
 
+function readTimeoutMs(name: string, fallback: number, min = 5_000, max = 300_000): number {
+  const raw = Number.parseInt(String(process.env[name] || ''), 10);
+  if (!Number.isFinite(raw)) return fallback;
+  return Math.min(Math.max(raw, min), max);
+}
+
 function jarvisModeUrlFromChatUrl(chatUrl: string): string {
   try {
     const parsed = new URL(chatUrl);
@@ -39,16 +46,49 @@ function jarvisModeUrlFromChatUrl(chatUrl: string): string {
   }
 }
 
+function buildJarvisApiCandidates(primaryApiUrl: string): string[] {
+  const out: string[] = [];
+  const add = (url: string) => {
+    if (url && !out.includes(url)) out.push(url);
+  };
+  add(primaryApiUrl);
+  try {
+    const parsed = new URL(primaryApiUrl);
+    const isLocalHost = parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost';
+    if (!isLocalHost) return out;
+    if (parsed.port === '8765') {
+      const alt = new URL(parsed.toString());
+      alt.port = '8865';
+      add(alt.toString());
+    } else if (parsed.port === '8865') {
+      const alt = new URL(parsed.toString());
+      alt.port = '8765';
+      add(alt.toString());
+    } else if (!parsed.port) {
+      const alt8865 = new URL(parsed.toString());
+      alt8865.port = '8865';
+      const alt8765 = new URL(parsed.toString());
+      alt8765.port = '8765';
+      add(alt8865.toString());
+      add(alt8765.toString());
+    }
+  } catch {
+    // Keep primary only when URL parsing fails.
+  }
+  return out;
+}
+
 // ======================================================================
 // SummarizeArticle: Multi-provider LLM summarization with Redis caching
 // Ported from api/_summarize-handler.js
 // ======================================================================
 
 export async function summarizeArticle(
-  _ctx: ServerContext,
+  ctx: ServerContext,
   req: SummarizeArticleRequest,
 ): Promise<SummarizeArticleResponse> {
   const { provider, mode = 'brief', geoContext = '', variant = 'full', lang = 'en' } = req;
+  const localOnly = shouldForceLocalLlm(ctx?.request?.url);
 
   // Input sanitization (M-14 fix): limit headline count and length
   const MAX_HEADLINES = 10;
@@ -79,6 +119,20 @@ export async function summarizeArticle(
       errorType: '',
       status: 'SUMMARIZE_STATUS_SKIPPED',
       statusDetail: skipReasons[provider] || `Unknown provider: ${provider}`,
+    };
+  }
+
+  if (localOnly && (provider === 'groq' || provider === 'openrouter')) {
+    return {
+      summary: '',
+      model: '',
+      provider,
+      tokens: 0,
+      fallback: true,
+      error: '',
+      errorType: '',
+      status: 'SUMMARIZE_STATUS_SKIPPED',
+      statusDetail: 'Hard local mode enabled on localhost: paid cloud providers are disabled',
     };
   }
 
@@ -117,43 +171,81 @@ export async function summarizeArticle(
         });
 
         const isJarvis = provider === 'jarvis';
+        const isOllama = provider === 'ollama';
+        const isLocalProvider = isJarvis || isOllama;
+        const jarvisApiCandidates = isJarvis ? buildJarvisApiCandidates(apiUrl) : [apiUrl];
+        const jarvisTimeoutMs = readTimeoutMs('JARVIS_TIMEOUT_MS', 60_000);
+        const ollamaTimeoutMs = readTimeoutMs('OLLAMA_TIMEOUT_MS', 300_000);
+        const providerTimeoutMs = isJarvis ? jarvisTimeoutMs : (isOllama ? ollamaTimeoutMs : 25_000);
         if (isJarvis && String(process.env.JARVIS_ENFORCE_OPEN_SOURCE ?? '1').trim() !== '0') {
-          const modeUrl = jarvisModeUrlFromChatUrl(apiUrl);
-          if (modeUrl) {
-            try {
-              await fetch(modeUrl, {
-                method: 'POST',
-                headers: { ...providerHeaders, 'User-Agent': CHROME_UA },
-                body: JSON.stringify({ mode: 'open-source' }),
-                signal: AbortSignal.timeout(4000),
-              });
-            } catch {
-              // Best-effort only; continue with chat request.
+          for (const candidate of jarvisApiCandidates) {
+            const modeUrl = jarvisModeUrlFromChatUrl(candidate);
+            if (modeUrl) {
+              try {
+                await fetch(modeUrl, {
+                  method: 'POST',
+                  headers: { ...providerHeaders, 'User-Agent': CHROME_UA },
+                  body: JSON.stringify({ mode: 'open-source' }),
+                  signal: AbortSignal.timeout(4000),
+                });
+              } catch {
+                // Best-effort only; continue with chat request.
+              }
             }
           }
         }
-        const jarvisMessage = `${systemPrompt}\n\n${userPrompt}\n\nReturn only the final summary text with no extra commentary.`;
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { ...providerHeaders, 'User-Agent': CHROME_UA },
-          body: isJarvis
-            ? JSON.stringify({
-              message: jarvisMessage,
-              stream: false,
-            })
-            : JSON.stringify({
-              model,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt },
-              ],
-              temperature: 0.3,
-              max_tokens: 100,
-              top_p: 0.9,
-              ...extraBody,
-            }),
-          signal: AbortSignal.timeout(25_000),
-        });
+        const compactHeadlines = uniqueHeadlines.map((h: string, i: number) => `${i + 1}. ${h}`).join('\n');
+        const localCompactPrompt = [
+          'Choose the single most important headline.',
+          'Summarize only that one story in exactly 2 concise sentences under 60 words total.',
+          'Do not merge stories. Output plain text only.',
+          '',
+          'Headlines:',
+          compactHeadlines,
+          sanitizedGeoContext ? `\nContext:\n${sanitizedGeoContext}` : '',
+        ].filter(Boolean).join('\n');
+
+        const jarvisMessage = isLocalProvider
+          ? localCompactPrompt
+          : `${systemPrompt}\n\n${userPrompt}\n\nReturn only the final summary. No extra commentary.`;
+        let response: Response | null = null;
+        let lastError: unknown = null;
+        const providerCandidates = isJarvis ? jarvisApiCandidates : [apiUrl];
+        for (const candidateUrl of providerCandidates) {
+          try {
+            const candidateResp = await fetch(candidateUrl, {
+              method: 'POST',
+              headers: { ...providerHeaders, 'User-Agent': CHROME_UA },
+              body: isJarvis
+                ? JSON.stringify({
+                  message: jarvisMessage,
+                  stream: false,
+                })
+                : JSON.stringify({
+                  model,
+                  messages: [
+                    { role: 'system', content: isLocalProvider
+                      ? 'You are a concise news summarizer. Return plain text only.'
+                      : systemPrompt },
+                    { role: 'user', content: isLocalProvider ? localCompactPrompt : userPrompt },
+                  ],
+                  temperature: 0.3,
+                  max_tokens: 100,
+                  top_p: 0.9,
+                  ...extraBody,
+                }),
+              signal: AbortSignal.timeout(providerTimeoutMs),
+            });
+            response = candidateResp;
+            if (candidateResp.ok || !isJarvis) break;
+          } catch (err) {
+            lastError = err;
+          }
+        }
+
+        if (!response) {
+          throw (lastError instanceof Error ? lastError : new Error('No provider response'));
+        }
 
         if (!response.ok) {
           const errorText = await response.text();
