@@ -20,7 +20,7 @@ const SETTINGS_KEY_PREFIXES = [
   'worldmonitor-disabled-feeds',
   'worldmonitor-live-channels',
   'worldmonitor-map-mode',
-  'worldmonitor-variant',
+  'worldview-variant',
   'worldmonitor-theme',
   'worldmonitor-panel-spans',
   'worldmonitor-panel-order',

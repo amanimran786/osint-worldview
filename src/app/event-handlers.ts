@@ -705,7 +705,7 @@ export class EventHandlerManager implements AppModule {
     await this.exitFullscreenForNavigation();
 
     if (this.ctx.isDesktopApp || options.isLocalDev) {
-      localStorage.setItem('worldmonitor-variant', variant);
+      localStorage.setItem('worldview-variant', variant);
       window.location.reload();
       return;
     }

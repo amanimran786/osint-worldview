@@ -79,7 +79,7 @@ export interface RuntimeConfig {
   secrets: Partial<Record<RuntimeSecretKey, RuntimeSecretState>>;
 }
 
-const TOGGLES_STORAGE_KEY = 'worldmonitor-runtime-feature-toggles';
+const TOGGLES_STORAGE_KEY = 'worldview-runtime-feature-toggles';
 const HARD_LOCAL_DISABLED_FEATURES = new Set<RuntimeFeatureId>([
   'aiGroq',
   'aiOpenRouter',

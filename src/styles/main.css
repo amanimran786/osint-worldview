@@ -14,11 +14,11 @@
   --surface-active: #1a1a2e;
 
   /* Borders */
-  --border: #1a2a2a;
-  --border-strong: #2a4a4a;
-  --border-subtle: #0f1a1a;
-  --border-accent: #00ccff;
-  --border-accent-orange: #ff8844;
+  --border: #1a2534;
+  --border-strong: #2a3548;
+  --border-subtle: #0f1824;
+  --border-accent: #00d9ff;
+  --border-accent-orange: #ff6b35;
 
   /* Text */
   --text: #e8e8e8;
@@ -30,9 +30,9 @@
   --accent: #fff;
   
   /* Retro accents */
-  --neon-orange: #ff8844;
-  --neon-cyan: #00ccff;
-  --neon-green: #44ff88;
+  --neon-orange: #ff6b35;
+  --neon-cyan: #00d9ff;
+  --neon-green: #00ff88;
 
   /* Overlays & shadows */
   --overlay-subtle: rgba(255, 255, 255, 0.03);
@@ -56,10 +56,10 @@
   --panel-border: #2a2a2a;
 
   /* Map */
-  --map-bg: #020a08;
-  --map-grid: #0a2a20;
-  --map-country: #0a2018;
-  --map-stroke: #0f5040;
+  --map-bg: #050818;
+  --map-grid: #0a1530;
+  --map-country: #0a1428;
+  --map-stroke: #0f3d70;
 
   /* Font stack */
   --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Fira Code', 'DejaVu Sans Mono', 'Liberation Mono', monospace;
@@ -80,39 +80,39 @@
    ============================================================ */
 :root {
   /* Severity levels */
-  --semantic-critical: #ff3333;
-  --semantic-high: #ff8844;
-  --semantic-elevated: #ffaa00;
-  --semantic-normal: #44aa44;
-  --semantic-low: #00bbff;
-  --semantic-info: #00ddff;
-  --semantic-positive: #44ff88;
+  --semantic-critical: #ff1744;
+  --semantic-high: #ff6b35;
+  --semantic-elevated: #ffa500;
+  --semantic-normal: #00ff88;
+  --semantic-low: #00d9ff;
+  --semantic-info: #00eeff;
+  --semantic-positive: #00ff88;
 
   /* Threat levels */
-  --threat-critical: #ff2222;
-  --threat-high: #ff8844;
-  --threat-medium: #ffaa00;
-  --threat-low: #44ff88;
-  --threat-info: #00ccff;
+  --threat-critical: #ff1744;
+  --threat-high: #ff6b35;
+  --threat-medium: #ffa500;
+  --threat-low: #00ff88;
+  --threat-info: #00d9ff;
 
   /* DEFCON levels */
-  --defcon-1: #ff0040;
-  --defcon-2: #ff4400;
-  --defcon-3: #ff8844;
-  --defcon-4: #00ccff;
-  --defcon-5: #2d8a6e;
+  --defcon-1: #ff1744;
+  --defcon-2: #ff6b35;
+  --defcon-3: #ffa500;
+  --defcon-4: #00d9ff;
+  --defcon-5: #00ff88;
 
   /* Status indicators */
-  --status-live: #44ff88;
-  --status-cached: #ff8844;
-  --status-unavailable: #ff3333;
+  --status-live: #00ff88;
+  --status-cached: #ff6b35;
+  --status-unavailable: #ff1744;
 
   /* Legacy color aliases (used by existing var() references) */
-  --red: #ff3333;
-  --green: #44ff88;
-  --yellow: #ff8844;
-  --cyan: #00ccff;
-  --orange: #ff8844;
+  --red: #ff1744;
+  --green: #00ff88;
+  --yellow: #ffa500;
+  --cyan: #00d9ff;
+  --orange: #ff6b35;
 }
 
 /* ============================================================
