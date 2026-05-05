@@ -276,6 +276,178 @@ canvas,
   bottom: 0;
 }
 
+.app-shell {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.side-nav {
+  width: 220px;
+  background: linear-gradient(180deg, rgba(12, 10, 26, 0.98), rgba(8, 6, 20, 0.98));
+  border-right: 1px solid rgba(109, 240, 255, 0.18);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: rgba(244, 242, 255, 0.7);
+}
+
+.side-nav-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px;
+}
+
+.side-nav-logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #f4f2ff;
+}
+
+.side-nav-sub {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.side-nav-section {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255, 79, 216, 0.6);
+  text-transform: uppercase;
+  padding: 0 6px;
+}
+
+.side-nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.side-nav-item {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: rgba(244, 242, 255, 0.7);
+  font-family: var(--font-body);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.side-nav-item.active,
+.side-nav-item:hover {
+  color: #ffffff;
+  border-color: rgba(109, 240, 255, 0.45);
+  background: rgba(20, 16, 40, 0.7);
+  box-shadow: inset 0 0 12px rgba(109, 240, 255, 0.15);
+}
+
+.side-nav-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(109, 240, 255, 0.6);
+  text-transform: uppercase;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.command-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: linear-gradient(90deg, rgba(15, 12, 30, 0.95), rgba(10, 8, 24, 0.95));
+  border-bottom: 1px solid rgba(139, 92, 255, 0.3);
+  gap: 16px;
+}
+
+.command-bar-left,
+.command-bar-center,
+.command-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.command-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.command-status {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(109, 240, 255, 0.4);
+  color: rgba(109, 240, 255, 0.9);
+}
+
+.command-tag {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255, 79, 216, 0.8);
+}
+
+.command-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 6, 20, 0.7);
+  border: 1px solid rgba(109, 240, 255, 0.25);
+  border-radius: 999px;
+  padding: 4px 10px;
+  min-width: 320px;
+}
+
+.command-search input {
+  background: transparent;
+  border: none;
+  color: rgba(244, 242, 255, 0.8);
+  font-size: 11px;
+  outline: none;
+  width: 100%;
+}
+
+.command-search-btn {
+  border: none;
+  background: transparent;
+  color: rgba(109, 240, 255, 0.9);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.command-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.command-pill {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 79, 216, 0.5);
+  color: rgba(255, 79, 216, 0.9);
+}
+
 .signal-strip {
   display: flex;
   align-items: center;

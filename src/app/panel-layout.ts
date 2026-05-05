@@ -115,18 +115,29 @@ export class PanelLayoutManager implements AppModule {
   renderLayout(): void {
     this.ctx.container.innerHTML = `
       ${this.ctx.isDesktopApp ? '<div class="tauri-titlebar" data-tauri-drag-region></div>' : ''}
-      <div class="signal-strip">
-        <div class="signal-strip-left">
-          <span class="signal-pill signal-pill-live">LIVE</span>
-          <span class="signal-pill">ASTRAL GRID</span>
-          <span class="signal-pill">SECTOR: GLOBAL</span>
-        </div>
-        <div class="signal-strip-right">
-          <span class="signal-tag">WORLDVIEW OSINT</span>
-          <span class="signal-tag">SIGMA-07</span>
-        </div>
-      </div>
-      <div class="header">
+      <div class="app-shell">
+        <aside class="side-nav">
+          <div class="side-nav-brand">
+            <span class="side-nav-logo">WORLDVIEW</span>
+            <span class="side-nav-sub">OSINT PLATFORM</span>
+          </div>
+          <div class="side-nav-section">CLASSIFIED</div>
+          <nav class="side-nav-items">
+            <button class="side-nav-item active">Dashboard</button>
+            <button class="side-nav-item">Signals</button>
+            <button class="side-nav-item">World View</button>
+            <button class="side-nav-item">Cases</button>
+            <button class="side-nav-item">Rules</button>
+            <button class="side-nav-item">Sources</button>
+            <button class="side-nav-item">Analytics</button>
+          </nav>
+          <div class="side-nav-footer">
+            <span class="side-nav-status">SYSTEMS NOMINAL</span>
+            <span class="side-nav-code">SYS: WV-3.0</span>
+          </div>
+        </aside>
+        <div class="app-main">
+          <div class="header">
         <div class="header-left">
           <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -218,11 +229,28 @@ export class PanelLayoutManager implements AppModule {
             </button>
             <div class="download-dropdown" id="downloadDropdown"></div>
           </div>`}
-          <button class="search-btn" id="searchBtn"><kbd>⌘K</kbd> ${t('header.search')}</button>
           ${this.ctx.isDesktopApp ? '' : `<button class="copy-link-btn" id="copyLinkBtn">${t('header.copyLink')}</button>`}
           ${this.ctx.isDesktopApp ? '' : `<button class="fullscreen-btn" id="fullscreenBtn" title="${t('header.fullscreen')}">⛶</button>`}
           ${SITE_VARIANT === 'happy' ? `<button class="tv-mode-btn" id="tvModeBtn" title="TV Mode (Shift+T)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>` : ''}
           <span id="unifiedSettingsMount"></span>
+        </div>
+      </div>
+      <div class="command-bar">
+        <div class="command-bar-left">
+          <span class="command-title">COMMAND DASHBOARD</span>
+          <span class="command-status">LIVE</span>
+        </div>
+        <div class="command-bar-center">
+          <span class="command-tag">TOP SECRET // SI // NOFORN</span>
+          <div class="command-search">
+            <input id="commandSearchInput" type="text" placeholder="Search signals, sources, locations..." />
+            <button class="command-search-btn" id="searchBtn" aria-label="Search">⌕</button>
+          </div>
+        </div>
+        <div class="command-bar-right">
+          <span class="command-time" id="headerClock" translate="no"></span>
+          <span class="command-pill">REC</span>
+          <span class="command-pill">SAT: 12/12</span>
         </div>
       </div>
       <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
@@ -287,7 +315,7 @@ export class PanelLayoutManager implements AppModule {
         </button>`
       ).join('')}
       </div>
-      <div class="main-content">
+  <div class="main-content">
         <div class="map-section" id="mapSection">
           <div class="map-hud">
             <div class="map-hud-left">
@@ -295,7 +323,6 @@ export class PanelLayoutManager implements AppModule {
               <span class="map-hud-sub">ASTRAL GRID · LIVE TELEMETRY</span>
             </div>
             <div class="map-hud-right">
-              <span class="map-hud-clock" id="headerClock" translate="no"></span>
               <div class="map-hud-actions" id="mapDimensionToggle">
                 <button class="map-dim-btn${loadFromStorage<string>(STORAGE_KEYS.mapMode, 'flat') === 'globe' ? '' : ' active'}" data-mode="flat" title="2D Map">2D</button>
                 <button class="map-dim-btn${loadFromStorage<string>(STORAGE_KEYS.mapMode, 'flat') === 'globe' ? ' active' : ''}" data-mode="globe" title="3D Globe">3D</button>
@@ -318,7 +345,7 @@ export class PanelLayoutManager implements AppModule {
         <div class="panels-grid" id="panelsGrid"></div>
         <button class="search-mobile-fab" id="searchMobileFab" aria-label="Search">\u{1F50D}</button>
       </div>
-      <footer class="site-footer">
+  <footer class="site-footer">
         <div class="site-footer-brand">
           <img src="/favico/favicon-32x32.png" alt="" width="28" height="28" class="site-footer-icon" />
           <div class="site-footer-brand-text">
@@ -335,6 +362,8 @@ export class PanelLayoutManager implements AppModule {
         </nav>
         <span class="site-footer-copy">&copy; ${new Date().getFullYear()} WorldView</span>
       </footer>
+        </div>
+      </div>
     `;
 
     this.createPanels();
