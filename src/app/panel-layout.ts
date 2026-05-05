@@ -315,7 +315,41 @@ export class PanelLayoutManager implements AppModule {
         </button>`
       ).join('')}
       </div>
-  <div class="main-content">
+      <div class="main-content">
+        <section class="command-dashboard">
+          <div class="command-metrics">
+            <div class="command-card">
+              <span class="command-card-label">Signals</span>
+              <span class="command-card-value">15</span>
+              <span class="command-card-meta">UNTRIAGED</span>
+            </div>
+            <div class="command-card">
+              <span class="command-card-label">Critical</span>
+              <span class="command-card-value">11</span>
+              <span class="command-card-meta">ACTIVE</span>
+            </div>
+            <div class="command-card">
+              <span class="command-card-label">Open Cases</span>
+              <span class="command-card-value">4</span>
+              <span class="command-card-meta">IN REVIEW</span>
+            </div>
+            <div class="command-card">
+              <span class="command-card-label">Sources</span>
+              <span class="command-card-value">8</span>
+              <span class="command-card-meta">LIVE</span>
+            </div>
+            <div class="command-card">
+              <span class="command-card-label">Geolocated</span>
+              <span class="command-card-value">15</span>
+              <span class="command-card-meta">CONFIRMED</span>
+            </div>
+          </div>
+          <div class="command-tabs">
+            <button class="command-tab active">Overview</button>
+            <button class="command-tab">Threat Map</button>
+            <button class="command-tab">Analytics</button>
+          </div>
+        </section>
         <div class="map-section" id="mapSection">
           <div class="map-hud">
             <div class="map-hud-left">

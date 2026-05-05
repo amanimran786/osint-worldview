@@ -376,6 +376,73 @@ canvas,
   gap: 16px;
 }
 
+.command-dashboard {
+  padding: 14px 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.command-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.command-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(12, 10, 26, 0.7);
+  border: 1px solid rgba(109, 240, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: inset 0 0 12px rgba(109, 240, 255, 0.1);
+}
+
+.command-card-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.command-card-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.command-card-meta {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 79, 216, 0.8);
+}
+
+.command-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0 12px;
+  border-bottom: 1px solid rgba(139, 92, 255, 0.25);
+}
+
+.command-tab {
+  border: none;
+  background: transparent;
+  color: rgba(244, 242, 255, 0.6);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.command-tab.active {
+  color: #ffffff;
+  border-bottom: 2px solid rgba(255, 79, 216, 0.9);
+}
+
 .command-bar-left,
 .command-bar-center,
 .command-bar-right {
