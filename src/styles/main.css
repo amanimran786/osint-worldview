@@ -276,6 +276,44 @@ canvas,
   bottom: 0;
 }
 
+.signal-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 18px;
+  background: linear-gradient(90deg, rgba(10, 8, 24, 0.95), rgba(24, 18, 50, 0.9));
+  border-bottom: 1px solid rgba(109, 240, 255, 0.2);
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.signal-strip-left,
+.signal-strip-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.signal-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(109, 240, 255, 0.25);
+  color: rgba(244, 242, 255, 0.75);
+  background: rgba(12, 10, 26, 0.7);
+}
+
+.signal-pill-live {
+  border-color: rgba(255, 79, 216, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 79, 216, 0.45);
+}
+
+.signal-tag {
+  color: rgba(109, 240, 255, 0.8);
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -326,6 +364,60 @@ canvas,
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.map-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(139, 92, 255, 0.35);
+  background: linear-gradient(120deg, rgba(12, 10, 26, 0.9), rgba(24, 16, 46, 0.8));
+}
+
+.map-hud-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-hud-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.map-hud-sub {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.map-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.map-hud-clock {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(109, 240, 255, 0.85);
+}
+
+.map-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-hud-btn {
+  border-radius: 10px;
+  background: rgba(12, 10, 26, 0.7);
+  border: 1px solid rgba(109, 240, 255, 0.3);
+  color: #dff9ff;
+  box-shadow: inset 0 0 12px rgba(109, 240, 255, 0.15);
 }
 
 /* Variant Switcher */
