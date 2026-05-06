@@ -123,17 +123,24 @@ export class PanelLayoutManager implements AppModule {
           </div>
           <div class="side-nav-section">CLASSIFIED</div>
           <nav class="side-nav-items">
-            <button class="side-nav-item active">Dashboard</button>
-            <button class="side-nav-item">Signals</button>
-            <button class="side-nav-item">World View</button>
-            <button class="side-nav-item">Cases</button>
-            <button class="side-nav-item">Rules</button>
-            <button class="side-nav-item">Sources</button>
-            <button class="side-nav-item">Analytics</button>
+            <a class="side-nav-item active" href="/">Dashboard</a>
+            <a class="side-nav-item" href="/#panelsGrid">Signals</a>
+            <a class="side-nav-item" href="/#mapSection">World View</a>
+            <a class="side-nav-item" href="/#panelsGrid">Cases</a>
+            <a class="side-nav-item" href="/?settings=1">Rules</a>
+            <a class="side-nav-item" href="/?settings=1">Sources</a>
+            <a class="side-nav-item" href="/#panelsGrid">Analytics</a>
           </nav>
+          <div class="side-nav-quick">
+            <span class="side-nav-quick-title">QUICK LINKS</span>
+            <a class="side-nav-quick-link" href="/#mapSection">Map</a>
+            <a class="side-nav-quick-link" href="/#panelsGrid">Panels</a>
+            <a class="side-nav-quick-link" href="/?settings=1">Settings</a>
+          </div>
           <div class="side-nav-footer">
             <span class="side-nav-status">SYSTEMS NOMINAL</span>
             <span class="side-nav-code">SYS: WV-3.0</span>
+            <span class="side-nav-code">LINK: ACTIVE</span>
           </div>
         </aside>
         <div class="app-main">
@@ -374,7 +381,6 @@ export class PanelLayoutManager implements AppModule {
           <div class="map-container" id="mapContainer"></div>
           ${SITE_VARIANT === 'happy' ? '<button class="tv-exit-btn" id="tvExitBtn">Exit TV Mode</button>' : ''}
           <div class="map-resize-handle" id="mapResizeHandle"></div>
-          <div class="map-bottom-grid" id="mapBottomGrid"></div>
         </div>
         <div class="panels-grid" id="panelsGrid"></div>
         <button class="search-mobile-fab" id="searchMobileFab" aria-label="Search">\u{1F50D}</button>
@@ -389,7 +395,6 @@ export class PanelLayoutManager implements AppModule {
         </div>
         <nav aria-label="WorldView quick links">
           <a href="/">Dashboard</a>
-          <a href="/blog">Blog</a>
           <a href="/?settings=1">Settings</a>
           <a href="/#mapSection">Map</a>
           <a href="/#panelsGrid">Panels</a>
@@ -962,7 +967,7 @@ export class PanelLayoutManager implements AppModule {
     addPanelBlock.appendChild(addIcon);
     addPanelBlock.appendChild(addLabel);
     addPanelBlock.addEventListener('click', () => {
-      this.ctx.unifiedSettings?.open('panels');
+  this.ctx.unifiedSettings?.open();
     });
     panelsGrid.appendChild(addPanelBlock);
 

@@ -327,6 +327,37 @@ canvas,
   gap: 6px;
 }
 
+.side-nav-quick {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-top: 1px solid rgba(109, 240, 255, 0.12);
+  margin-top: 4px;
+}
+
+.side-nav-quick-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.side-nav-quick-link {
+  color: rgba(244, 242, 255, 0.7);
+  text-decoration: none;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.side-nav-quick-link:hover {
+  border-color: rgba(109, 240, 255, 0.35);
+  color: #ffffff;
+}
+
 .side-nav-item {
   background: transparent;
   border: 1px solid transparent;
@@ -6501,15 +6532,15 @@ a.prediction-link:hover {
 
 .panel-toggle-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
 }
 
 .panel-toggle-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
+  padding: 12px 14px;
   background: var(--bg);
   border: 1px solid var(--border);
   cursor: pointer;
@@ -15241,9 +15272,13 @@ a.prediction-link:hover {
 }
 
 .unified-settings-modal {
-  max-width: 600px;
+  max-width: 720px;
   width: 95%;
   max-height: 80vh;
+}
+
+.unified-settings-tabs {
+  display: none;
 }
 
 .unified-settings-tabs {
@@ -15287,58 +15322,6 @@ a.prediction-link:hover {
 }
 
 /* Source region pills */
-.unified-settings-region-wrapper {
-  position: relative;
-}
-
-.unified-settings-region-wrapper::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 40px;
-  background: linear-gradient(to right, transparent, var(--surface));
-  pointer-events: none;
-}
-
-.unified-settings-region-bar {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 8px 0;
-  scrollbar-width: none;
-}
-
-.unified-settings-region-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.unified-settings-region-pill {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: var(--text-dim);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-
-.unified-settings-region-pill:hover {
-  border-color: var(--text-dim);
-  color: var(--text);
-}
-
-.unified-settings-region-pill.active {
-  background: rgba(68, 255, 136, 0.08);
-  border-color: rgba(68, 255, 136, 0.4);
-  color: var(--green);
-}
 
 /* Unified settings selects */
 .unified-settings-select,

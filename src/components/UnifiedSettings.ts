@@ -5,7 +5,6 @@ import { t } from '@/services/i18n';
 import type { MapProvider } from '@/config/basemap';
 import { escapeHtml } from '@/utils/sanitize';
 import type { PanelConfig } from '@/types';
-import { renderPreferences } from '@/services/preferences-content';
 
 const GEAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
 
@@ -27,7 +26,7 @@ type TabId = 'settings' | 'panels' | 'sources';
 export class UnifiedSettings {
   private overlay: HTMLElement;
   private config: UnifiedSettingsConfig;
-  private activeTab: TabId = 'settings';
+  private activeTab: TabId = 'panels';
   private activeSourceRegion = 'all';
   private sourceFilter = '';
   private activePanelCategory = 'all';
@@ -152,8 +151,8 @@ export class UnifiedSettings {
     document.body.appendChild(this.overlay);
   }
 
-  public open(tab?: TabId): void {
-    if (tab) this.activeTab = tab;
+  public open(): void {
+    this.activeTab = 'panels';
     this.resetPanelDraft();
     this.render();
     this.overlay.classList.add('active');
@@ -196,30 +195,13 @@ export class UnifiedSettings {
     this.prefsCleanup?.();
     this.prefsCleanup = null;
 
-    const tabClass = (id: TabId) => `unified-settings-tab${this.activeTab === id ? ' active' : ''}`;
-    const prefs = renderPreferences({
-      isDesktopApp: this.config.isDesktopApp,
-      onMapProviderChange: this.config.onMapProviderChange,
-    });
-
     this.overlay.innerHTML = `
       <div class="modal unified-settings-modal">
         <div class="modal-header">
           <span class="modal-title">${t('header.settings')}</span>
           <button class="modal-close unified-settings-close" aria-label="Close">\u00d7</button>
         </div>
-        <div class="unified-settings-tabs" role="tablist" aria-label="Settings">
-          <button class="${tabClass('settings')}" data-tab="settings" role="tab" aria-selected="${this.activeTab === 'settings'}" id="us-tab-settings" aria-controls="us-tab-panel-settings">${t('header.tabSettings')}</button>
-          <button class="${tabClass('panels')}" data-tab="panels" role="tab" aria-selected="${this.activeTab === 'panels'}" id="us-tab-panels" aria-controls="us-tab-panel-panels">${t('header.tabPanels')}</button>
-          <button class="${tabClass('sources')}" data-tab="sources" role="tab" aria-selected="${this.activeTab === 'sources'}" id="us-tab-sources" aria-controls="us-tab-panel-sources">${t('header.tabSources')}</button>
-        </div>
-        <div class="unified-settings-tab-panel${this.activeTab === 'settings' ? ' active' : ''}" data-panel-id="settings" id="us-tab-panel-settings" role="tabpanel" aria-labelledby="us-tab-settings">
-          ${prefs.html}
-        </div>
-        <div class="unified-settings-tab-panel${this.activeTab === 'panels' ? ' active' : ''}" data-panel-id="panels" id="us-tab-panel-panels" role="tabpanel" aria-labelledby="us-tab-panels">
-          <div class="unified-settings-region-wrapper">
-            <div class="unified-settings-region-bar" id="usPanelCatBar"></div>
-          </div>
+        <div class="unified-settings-tab-panel active" data-panel-id="panels" id="us-tab-panel-panels" role="tabpanel" aria-labelledby="us-tab-panels">
           <div class="panels-search">
             <input type="text" placeholder="${t('header.filterPanels')}" value="${escapeHtml(this.panelFilter)}" />
           </div>
@@ -230,27 +212,8 @@ export class UnifiedSettings {
             <button class="panels-reset-layout" title="${t('header.resetLayoutTooltip')}" aria-label="${t('header.resetLayoutTooltip')}">${t('header.resetLayout')}</button>
           </div>
         </div>
-        <div class="unified-settings-tab-panel${this.activeTab === 'sources' ? ' active' : ''}" data-panel-id="sources" id="us-tab-panel-sources" role="tabpanel" aria-labelledby="us-tab-sources">
-          <div class="unified-settings-region-wrapper">
-            <div class="unified-settings-region-bar" id="usRegionBar"></div>
-          </div>
-          <div class="sources-search">
-            <input type="text" placeholder="${t('header.filterSources')}" value="${escapeHtml(this.sourceFilter)}" />
-          </div>
-          <div class="sources-toggle-grid" id="usSourceToggles"></div>
-          <div class="sources-footer">
-            <span class="sources-counter" id="usSourcesCounter"></span>
-            <button class="sources-select-all">${t('common.selectAll')}</button>
-            <button class="sources-select-none">${t('common.selectNone')}</button>
-          </div>
-        </div>
       </div>
     `;
-
-    const settingsPanel = this.overlay.querySelector('#us-tab-panel-settings');
-    if (settingsPanel) {
-      this.prefsCleanup = prefs.attach(settingsPanel as HTMLElement);
-    }
 
     const closeBtn = this.overlay.querySelector<HTMLButtonElement>('.unified-settings-close');
     if (closeBtn) {
@@ -260,11 +223,7 @@ export class UnifiedSettings {
       });
     }
 
-    this.renderPanelCategoryPills();
     this.renderPanelsTab();
-    this.renderRegionPills();
-    this.renderSourcesGrid();
-    this.updateSourcesCounter();
   }
 
   private switchTab(tab: TabId): void {
