@@ -1,5 +1,6 @@
 import './styles/main.css';
 import './styles/settings-window.css';
+import './styles/scifi-theme.css';
 import { SettingsManager } from '@/services/settings-manager';
 import { exportSettings, importSettings, type ImportResult } from '@/utils/settings-persistence';
 import {

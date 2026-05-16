@@ -1,0 +1,526 @@
+/* ============================================================================
+   ORBITAL  ·  JARVIS-class OSINT interface
+   Deep-space + nebula-violet + holo-cyan command theme.
+   Unlayered on purpose: this file is imported AFTER base-layer.css so it
+   wins the cascade over @layer base (main.css) — same trick the happy
+   variant uses. Default experience for every user.
+   ============================================================================ */
+
+:root {
+  /* ---- Deep space substrate ---- */
+  --bg: #050414;
+  --bg-secondary: #07061c;
+  --surface: #0c0a24;
+  --surface-hover: #131134;
+  --surface-active: #1a1746;
+
+  /* ---- Holographic chrome ---- */
+  --border: rgba(124, 92, 255, 0.16);
+  --border-strong: rgba(94, 234, 255, 0.34);
+  --border-subtle: rgba(124, 92, 255, 0.09);
+  --border-accent: #4ef0ff;
+  --border-accent-orange: rgba(94, 234, 255, 0.22);
+
+  /* ---- Signal palette ---- */
+  --holo: #4ef0ff;            /* primary holo cyan          */
+  --holo-soft: #6af6ff;
+  --nebula: #9d5cff;          /* nebula violet              */
+  --nebula-soft: #b98bff;
+  --ion: #ff4fd8;             /* hot data magenta           */
+  --star: #eaf2ff;            /* star white                 */
+  --plasma: #ffcc66;          /* alert / Stark-gold spark   */
+
+  --text: #e4ecff;
+  --text-secondary: #a9b4e0;
+  --text-dim: #7c87b8;
+  --text-muted: #5b6494;
+  --text-faint: #454c74;
+  --text-ghost: #353a58;
+  --accent: #ffffff;
+
+  --neon-orange: #ffcc66;
+  --neon-cyan: #4ef0ff;
+  --neon-green: #5af5c8;
+  --neon-purple: #9d5cff;
+  --neon-pink: #ff4fd8;
+
+  --scrollbar-thumb: rgba(124, 92, 255, 0.38);
+  --scrollbar-thumb-hover: rgba(94, 234, 255, 0.55);
+  --input-bg: rgba(10, 8, 32, 0.7);
+
+  --panel-bg: rgba(10, 8, 30, 0.55);
+  --panel-border: rgba(124, 92, 255, 0.18);
+
+  --glass-bg: rgba(10, 8, 30, 0.5);
+  --glass-bg-mid: rgba(12, 10, 36, 0.66);
+  --glass-bg-heavy: rgba(7, 5, 22, 0.8);
+  --glass-border: rgba(124, 92, 255, 0.16);
+  --glass-border-bright: rgba(94, 234, 255, 0.3);
+
+  --font-display: 'Orbitron', 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* ============================================================================
+   SPACE AMBIANCE  ·  fixed cosmic backdrop behind the entire app
+   ============================================================================ */
+
+body {
+  background: #050414 !important;
+  color: var(--text);
+}
+
+/* ---- Layer 1: nebula clouds + far starfield (slow parallax) ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 38% 30% at 18% 22%, rgba(157, 92, 255, 0.30), transparent 60%),
+    radial-gradient(ellipse 34% 40% at 84% 70%, rgba(78, 240, 255, 0.18), transparent 62%),
+    radial-gradient(ellipse 50% 36% at 60% 12%, rgba(255, 79, 216, 0.12), transparent 58%),
+    radial-gradient(ellipse 40% 50% at 30% 88%, rgba(124, 92, 255, 0.16), transparent 60%),
+    /* star field — three sizes at different densities */
+    radial-gradient(1.4px 1.4px at 12% 18%, rgba(234, 242, 255, 0.9), transparent 100%),
+    radial-gradient(1.2px 1.2px at 27% 64%, rgba(234, 242, 255, 0.8), transparent 100%),
+    radial-gradient(1.6px 1.6px at 41% 31%, rgba(186, 220, 255, 0.9), transparent 100%),
+    radial-gradient(1px 1px at 58% 77%, rgba(234, 242, 255, 0.7), transparent 100%),
+    radial-gradient(1.8px 1.8px at 69% 22%, rgba(255, 230, 255, 0.85), transparent 100%),
+    radial-gradient(1.1px 1.1px at 78% 52%, rgba(200, 224, 255, 0.7), transparent 100%),
+    radial-gradient(1.3px 1.3px at 88% 84%, rgba(234, 242, 255, 0.8), transparent 100%),
+    radial-gradient(1px 1px at 6% 88%, rgba(234, 242, 255, 0.6), transparent 100%),
+    radial-gradient(2px 2px at 49% 9%, rgba(255, 255, 255, 0.95), transparent 100%),
+    radial-gradient(1.2px 1.2px at 92% 14%, rgba(214, 232, 255, 0.7), transparent 100%),
+    #050414;
+  background-repeat: no-repeat;
+  animation: orbital-drift 90s ease-in-out infinite alternate;
+}
+
+/* ---- Layer 2: twinkling near-field stars (own slow drift) ---- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 35%, rgba(255,255,255,0.95), transparent),
+    radial-gradient(1.5px 1.5px at 65% 70%, rgba(120,230,255,0.9), transparent),
+    radial-gradient(2px 2px at 40% 80%, rgba(220,180,255,0.9), transparent),
+    radial-gradient(1.5px 1.5px at 85% 25%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1.5px 1.5px at 10% 60%, rgba(255,200,240,0.85), transparent);
+  background-repeat: no-repeat;
+  animation: star-twinkle 5.5s ease-in-out infinite;
+}
+
+@keyframes orbital-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-2.5%, 1.5%, 0) scale(1.06); }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.95; }
+}
+
+/* ---- Persistent HUD: viewport corner brackets + grid + vignette ---- */
+#app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  background:
+    /* faint perspective grid */
+    linear-gradient(rgba(124, 92, 255, 0.045) 1px, transparent 1px) 0 0 / 100% 46px,
+    linear-gradient(90deg, rgba(124, 92, 255, 0.045) 1px, transparent 1px) 0 0 / 46px 100%,
+    /* corner brackets — 4 corners, 2 strokes each */
+    linear-gradient(var(--holo), var(--holo)) 14px 14px / 46px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) 14px 14px / 2px 46px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) right 14px top 14px / 46px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) right 14px top 14px / 2px 46px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) left 14px bottom 14px / 46px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) left 14px bottom 14px / 2px 46px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) right 14px bottom 14px / 46px 2px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) right 14px bottom 14px / 2px 46px no-repeat,
+    /* vignette */
+    radial-gradient(ellipse 120% 120% at 50% 50%, transparent 55%, rgba(2, 1, 10, 0.7) 100%);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+/* ---- Scanline sweep overlay ---- */
+#app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9991;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 3px, rgba(78,240,255,0.022) 3px 4px);
+}
+
+/* ---- One-shot boot sweep (plays once on every load) ---- */
+.app-shell::before {
+  content: 'WORLDVIEW · SYSTEMS ONLINE';
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 2.4vw, 30px);
+  font-weight: 800;
+  letter-spacing: 0.55em;
+  text-indent: 0.55em;
+  color: var(--holo);
+  text-shadow: 0 0 22px rgba(78, 240, 255, 0.9), 0 0 60px rgba(157, 92, 255, 0.6);
+  background:
+    linear-gradient(rgba(78,240,255,0.85), rgba(78,240,255,0)) center top / 100% 3px no-repeat,
+    radial-gradient(ellipse at center, rgba(8,6,26,0.97), rgba(3,2,12,1));
+  animation: boot-seq 2.4s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+
+@keyframes boot-seq {
+  0%   { opacity: 1; background-position-y: -4px, center; clip-path: inset(0 0 0 0); }
+  55%  { opacity: 1; background-position-y: 110%, center; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; clip-path: inset(0 0 100% 0); visibility: hidden; }
+}
+
+/* ============================================================================
+   COMMAND BAR  ·  top header
+   ============================================================================ */
+
+.header {
+  background: linear-gradient(180deg, rgba(12, 9, 36, 0.78), rgba(6, 4, 20, 0.62)) !important;
+  border-bottom: 1px solid rgba(94, 234, 255, 0.28) !important;
+  backdrop-filter: blur(26px) saturate(1.7) !important;
+  box-shadow:
+    0 0 0 1px rgba(124, 92, 255, 0.12),
+    0 1px 0 rgba(94, 234, 255, 0.35),
+    0 14px 40px rgba(0, 0, 0, 0.6) !important;
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--holo) 30%, var(--nebula) 60%, transparent);
+  opacity: 0.8;
+  animation: rail-sweep 6s linear infinite;
+}
+@keyframes rail-sweep {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.header .header-clock,
+.map-hud-clock,
+.header-center {
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.18em !important;
+  color: var(--holo) !important;
+  text-shadow: 0 0 12px rgba(78, 240, 255, 0.55);
+}
+
+/* ============================================================================
+   COMMAND RAIL  ·  side nav
+   ============================================================================ */
+
+.side-nav {
+  background: linear-gradient(180deg, rgba(10, 7, 30, 0.7), rgba(5, 4, 18, 0.78)) !important;
+  border-right: 1px solid rgba(94, 234, 255, 0.22) !important;
+  box-shadow: 1px 0 0 rgba(157, 92, 255, 0.25), inset -1px 0 30px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(26px) saturate(1.5) !important;
+}
+
+.side-nav-logo {
+  font-family: var(--font-display) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.32em !important;
+  color: var(--star) !important;
+  text-shadow: 0 0 16px rgba(78, 240, 255, 0.7), 0 0 40px rgba(157, 92, 255, 0.4);
+}
+.side-nav-sub { color: var(--holo) !important; letter-spacing: 0.3em !important; }
+.side-nav-section { color: var(--nebula-soft) !important; }
+
+.side-nav-item {
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  position: relative;
+  transition: all 0.18s ease !important;
+}
+.side-nav-item.active,
+.side-nav-item:hover {
+  color: var(--star) !important;
+  border-color: rgba(94, 234, 255, 0.4) !important;
+  background:
+    linear-gradient(90deg, rgba(78, 240, 255, 0.14), rgba(157, 92, 255, 0.06)) !important;
+  box-shadow:
+    inset 0 0 18px rgba(78, 240, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 16px rgba(78, 240, 255, 0.18) !important;
+}
+.side-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: 50%;
+  width: 3px; height: 60%;
+  transform: translateY(-50%);
+  background: var(--holo);
+  box-shadow: 0 0 10px var(--holo);
+  border-radius: 2px;
+}
+
+/* ============================================================================
+   MAP HUD
+   ============================================================================ */
+
+.map-hud {
+  background: linear-gradient(120deg, rgba(10, 7, 30, 0.72), rgba(16, 10, 44, 0.6)) !important;
+  border-bottom: 1px solid rgba(94, 234, 255, 0.24) !important;
+  backdrop-filter: blur(22px) saturate(1.6) !important;
+  box-shadow: 0 1px 0 rgba(94, 234, 255, 0.3), 0 6px 24px rgba(0, 0, 0, 0.5) !important;
+}
+.map-hud-title {
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.28em !important;
+  color: var(--star) !important;
+  text-shadow: 0 0 14px rgba(78, 240, 255, 0.6);
+}
+
+/* ============================================================================
+   PANEL  ·  every panel becomes a HUD module
+   ============================================================================ */
+
+.panel {
+  background:
+    linear-gradient(180deg, rgba(14, 11, 40, 0.6), rgba(8, 6, 24, 0.5)) !important;
+  border: 1px solid rgba(124, 92, 255, 0.2) !important;
+  border-radius: 4px !important;
+  backdrop-filter: blur(20px) saturate(1.5) !important;
+  box-shadow:
+    0 0 0 1px rgba(94, 234, 255, 0.05),
+    0 8px 30px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(150, 200, 255, 0.06) !important;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.18s ease !important;
+}
+
+/* corner-bracket reticles drawn inside the panel box */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 3px;
+  background:
+    linear-gradient(var(--holo), var(--holo)) left top / 14px 1.5px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) left top / 1.5px 14px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) right top / 14px 1.5px no-repeat,
+    linear-gradient(var(--holo), var(--holo)) right top / 1.5px 14px no-repeat,
+    linear-gradient(var(--nebula), var(--nebula)) left bottom / 14px 1.5px no-repeat,
+    linear-gradient(var(--nebula), var(--nebula)) left bottom / 1.5px 14px no-repeat,
+    linear-gradient(var(--nebula), var(--nebula)) right bottom / 14px 1.5px no-repeat,
+    linear-gradient(var(--nebula), var(--nebula)) right bottom / 1.5px 14px no-repeat;
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
+
+/* scan-sheen — animates only on hover so 60 panels don't loop at once */
+.panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(78, 240, 255, 0.07) 50%, transparent 100%);
+  background-size: 100% 220%;
+  background-position: 0 -120%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.panel:hover {
+  border-color: rgba(94, 234, 255, 0.55) !important;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(94, 234, 255, 0.25),
+    0 14px 44px rgba(0, 0, 0, 0.7),
+    0 0 34px rgba(78, 240, 255, 0.16),
+    inset 0 1px 0 rgba(150, 200, 255, 0.1) !important;
+}
+.panel:hover::before { opacity: 0.95; }
+.panel:hover::after {
+  opacity: 1;
+  animation: panel-scan 1.5s ease-in-out;
+}
+@keyframes panel-scan {
+  0%   { background-position: 0 -120%; }
+  100% { background-position: 0 120%; }
+}
+
+/* ---- Panel header — module identity strip ---- */
+.panel-header {
+  background: linear-gradient(180deg, rgba(94, 234, 255, 0.06), rgba(124, 92, 255, 0.02)) !important;
+  border-bottom: 1px solid rgba(94, 234, 255, 0.22) !important;
+  box-shadow: 0 1px 0 rgba(78, 240, 255, 0.12) !important;
+  position: relative;
+}
+.panel-header::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 38%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--holo), transparent);
+  box-shadow: 0 0 8px var(--holo);
+}
+.panel-title {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  color: var(--star) !important;
+  text-shadow: 0 0 10px rgba(78, 240, 255, 0.4);
+}
+.panel-count {
+  background: rgba(78, 240, 255, 0.1) !important;
+  border: 1px solid rgba(94, 234, 255, 0.3) !important;
+  color: var(--holo-soft) !important;
+  border-radius: 3px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   STATUS NODES  ·  live data pulses
+   ============================================================================ */
+
+.panel-data-badge.live,
+.status-indicator-glow,
+.wc-dot.open,
+.status-dot.live {
+  box-shadow: 0 0 8px currentColor, 0 0 16px currentColor !important;
+  animation: node-pulse 2s ease-in-out infinite;
+}
+@keyframes node-pulse {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50%      { opacity: 0.65; filter: brightness(1.4); }
+}
+
+/* ============================================================================
+   HOLO CONTROLS  ·  buttons + inputs
+   ============================================================================ */
+
+button:not(.panel-toggle-item):not(.side-nav-item),
+.btn,
+.icon-btn {
+  transition: all 0.16s ease;
+}
+button:not(.panel-toggle-item):not(.side-nav-item):hover,
+.icon-btn:hover {
+  color: var(--holo) !important;
+  text-shadow: 0 0 8px rgba(78, 240, 255, 0.6);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--holo) !important;
+  box-shadow: 0 0 0 1px rgba(78, 240, 255, 0.4), 0 0 16px rgba(78, 240, 255, 0.25) !important;
+}
+
+/* ============================================================================
+   SCROLLBARS
+   ============================================================================ */
+
+* {
+  scrollbar-color: rgba(124, 92, 255, 0.4) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(78, 240, 255, 0.4), rgba(157, 92, 255, 0.4));
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(78, 240, 255, 0.7), rgba(157, 92, 255, 0.7));
+}
+
+/* ============================================================================
+   SETTINGS  ·  panel picker stays calm, gains the cosmic skin
+   ============================================================================ */
+
+.settings-window-shell { background: transparent !important; }
+
+.settings-window-header {
+  background: linear-gradient(180deg, rgba(12, 9, 36, 0.7), rgba(6, 4, 20, 0.5)) !important;
+  border-bottom: 1px solid rgba(94, 234, 255, 0.26) !important;
+  backdrop-filter: blur(22px) !important;
+  box-shadow: 0 1px 0 rgba(94, 234, 255, 0.3) !important;
+}
+.settings-window-title {
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.24em !important;
+  color: var(--star) !important;
+  text-shadow: 0 0 14px rgba(78, 240, 255, 0.5);
+}
+
+.panel-toggle-item {
+  background: rgba(124, 92, 255, 0.04) !important;
+  border: 1px solid rgba(124, 92, 255, 0.14) !important;
+  border-radius: 6px !important;
+  color: var(--text-dim) !important;
+}
+.panel-toggle-item:hover {
+  background: rgba(78, 240, 255, 0.07) !important;
+  border-color: rgba(94, 234, 255, 0.35) !important;
+  color: var(--text-secondary) !important;
+}
+.panel-toggle-item.active {
+  background: rgba(124, 92, 255, 0.08) !important;
+  border-color: rgba(124, 92, 255, 0.22) !important;
+  color: var(--text) !important;
+}
+.panel-toggle-item.active .panel-toggle-checkbox {
+  background: var(--holo) !important;
+  border-color: var(--holo) !important;
+  color: #04121a !important;
+  box-shadow: 0 0 10px rgba(78, 240, 255, 0.7);
+}
+.panel-toggle-item.changed {
+  border-left: 2px solid var(--ion) !important;
+}
+
+/* Settings shell (in-app modal) cosmic surfaces */
+.settings-shell {
+  --settings-bg: transparent;
+  --settings-surface: rgba(124, 92, 255, 0.05);
+  --settings-border: rgba(124, 92, 255, 0.16);
+  --settings-border-strong: rgba(94, 234, 255, 0.3);
+  --settings-accent: var(--holo);
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%, rgba(157, 92, 255, 0.22), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 100%, rgba(78, 240, 255, 0.14), transparent 55%),
+    #050414 !important;
+}
+
+/* ============================================================================
+   ACCESSIBILITY  ·  honor reduced-motion (kill all animation, keep the look)
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after,
+  .header::after,
+  .panel::after,
+  .panel-data-badge.live,
+  .status-indicator-glow,
+  .app-shell::before {
+    animation: none !important;
+  }
+  .app-shell::before { display: none !important; }
+}
