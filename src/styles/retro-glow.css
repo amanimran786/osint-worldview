@@ -73,11 +73,9 @@ button.glow-button-cyan.active {
   box-shadow: 0 0 8px rgba(255, 136, 68, 0.6);
 }
 
-/* Hover glow effect on cards */
+/* Hover effect on cards — restrained, handled in main.css */
 .panel:hover {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 2px 20px rgba(0, 204, 255, 0.15),
-              0 0 10px rgba(0, 204, 255, 0.1);
+  border-color: rgba(34, 211, 238, 0.28);
 }
 
 /* Focus state with glow */

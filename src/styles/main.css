@@ -6,35 +6,35 @@
    Theme Colors — overridden by [data-theme="light"] below
    ============================================================ */
 :root {
-  /* Backgrounds */
-  --bg: #06040f;
-  --bg-secondary: #0b0a18;
-  --surface: #121024;
-  --surface-hover: #1a1833;
-  --surface-active: #221f40;
+  /* Backgrounds — deep navy (NEXUS-style intelligence platform) */
+  --bg: #070b14;
+  --bg-secondary: #0a0f1c;
+  --surface: #0e1422;
+  --surface-hover: #141c2e;
+  --surface-active: #1b2438;
 
-  /* Borders */
-  --border: #24213a;
-  --border-strong: #3a3557;
-  --border-subtle: #151326;
-  --border-accent: #6df0ff;
-  --border-accent-orange: #ff7adf;
+  /* Borders — subtle hairlines, chrome stays neutral */
+  --border: #1e2738;
+  --border-strong: #2d3a52;
+  --border-subtle: #141a28;
+  --border-accent: #22d3ee;
+  --border-accent-orange: #243047;
 
-  /* Text */
-  --text: #f4f2ff;
-  --text-secondary: #c7c0ea;
-  --text-dim: #9c93c8;
-  --text-muted: #7a739f;
-  --text-faint: #605b7d;
-  --text-ghost: #4c475f;
+  /* Text — cool clean grayscale */
+  --text: #e8edf6;
+  --text-secondary: #aeb8c9;
+  --text-dim: #7f8a9d;
+  --text-muted: #5e6878;
+  --text-faint: #49525f;
+  --text-ghost: #3a414d;
   --accent: #ffffff;
-  
-  /* Futuristic accents */
-  --neon-orange: #ff7adf;
-  --neon-cyan: #6df0ff;
-  --neon-green: #6dffb2;
-  --neon-purple: #8b5cff;
-  --neon-pink: #ff4fd8;
+
+  /* Accents — color carries meaning, used sparingly */
+  --neon-orange: #f59e0b;
+  --neon-cyan: #22d3ee;
+  --neon-green: #34d399;
+  --neon-purple: #818cf8;
+  --neon-pink: #2dd4bf;
 
   /* Overlays & shadows */
   --overlay-subtle: rgba(255, 255, 255, 0.03);
@@ -47,24 +47,24 @@
   --darken-heavy: rgba(0, 0, 0, 0.3);
 
   /* Scrollbar */
-  --scrollbar-thumb: #2b2750;
-  --scrollbar-thumb-hover: #3a3570;
+  --scrollbar-thumb: #283346;
+  --scrollbar-thumb-hover: #36455f;
 
   /* Input */
-  --input-bg: #1a1a1a;
+  --input-bg: #0e1422;
 
-  /* Panels — glassmorphism */
-  --panel-bg: rgba(10, 6, 22, 0.42);
-  --panel-border: rgba(255, 255, 255, 0.09);
+  /* Panels — restrained navy glass */
+  --panel-bg: rgba(13, 19, 32, 0.6);
+  --panel-border: rgba(255, 255, 255, 0.07);
 
   /* Glass system */
-  --glass-bg: rgba(10, 6, 22, 0.38);
-  --glass-bg-mid: rgba(12, 8, 26, 0.55);
-  --glass-bg-heavy: rgba(8, 4, 18, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-bright: rgba(255, 255, 255, 0.14);
-  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.45);
+  --glass-bg: rgba(13, 19, 32, 0.55);
+  --glass-bg-mid: rgba(15, 22, 38, 0.7);
+  --glass-bg-heavy: rgba(10, 15, 26, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-bright: rgba(255, 255, 255, 0.1);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 6px 24px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.4);
   --glass-blur: blur(22px);
   --glass-saturate: saturate(1.6);
 
@@ -228,9 +228,8 @@ body {
   font-size: 12px;
   line-height: 1.5;
   background:
-    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(139, 92, 255, 0.32), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 10%, rgba(255, 79, 216, 0.22), transparent 50%),
-    radial-gradient(ellipse 50% 60% at 50% 90%, rgba(109, 240, 255, 0.12), transparent 55%),
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(34, 211, 238, 0.06), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 85% 100%, rgba(34, 211, 238, 0.04), transparent 55%),
     var(--bg);
   color: var(--text);
   overflow: hidden;
@@ -1590,14 +1589,12 @@ canvas,
 }
 
 .panel:hover {
-  border-color: rgba(109, 240, 255, 0.22);
-  border-top-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(34, 211, 238, 0.28);
+  border-top-color: rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.72),
-    0 4px 12px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 0 1px rgba(109, 240, 255, 0.14),
-    0 0 28px rgba(109, 240, 255, 0.06);
+    0 10px 32px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* .panel.resized: Custom height set - use grid-row span for height */
@@ -6532,9 +6529,11 @@ a.prediction-link:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--darken-heavy);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(34, 211, 238, 0.06);
   flex-shrink: 0;
 }
 
@@ -6562,31 +6561,36 @@ a.prediction-link:hover {
 }
 
 .settings-window-shell .panel-toggle-grid {
-  padding: 16px;
+  padding: 20px 24px;
   flex: 1;
+  align-content: start;
 }
 
 .panel-toggle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
 }
 
 .panel-toggle-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  gap: 10px;
+  padding: 11px 13px;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
   cursor: pointer;
-  color: var(--text);
+  color: var(--text-dim);
   font: inherit;
   text-align: left;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 }
 
 .panel-toggle-item:hover {
-  border-color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
 }
 
 .panel-toggle-item:focus-visible,
@@ -6595,33 +6599,48 @@ a.prediction-link:hover {
   outline-offset: 2px;
 }
 
+/* Active = quiet. The checkbox carries the signal, not a glowing border. */
 .panel-toggle-item.active {
-  border-color: var(--green);
+  background: rgba(255, 255, 255, 0.035);
+  border-color: var(--border);
+  color: var(--text);
 }
 
+.panel-toggle-item.active:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: var(--border-strong);
+}
+
+/* Changed since last save — a single thin cyan edge, nothing more. */
 .panel-toggle-item.changed {
-  background: rgba(68, 255, 136, 0.06);
-  border-color: rgba(68, 255, 136, 0.35);
+  border-left: 2px solid var(--neon-cyan);
+  padding-left: 12px;
 }
 
 .panel-toggle-checkbox {
-  width: 14px;
-  height: 14px;
-  border: 1px solid var(--border);
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
+  flex-shrink: 0;
+  transition: background 0.14s ease, border-color 0.14s ease;
 }
 
 .panel-toggle-item.active .panel-toggle-checkbox {
-  background: var(--green);
-  border-color: var(--green);
-  color: var(--bg);
+  background: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  color: #06121a;
+  font-weight: 700;
 }
 
 .panel-toggle-label {
-  font-size: 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
