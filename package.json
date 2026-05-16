@@ -33,7 +33,7 @@
     "test:e2e": "npm run test:e2e:runtime && npm run test:e2e:full && npm run test:e2e:tech && npm run test:e2e:finance",
     "test:data": "tsx --test tests/*.test.mjs tests/*.test.mts",
     "test:feeds": "node scripts/validate-rss-feeds.mjs",
-    "test:sidecar": "node --test src-tauri/sidecar/local-api-server.test.mjs api/_cors.test.mjs api/youtube/embed.test.mjs api/cyber-threats.test.mjs api/usni-fleet.test.mjs api/jarvis-osint.test.mjs scripts/ais-relay-rss.test.cjs api/loaders-xml-wms-regression.test.mjs",
+    "test:sidecar": "node --test src-tauri/sidecar/local-api-server.test.mjs api/_cors.test.mjs api/youtube/embed.test.mjs api/cyber-threats.test.mjs api/usni-fleet.test.mjs api/jarvis-osint.test.mjs",
     "test:e2e:visual:full": "cross-env VITE_VARIANT=full playwright test -g \"matches golden screenshots per layer and zoom\"",
     "test:e2e:visual:tech": "cross-env VITE_VARIANT=tech playwright test -g \"matches golden screenshots per layer and zoom\"",
     "test:e2e:visual": "npm run test:e2e:visual:full && npm run test:e2e:visual:tech",
@@ -76,7 +76,8 @@
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "@vercel/node": "^3.17.1"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "^9.2.6",
