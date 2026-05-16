@@ -53,9 +53,20 @@
   /* Input */
   --input-bg: #1a1a1a;
 
-  /* Panels */
-  --panel-bg: rgba(18, 16, 36, 0.78);
-  --panel-border: rgba(140, 118, 255, 0.25);
+  /* Panels — glassmorphism */
+  --panel-bg: rgba(10, 6, 22, 0.42);
+  --panel-border: rgba(255, 255, 255, 0.09);
+
+  /* Glass system */
+  --glass-bg: rgba(10, 6, 22, 0.38);
+  --glass-bg-mid: rgba(12, 8, 26, 0.55);
+  --glass-bg-heavy: rgba(8, 4, 18, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-bright: rgba(255, 255, 255, 0.14);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.45);
+  --glass-blur: blur(22px);
+  --glass-saturate: saturate(1.6);
 
   /* Map */
   --map-bg: #0a0820;
@@ -216,8 +227,10 @@ body {
   font-family: var(--font-body);
   font-size: 12px;
   line-height: 1.5;
-  background: radial-gradient(circle at top, rgba(139, 92, 255, 0.25), transparent 45%),
-    radial-gradient(circle at 20% 20%, rgba(255, 79, 216, 0.2), transparent 40%),
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(139, 92, 255, 0.32), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 10%, rgba(255, 79, 216, 0.22), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 90%, rgba(109, 240, 255, 0.12), transparent 55%),
     var(--bg);
   color: var(--text);
   overflow: hidden;
@@ -284,8 +297,10 @@ canvas,
 
 .side-nav {
   width: 220px;
-  background: linear-gradient(180deg, rgba(12, 10, 26, 0.98), rgba(8, 6, 20, 0.98));
-  border-right: 1px solid rgba(109, 240, 255, 0.18);
+  background: rgba(8, 5, 20, 0.48);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 1px 0 0 rgba(109, 240, 255, 0.08), inset -1px 0 20px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(28px) saturate(1.5);
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
@@ -368,15 +383,19 @@ canvas,
   font-size: 12px;
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .side-nav-item.active,
 .side-nav-item:hover {
   color: #ffffff;
-  border-color: rgba(109, 240, 255, 0.45);
-  background: rgba(20, 16, 40, 0.7);
-  box-shadow: inset 0 0 12px rgba(109, 240, 255, 0.15);
+  border-color: rgba(109, 240, 255, 0.3);
+  background: rgba(109, 240, 255, 0.07);
+  box-shadow:
+    inset 0 0 14px rgba(109, 240, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .side-nav-footer {
@@ -589,12 +608,15 @@ canvas,
   align-items: center;
   justify-content: space-between;
   padding: 10px 18px;
-  background: linear-gradient(135deg, rgba(18, 16, 36, 0.9) 0%, rgba(20, 12, 40, 0.95) 40%, rgba(10, 8, 24, 0.98) 100%);
-  border-bottom: 1px solid rgba(141, 118, 255, 0.35);
-  box-shadow: 0 0 25px rgba(109, 240, 255, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(6, 4, 16, 0.52);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 1px 0 rgba(109, 240, 255, 0.12),
+    0 4px 24px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   height: 52px;
   flex-shrink: 0;
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(28px) saturate(1.7);
   position: relative;
 }
 
@@ -641,8 +663,10 @@ canvas,
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(139, 92, 255, 0.35);
-  background: linear-gradient(120deg, rgba(12, 10, 26, 0.9), rgba(24, 16, 46, 0.8));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(6, 4, 14, 0.48);
+  backdrop-filter: blur(20px) saturate(1.5);
+  box-shadow: 0 1px 0 rgba(109, 240, 255, 0.08), 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .map-hud-left {
@@ -1545,7 +1569,8 @@ canvas,
 
 .panel {
   background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  border: 1px solid var(--glass-border);
+  border-top: 1px solid var(--glass-border-bright);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1553,16 +1578,26 @@ canvas,
   min-height: 200px;
   min-width: 0;
   cursor: grab;
-  transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+  transition: transform 0.15s, box-shadow 0.22s, border-color 0.22s;
   position: relative;
   contain: content;
-  box-shadow: 0 10px 30px rgba(8, 4, 24, 0.6), 0 0 20px rgba(109, 240, 255, 0.08);
-  backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.65),
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(109, 240, 255, 0.04);
+  backdrop-filter: blur(22px) saturate(1.6);
 }
 
 .panel:hover {
-  border-color: rgba(255, 79, 216, 0.5);
-  box-shadow: 0 12px 34px rgba(8, 4, 24, 0.7), 0 0 30px rgba(255, 79, 216, 0.2);
+  border-color: rgba(109, 240, 255, 0.22);
+  border-top-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.72),
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(109, 240, 255, 0.14),
+    0 0 28px rgba(109, 240, 255, 0.06);
 }
 
 /* .panel.resized: Custom height set - use grid-row span for height */
@@ -1715,12 +1750,12 @@ body.panel-resize-active iframe {
   justify-content: space-between;
   gap: 8px;
   padding: 6px 10px;
-  background: var(--overlay-subtle);
-  border-bottom: 1px solid var(--border-accent-orange);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
   position: relative;
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: inset 0 -1px 4px rgba(255, 136, 68, 0.1);
+  box-shadow: inset 0 -1px 0 rgba(109, 240, 255, 0.07);
 }
 
 .panel-header-error {
@@ -1771,9 +1806,10 @@ body.panel-resize-active iframe {
 .panel-count {
   font-size: 10px;
   color: var(--text-dim);
-  background: var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 2px 6px;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: color 0.3s ease, background 0.3s ease;
 }
 

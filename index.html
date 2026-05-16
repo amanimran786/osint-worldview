@@ -127,22 +127,22 @@
     <!-- Critical CSS: inline skeleton visible before JS boots -->
     <style>
       /* ---------- skeleton shell (dark default) ---------- */
-  .skeleton-shell{display:flex;flex-direction:column;height:100vh;background:#06040f;font-family:'JetBrains Mono','SF Mono','Monaco','Cascadia Code','Fira Code','DejaVu Sans Mono','Liberation Mono',monospace;overflow:hidden}
-      .skeleton-header{display:flex;align-items:center;justify-content:space-between;height:40px;padding:8px 16px;background:#141414;border-bottom:1px solid #2a2a2a;flex-shrink:0}
+  .skeleton-shell{display:flex;flex-direction:column;height:100vh;background:radial-gradient(ellipse 80% 60% at 15% 0%,rgba(139,92,255,.28),transparent 55%),radial-gradient(ellipse 60% 50% at 85% 10%,rgba(255,79,216,.18),transparent 50%),#06040f;font-family:'JetBrains Mono','SF Mono','Monaco','Cascadia Code','Fira Code','DejaVu Sans Mono','Liberation Mono',monospace;overflow:hidden}
+      .skeleton-header{display:flex;align-items:center;justify-content:space-between;height:40px;padding:8px 16px;background:rgba(6,4,16,.5);backdrop-filter:blur(28px) saturate(1.7);border-bottom:1px solid rgba(255,255,255,.09);box-shadow:0 1px 0 rgba(109,240,255,.1),0 4px 16px rgba(0,0,0,.5);flex-shrink:0}
       .skeleton-header-left{display:flex;align-items:center;gap:12px}
       .skeleton-header-right{display:flex;align-items:center;gap:12px}
-      .skeleton-pill{height:24px;border-radius:4px;background:#1e1e1e}
+      .skeleton-pill{height:24px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
       .skeleton-dot{width:8px;height:8px;border-radius:50%;background:#0f5040}
-      .skeleton-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#0a0a0a}
-      .skeleton-map{height:50vh;min-height:200px;border:1px solid #2a2a2a;background:#020a08;display:flex;flex-direction:column;flex-shrink:0}
-      .skeleton-map-bar{height:32px;display:flex;align-items:center;padding:0 12px;background:#141414;border-bottom:1px solid #2a2a2a}
+      .skeleton-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:transparent}
+      .skeleton-map{height:50vh;min-height:200px;border:1px solid rgba(255,255,255,.08);background:#020a08;display:flex;flex-direction:column;flex-shrink:0}
+      .skeleton-map-bar{height:32px;display:flex;align-items:center;padding:0 12px;background:rgba(6,4,14,.5);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07)}
       .skeleton-map-body{flex:1;position:relative;overflow:hidden}
       .skeleton-map-body::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,#0a2a20 0%,#020a08 100%);opacity:.5}
       .skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:4px;padding:4px;align-content:start}
-      .skeleton-panel{height:320px;background:#141414;border:1px solid #2a2a2a;border-radius:0;display:flex;flex-direction:column}
-      .skeleton-panel-header{height:36px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #1a1a1a}
+      .skeleton-panel{height:320px;background:rgba(10,6,22,.42);backdrop-filter:blur(22px) saturate(1.6);border:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.13);border-radius:0;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.07)}
+      .skeleton-panel-header{height:36px;display:flex;align-items:center;padding:0 12px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.07)}
       .skeleton-panel-body{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
-      .skeleton-line{height:14px;border-radius:4px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skel-shimmer 1.5s infinite}
+      .skeleton-line{height:14px;border-radius:4px;background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;animation:skel-shimmer 1.5s infinite}
       .skeleton-line.w75{width:75%}.skeleton-line.w60{width:60%}.skeleton-line.w50{width:50%}.skeleton-line.w85{width:85%}.skeleton-line.w40{width:40%}
 
       @keyframes skel-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}

@@ -1,10 +1,10 @@
 /* Settings window — VS Code-style sidebar + content layout */
 .settings-shell {
-  --settings-bg: var(--bg-secondary);
-  --settings-surface: var(--surface-hover);
-  --settings-surface-inset: var(--surface);
-  --settings-border: var(--overlay-medium);
-  --settings-border-strong: var(--overlay-heavy);
+  --settings-bg: rgba(6, 4, 16, 0.0);
+  --settings-surface: rgba(255, 255, 255, 0.04);
+  --settings-surface-inset: rgba(255, 255, 255, 0.03);
+  --settings-border: rgba(255, 255, 255, 0.09);
+  --settings-border-strong: rgba(255, 255, 255, 0.14);
   --settings-text: #e8eaed;
   --settings-text-secondary: #9aa0a6;
   --settings-accent: var(--semantic-info);
@@ -15,7 +15,10 @@
   --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Fira Code', 'DejaVu Sans Mono', 'Liberation Mono', monospace;
 
   height: 100vh;
-  background: var(--settings-bg);
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(139, 92, 255, 0.28), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 10%, rgba(255, 79, 216, 0.18), transparent 50%),
+    #06040f;
   color: var(--settings-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-size: 14px;
@@ -71,8 +74,10 @@
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  border-bottom: 1px solid var(--settings-border);
-  background: var(--settings-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(109, 240, 255, 0.07), 0 2px 12px rgba(0, 0, 0, 0.35);
   flex-shrink: 0;
 }
 
@@ -109,10 +114,12 @@
 .settings-sidebar {
   width: 220px;
   flex-shrink: 0;
-  border-right: 1px solid var(--settings-border);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 1px 0 0 rgba(109, 240, 255, 0.06);
   display: flex;
   flex-direction: column;
-  background: var(--settings-bg);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
 }
 
 .settings-sidebar-search {
@@ -320,19 +327,23 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  border: 1px solid var(--settings-border);
-  border-radius: 8px;
-  background: var(--settings-surface);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   text-align: left;
   font: inherit;
   color: inherit;
 }
 
 .settings-ov-cat:hover {
-  background: var(--overlay-subtle);
-  border-color: var(--settings-border-strong);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(109, 240, 255, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .settings-ov-cat:focus-visible {
@@ -366,11 +377,14 @@
 }
 
 .settings-feat {
-  border: 1px solid var(--settings-border);
-  border-radius: 8px;
-  background: var(--settings-surface);
-  border-left: 3px solid var(--settings-border);
-  transition: border-color 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  border-left: 3px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
   overflow: hidden;
 }
 
@@ -695,8 +709,10 @@
   align-items: center;
   gap: 10px;
   padding: 12px 24px;
-  border-top: 1px solid var(--settings-border);
-  background: var(--settings-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 -1px 0 rgba(109, 240, 255, 0.05);
   flex-shrink: 0;
 }
 
@@ -742,9 +758,12 @@
 
 /* ── Debug section ── */
 .debug-data-section {
-  border: 1px solid var(--settings-border);
-  background: var(--settings-surface);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 16px;
 }
@@ -786,9 +805,12 @@
 }
 
 .settings-diagnostics {
-  border: 1px solid var(--settings-border);
-  background: var(--settings-surface);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
   padding: 14px 16px;
 }
 
@@ -939,9 +961,12 @@ tr.diag-err td { color: var(--settings-red); }
   text-align: center;
   padding: 18px 20px;
   margin-bottom: 16px;
-  border: 1px solid rgba(52, 211, 153, 0.15);
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(52, 211, 153, 0.04) 0%, transparent 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(52, 211, 153, 0.04);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .wm-hero-title {
@@ -981,9 +1006,12 @@ tr.diag-err td { color: var(--settings-red); }
 .wm-byok {
   margin-top: 14px;
   padding: 12px 16px;
-  background: var(--settings-surface);
-  border-radius: 8px;
-  border: 1px solid var(--settings-border);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .wm-byok-title {

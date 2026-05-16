@@ -344,11 +344,14 @@
 }
 
 .disp-stat-box {
-  background: var(--overlay-subtle);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
   padding: 8px 6px;
   text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .disp-stat-value {
@@ -708,11 +711,14 @@
 }
 
 .giving-stat-box {
-  background: var(--overlay-subtle);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
   padding: 8px 6px;
   text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .giving-stat-value {
@@ -912,11 +918,14 @@
 }
 
 .sa-summary-item {
-  background: var(--overlay-subtle);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
   padding: 8px 6px;
   text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .sa-summary-count {
@@ -984,9 +993,12 @@
 
 .sa-item {
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-left: 3px solid var(--border);
-  background: var(--overlay-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .sa-item.sa-level-dnt {
@@ -1166,9 +1178,12 @@
 
 .oref-alert-row {
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-left: 3px solid var(--semantic-critical);
-  background: var(--overlay-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .oref-alert-header {
