@@ -4,7 +4,7 @@
  * Matches WorldMonitor's MapContainer API so it can be used as a drop-in
  * replacement within MapContainer when the user enables globe mode.
  *
- * Architecture mirrors Sentinel (sentinel.axonia.us):
+ * Architecture notes (implementation-only; no runtime/data dependency on sentinel.axonia.us):
  *  - globe.gl v2 (new Globe(element, config))
  *  - Earth texture: /textures/earth-topo-bathy.jpg
  *  - Night sky background: /textures/night-sky.png
@@ -452,7 +452,7 @@ export class GlobeMap {
   // Click callbacks
   private onHotspotClickCb: ((h: Hotspot) => void) | null = null;
 
-  // Auto-rotate timer (like Sentinel: resume after 60 s idle)
+  // Auto-rotate timer (resume after 60 s idle)
   private autoRotateTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Overlay UI elements
@@ -540,7 +540,7 @@ export class GlobeMap {
       .height(initH)
       .pathTransitionDuration(0);
 
-    // Orbit controls — match Sentinel's settings
+    // Orbit controls tuned for globe usability/perf
     const controls = globe.controls() as GlobeControlsLike;
     this.controls = controls;
     controls.autoRotate = !desktop;
@@ -593,7 +593,7 @@ export class GlobeMap {
       if (this.globe) this.globe.globeImageUrl(GLOBE_TEXTURE_URLS[texture]);
     });
 
-    // Pause auto-rotate on user interaction; resume after 60 s idle (like Sentinel)
+    // Pause auto-rotate on user interaction; resume after 60 s idle
     const pauseAutoRotate = () => {
       if (this.renderPaused) return;
       controls.autoRotate = false;

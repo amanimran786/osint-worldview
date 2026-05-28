@@ -2,6 +2,12 @@
 
 Comprehensive documentation of all data sources, feed tiers, and collection methods used by World Monitor.
 
+## Source Trust Boundary
+
+- World Monitor does **not** use `sentinel.axonia.us` as a runtime API, seed dataset, or authoritative data source.
+- Any historical references to Sentinel in code comments are implementation context only and must not be treated as provenance.
+- Data used in this project should be validated against documented upstream sources in this file before being treated as authoritative.
+
 ---
 
 ## Data Layers
