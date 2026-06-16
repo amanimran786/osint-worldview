@@ -176,6 +176,70 @@ export default async function handler(req) {
     });
   }
 
+  if (action === 'subdomain') {
+    const domain = normalizeDomain(body?.domain || '');
+    if (!domain) {
+      return new Response(JSON.stringify({ ok: false, error: 'invalid_domain' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...cors },
+      });
+    }
+    const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/subdomains');
+    const payload = {
+      domain,
+      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 60,
+      max_results: Number.isFinite(Number(body?.maxResults)) ? Number(body.maxResults) : 100,
+      passive_only: body?.passiveOnly !== false,
+    };
+    const result = await callJarvis(endpoint, token, payload, 'POST', 120_000);
+    return new Response(JSON.stringify(result), {
+      status: result?.ok === false ? 502 : 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  }
+
+  if (action === 'whois') {
+    const domain = normalizeDomain(body?.domain || '');
+    if (!domain) {
+      return new Response(JSON.stringify({ ok: false, error: 'invalid_domain' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...cors },
+      });
+    }
+    const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/whois');
+    const payload = {
+      domain,
+      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 15,
+    };
+    const result = await callJarvis(endpoint, token, payload, 'POST', 30_000);
+    return new Response(JSON.stringify(result), {
+      status: result?.ok === false ? 502 : 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  }
+
+  if (action === 'worldview') {
+    const target = String(body?.target || '').trim();
+    if (!target) {
+      return new Response(JSON.stringify({ ok: false, error: 'missing_target' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...cors },
+      });
+    }
+    const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/worldview');
+    const payload = {
+      target,
+      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 90,
+      max_results_per_tool: Number.isFinite(Number(body?.maxResultsPerTool)) ? Number(body.maxResultsPerTool) : 25,
+      include_typos: body?.includeTypos === true,
+    };
+    const result = await callJarvis(endpoint, token, payload, 'POST', 150_000);
+    return new Response(JSON.stringify(result), {
+      status: result?.ok === false ? 502 : 200,
+      headers: { 'Content-Type': 'application/json', ...cors },
+    });
+  }
+
   return new Response(JSON.stringify({ ok: false, error: 'unsupported_action' }), {
     status: 400,
     headers: { 'Content-Type': 'application/json', ...cors },

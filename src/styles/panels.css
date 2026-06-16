@@ -2149,3 +2149,239 @@
   height: 100%;
   min-height: 150px;
 }
+
+/* ----------------------------------------------------------
+   OSINT Scanner Panel (#jarvis-osint)
+   ---------------------------------------------------------- */
+.osint-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.osint-input {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.osint-input:focus {
+  border-color: var(--accent);
+}
+
+.osint-scan-btn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.osint-scan-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+.osint-scan-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.osint-typos-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  font-size: 10px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.osint-typos-toggle input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* Meta row shown at top of results */
+.osint-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+}
+.osint-target {
+  font-weight: 600;
+  color: var(--text);
+}
+.osint-elapsed,
+.osint-tools {
+  color: var(--text-muted);
+}
+
+/* Sections: WHOIS, Subdomains, Profiles */
+.osint-section {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.osint-section:last-child {
+  border-bottom: none;
+}
+.osint-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Key-value rows (WHOIS) */
+.osint-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.osint-row {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.osint-label {
+  flex-shrink: 0;
+  min-width: 72px;
+  color: var(--text-muted);
+  font-size: 10px;
+  padding-top: 1px;
+}
+.osint-value {
+  color: var(--text);
+  word-break: break-all;
+}
+
+/* Subdomain list */
+.osint-filter-bar {
+  padding: 6px 10px 4px;
+}
+.osint-filter-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.osint-filter-input:focus {
+  border-color: var(--accent);
+}
+
+.osint-subdomain-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.osint-subdomain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 11px;
+}
+.osint-subdomain code {
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 10.5px;
+  word-break: break-all;
+}
+.osint-sub-source {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Profile list (username scan) */
+.osint-profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.osint-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11px;
+}
+.osint-profile:last-child {
+  border-bottom: none;
+}
+.osint-profile-site {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 11px;
+}
+.osint-profile-url {
+  color: var(--accent);
+  font-size: 10.5px;
+  word-break: break-all;
+  text-decoration: none;
+}
+.osint-profile-url:hover {
+  text-decoration: underline;
+}
+
+/* Empty and error states */
+.osint-empty {
+  padding: 8px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.empty-state.osint-error {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+  padding: 20px;
+  color: var(--text-dim);
+}
+.empty-state.osint-error strong {
+  color: var(--text);
+  font-size: 12px;
+}
+.empty-state.osint-error p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0;
+}

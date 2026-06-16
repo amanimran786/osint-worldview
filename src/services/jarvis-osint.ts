@@ -13,6 +13,8 @@ export interface JarvisOsintStatus {
   status?: {
     maigret?: { available?: boolean; command?: string };
     dnstwist?: { available?: boolean; command?: string };
+    subfinder?: { available?: boolean; command?: string };
+    whois?: { available?: boolean; command?: string };
   };
   error?: string;
   message?: string;
@@ -86,7 +88,7 @@ export async function getJarvisOsintStatus(): Promise<JarvisOsintStatus> {
 
 export async function scanUsernameFootprint(
   username: string,
-  opts?: { timeoutSeconds?: number; topSites?: number; maxResults?: number },
+  opts?: { timeoutSeconds?: number; topSites?: number; maxResults?: number; signal?: AbortSignal },
 ): Promise<JarvisUsernameScanResult> {
   assertJarvisFeatureReady();
   const response = await fetch(endpointUrl(), {
@@ -99,6 +101,7 @@ export async function scanUsernameFootprint(
       topSites: opts?.topSites ?? 200,
       maxResults: opts?.maxResults ?? 25,
     }),
+    signal: opts?.signal,
   });
   return parseJsonResponse<JarvisUsernameScanResult>(response);
 }
@@ -120,4 +123,111 @@ export async function scanDomainTypos(
     }),
   });
   return parseJsonResponse<JarvisDomainTyposResult>(response);
+}
+
+export interface JarvisSubdomain {
+  host: string;
+  source: string;
+  ip: string;
+}
+
+export interface JarvisSubdomainResult {
+  ok: boolean;
+  provider?: string;
+  domain?: string;
+  subdomains?: JarvisSubdomain[];
+  count?: number;
+  error?: string;
+  message?: string;
+  detail?: string;
+}
+
+export interface JarvisWhoisResult {
+  ok: boolean;
+  provider?: string;
+  domain?: string;
+  registrar?: string | null;
+  created?: string | null;
+  expires?: string | null;
+  name_servers?: string[];
+  status?: string[];
+  registrant_org?: string | null;
+  raw_truncated?: string;
+  error?: string;
+  message?: string;
+}
+
+export interface JarvisWorldviewIntelligence {
+  typos?: JarvisDomainTyposResult;
+  subdomains?: JarvisSubdomainResult;
+  whois?: JarvisWhoisResult;
+  profiles?: JarvisUsernameScanResult;
+}
+
+export interface JarvisWorldviewResult {
+  ok: boolean;
+  target?: string;
+  target_type?: 'domain' | 'username';
+  intelligence?: JarvisWorldviewIntelligence;
+  tools_run?: string[];
+  tools_failed?: string[];
+  elapsed_seconds?: number;
+  error?: string;
+  message?: string;
+}
+
+export async function enumSubdomains(
+  domain: string,
+  opts?: { timeoutSeconds?: number; maxResults?: number; passiveOnly?: boolean },
+): Promise<JarvisSubdomainResult> {
+  assertJarvisFeatureReady();
+  const response = await fetch(endpointUrl(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'subdomain',
+      domain,
+      timeoutSeconds: opts?.timeoutSeconds ?? 60,
+      maxResults: opts?.maxResults ?? 100,
+      passiveOnly: opts?.passiveOnly ?? true,
+    }),
+  });
+  return parseJsonResponse<JarvisSubdomainResult>(response);
+}
+
+export async function whoisLookup(
+  domain: string,
+  opts?: { timeoutSeconds?: number },
+): Promise<JarvisWhoisResult> {
+  assertJarvisFeatureReady();
+  const response = await fetch(endpointUrl(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'whois',
+      domain,
+      timeoutSeconds: opts?.timeoutSeconds ?? 15,
+    }),
+  });
+  return parseJsonResponse<JarvisWhoisResult>(response);
+}
+
+export async function worldviewScan(
+  target: string,
+  opts?: { timeoutSeconds?: number; maxResultsPerTool?: number; includeTypos?: boolean; signal?: AbortSignal },
+): Promise<JarvisWorldviewResult> {
+  assertJarvisFeatureReady();
+  const response = await fetch(endpointUrl(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'worldview',
+      target,
+      timeoutSeconds: opts?.timeoutSeconds ?? 90,
+      maxResultsPerTool: opts?.maxResultsPerTool ?? 25,
+      includeTypos: opts?.includeTypos ?? false,
+    }),
+    signal: opts?.signal,
+  });
+  return parseJsonResponse<JarvisWorldviewResult>(response);
 }
