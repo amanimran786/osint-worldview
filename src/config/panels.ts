@@ -60,6 +60,7 @@ const FULL_PANELS: Record<string, PanelConfig> = {
   'airline-intel': { name: 'Airline Intelligence', enabled: true, priority: 2 },
   'tech-readiness': { name: 'Tech Readiness Index', enabled: true, priority: 2 },
   'world-clock': { name: 'World Clock', enabled: true, priority: 2 },
+  'jarvis-osint': { name: 'OSINT Scanner', enabled: true, priority: 3 },
 };
 
 const FULL_MAP_LAYERS: MapLayers = {
@@ -191,7 +192,6 @@ const TECH_PANELS: Record<string, PanelConfig> = {
   ai: { name: 'AI/ML News', enabled: true, priority: 1 },
   tech: { name: 'Technology', enabled: true, priority: 1 },
   startups: { name: 'Startups & VC', enabled: true, priority: 1 },
-  vcblogs: { name: 'VC Insights & Essays', enabled: true, priority: 1 },
   regionalStartups: { name: 'Global Startup News', enabled: true, priority: 1 },
   unicorns: { name: 'Unicorn Tracker', enabled: true, priority: 1 },
   accelerators: { name: 'Accelerators & Demo Days', enabled: true, priority: 1 },
@@ -880,7 +880,7 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
   },
   startupsVc: {
     labelKey: 'header.panelCatStartupsVc',
-    panelKeys: ['startups', 'vcblogs', 'regionalStartups', 'unicorns', 'accelerators', 'funding', 'ipo'],
+    panelKeys: ['startups', 'regionalStartups', 'unicorns', 'accelerators', 'funding', 'ipo'],
     variants: ['tech'],
   },
   securityPolicy: {

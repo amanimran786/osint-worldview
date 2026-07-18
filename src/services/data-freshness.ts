@@ -17,7 +17,6 @@ export type DataSourceId =
   | 'rss'        // RSS feeds
   | 'polymarket' // Prediction markets
   | 'predictions' // Predictions feed
-  | 'pizzint'    // PizzINT monitoring
   | 'outages'    // Internet outages
   | 'cyber_threats' // Cyber threat IOC layer
   | 'weather'    // Weather alerts
@@ -84,7 +83,6 @@ const SOURCE_METADATA: Record<DataSourceId, { name: string; requiredForRisk: boo
   rss: { name: 'Live News Feeds', requiredForRisk: true, panelId: 'live-news' },
   polymarket: { name: 'Prediction Markets', requiredForRisk: false, panelId: 'polymarket' },
   predictions: { name: 'Predictions Feed', requiredForRisk: false, panelId: 'polymarket' },
-  pizzint: { name: 'PizzINT Monitoring', requiredForRisk: false, panelId: 'intel' },
   outages: { name: 'Internet Outages', requiredForRisk: false, panelId: 'outages' },
   cyber_threats: { name: 'Cyber Threat IOCs', requiredForRisk: false, panelId: 'map' },
   weather: { name: 'Weather Alerts', requiredForRisk: false, panelId: 'weather' },
@@ -344,7 +342,6 @@ const INTELLIGENCE_GAP_MESSAGES: Record<DataSourceId, string> = {
   rss: 'Breaking news may be missed—RSS feeds not updating',
   polymarket: 'Prediction market signals unavailable—early warning capability degraded',
   predictions: 'Prediction feed unavailable—scenario signals may be stale',
-  pizzint: 'PizzINT monitor unavailable—location/tension tracking degraded',
   outages: 'Internet disruptions may be unreported—outage monitoring offline',
   cyber_threats: 'Cyber IOC map points unavailable—malicious infrastructure visibility reduced',
   weather: 'Severe weather warnings may be missed—weather alerts unavailable',

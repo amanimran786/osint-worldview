@@ -100,7 +100,7 @@ export const INTEL_HOTSPOTS: Hotspot[] = [
   {
     id: 'dc',
     name: 'DC',
-    subtext: 'Pentagon Pizza Index',
+    subtext: 'US government center',
     lat: 38.9,
     lon: -77.0,
     location: 'Washington D.C., USA',

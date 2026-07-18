@@ -53,8 +53,8 @@ test.describe('desktop runtime routing guardrails', () => {
           hasTauriGlobals: false,
           userAgent: 'Mozilla/5.0',
           locationProtocol: 'https:',
-          locationHost: 'worldmonitor.app',
-          locationOrigin: 'https://worldmonitor.app',
+          locationHost: 'worldview.app',
+          locationOrigin: 'https://worldview.app',
         }),
       };
     });
@@ -97,14 +97,14 @@ test.describe('desktop runtime routing guardrails', () => {
         if (url.includes('127.0.0.1:46123/api/fred-data')) {
           return responseJson({ error: 'missing local api key' }, 500);
         }
-        if (url.includes('worldmonitor.app/api/fred-data')) {
+        if (url.includes('worldview.app/api/fred-data')) {
           return responseJson({ observations: [{ value: '321.5' }] }, 200);
         }
 
         if (url.includes('127.0.0.1:46123/api/stablecoin-markets')) {
           throw new Error('ECONNREFUSED');
         }
-        if (url.includes('worldmonitor.app/api/stablecoin-markets')) {
+        if (url.includes('worldview.app/api/stablecoin-markets')) {
           return responseJson({ stablecoins: [{ symbol: 'USDT' }] }, 200);
         }
 
@@ -152,9 +152,9 @@ test.describe('desktop runtime routing guardrails', () => {
     expect(result.stableSymbol).toBe('USDT');
 
     expect(result.calls.some((url) => url.includes('127.0.0.1:46123/api/fred-data'))).toBe(true);
-    expect(result.calls.some((url) => url.includes('worldmonitor.app/api/fred-data'))).toBe(true);
+    expect(result.calls.some((url) => url.includes('worldview.app/api/fred-data'))).toBe(true);
     expect(result.calls.some((url) => url.includes('127.0.0.1:46123/api/stablecoin-markets'))).toBe(true);
-    expect(result.calls.some((url) => url.includes('worldmonitor.app/api/stablecoin-markets'))).toBe(true);
+    expect(result.calls.some((url) => url.includes('worldview.app/api/stablecoin-markets'))).toBe(true);
   });
 
   test('runtime fetch patch never sends local-only endpoints to cloud', async ({ page }) => {
@@ -188,10 +188,10 @@ test.describe('desktop runtime routing guardrails', () => {
           throw new Error('ECONNREFUSED');
         }
 
-        if (url.includes('worldmonitor.app/api/local-env-update')) {
+        if (url.includes('worldview.app/api/local-env-update')) {
           return responseJson({ leaked: true }, 200);
         }
-        if (url.includes('worldmonitor.app/api/local-validate-secret')) {
+        if (url.includes('worldview.app/api/local-validate-secret')) {
           return responseJson({ leaked: true }, 200);
         }
 
@@ -243,8 +243,8 @@ test.describe('desktop runtime routing guardrails', () => {
 
     expect(result.calls.some((url) => url.includes('127.0.0.1:46123/api/local-env-update'))).toBe(true);
     expect(result.calls.some((url) => url.includes('127.0.0.1:46123/api/local-validate-secret'))).toBe(true);
-    expect(result.calls.some((url) => url.includes('worldmonitor.app/api/local-env-update'))).toBe(false);
-    expect(result.calls.some((url) => url.includes('worldmonitor.app/api/local-validate-secret'))).toBe(false);
+    expect(result.calls.some((url) => url.includes('worldview.app/api/local-env-update'))).toBe(false);
+    expect(result.calls.some((url) => url.includes('worldview.app/api/local-validate-secret'))).toBe(false);
   });
 
   test('chunk preload reload guard is one-shot until app boot clears it', async ({ page }) => {
@@ -329,7 +329,7 @@ test.describe('desktop runtime routing guardrails', () => {
         __TAURI__?: { core?: { invoke?: (command: string) => Promise<unknown> } };
       };
       const previousTauri = globalWindow.__TAURI__;
-      const releaseUrl = 'https://github.com/koala73/worldmonitor/releases/latest';
+      const releaseUrl = 'https://github.com/amanimran786/osint-worldview/releases/latest';
 
       const updaterProto = DesktopUpdater.prototype as unknown as {
         resolveUpdateDownloadUrl: (releaseUrl: string) => Promise<string>;
@@ -376,9 +376,9 @@ test.describe('desktop runtime routing guardrails', () => {
       }
     });
 
-    expect(result.macArm).toBe('https://worldmonitor.app/api/download?platform=macos-arm64&variant=full');
-    expect(result.windowsX64).toBe('https://worldmonitor.app/api/download?platform=windows-exe&variant=full');
-    expect(result.linuxFallback).toBe('https://github.com/koala73/worldmonitor/releases/latest');
+    expect(result.macArm).toBe('https://worldview.app/api/download?platform=macos-arm64&variant=full');
+    expect(result.windowsX64).toBe('https://worldview.app/api/download?platform=windows-msi&variant=full');
+    expect(result.linuxFallback).toBe('https://worldview.app/api/download?platform=linux-appimage&variant=full');
   });
 
   test('MapContainer falls back to SVG when WebGL2 is unavailable', async ({ page }) => {
@@ -562,10 +562,9 @@ test.describe('desktop runtime routing guardrails', () => {
         calls.push(url);
         const parsed = new URL(url);
 
-        // Sebuf proto: POST /api/market/v1/list-market-quotes
+        // Sebuf proto: GET /api/market/v1/list-market-quotes?symbols=...
         if (parsed.pathname === '/api/market/v1/list-market-quotes') {
-          const body = init?.body ? JSON.parse(String(init.body)) : {};
-          const symbols: string[] = body.symbols || [];
+          const symbols = (parsed.searchParams.get('symbols') || '').split(',').filter(Boolean);
           const quotes = symbols
             .filter((s: string) => yahooOnly.has(s))
             .map((s: string) => {
@@ -686,9 +685,31 @@ test.describe('desktop runtime routing guardrails', () => {
 
       window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
         const parsed = new URL(toUrl(input));
+        if (parsed.pathname === '/api/conflict/v1/get-humanitarian-summary-batch') {
+          const body = init?.body
+            ? JSON.parse(String(init.body)) as { country_codes?: string[] }
+            : input instanceof Request
+              ? await input.clone().json() as { country_codes?: string[] }
+              : {};
+          const countryCodes = (body.country_codes || []).map(code => String(code).toUpperCase());
+          countryCodes.forEach(code => seenCountryCodes.add(code));
+          return responseJson({
+            results: Object.fromEntries(countryCodes.map(countryCode => [countryCode, {
+              countryCode,
+              countryName: countryCode,
+              conflictEventsTotal: 1,
+              conflictPoliticalViolenceEvents: 1,
+              conflictFatalities: 1,
+              referencePeriod: '2026-02',
+              conflictDemonstrations: 0,
+              updatedAt: Date.now(),
+            }])),
+            fetched: countryCodes.length,
+            requested: countryCodes.length,
+          });
+        }
         if (parsed.pathname === '/api/conflict/v1/get-humanitarian-summary') {
-          const body = init?.body ? JSON.parse(String(init.body)) : {};
-          const countryCode = String(body.countryCode || '').toUpperCase();
+          const countryCode = String(parsed.searchParams.get('country_code') || '').toUpperCase();
           seenCountryCodes.add(countryCode);
           return responseJson({
             summary: {
@@ -725,7 +746,7 @@ test.describe('desktop runtime routing guardrails', () => {
     expect(result.hasIso3Field).toBe(false);
   });
 
-  test('cloud fallback blocked without WorldMonitor API key', async ({ page }) => {
+  test('cloud fallback blocked without WorldView API key', async ({ page }) => {
     await page.goto('/tests/runtime-harness.html');
 
     const result = await page.evaluate(async () => {
@@ -753,7 +774,7 @@ test.describe('desktop runtime routing guardrails', () => {
         if (url.includes('127.0.0.1:46123/api/fred-data')) {
           throw new Error('ECONNREFUSED');
         }
-        if (url.includes('worldmonitor.app/api/fred-data')) {
+        if (url.includes('worldview.app/api/fred-data')) {
           return responseJson({ observations: [{ value: '999' }] }, 200);
         }
         return responseJson({ ok: true }, 200);
@@ -773,7 +794,7 @@ test.describe('desktop runtime routing guardrails', () => {
           fetchError = err instanceof Error ? err.message : String(err);
         }
 
-        const cloudCalls = calls.filter(u => u.includes('worldmonitor.app'));
+        const cloudCalls = calls.filter(u => u.includes('worldview.app'));
 
         return {
           fetchError,
@@ -796,7 +817,7 @@ test.describe('desktop runtime routing guardrails', () => {
     expect(result.localCalls).toBeGreaterThan(0);
   });
 
-  test('cloud fallback allowed with valid WorldMonitor API key', async ({ page }) => {
+  test('cloud fallback allowed with valid WorldView API key', async ({ page }) => {
     await page.goto('/tests/runtime-harness.html');
 
     const result = await page.evaluate(async () => {
@@ -823,7 +844,7 @@ test.describe('desktop runtime routing guardrails', () => {
 
         calls.push(url);
 
-        if (url.includes('worldmonitor.app') && init?.headers) {
+        if (url.includes('worldview.app') && init?.headers) {
           const h = new Headers(init.headers);
           const wmKey = h.get('X-WorldMonitor-Key');
           if (wmKey) capturedHeaders['X-WorldMonitor-Key'] = wmKey;
@@ -832,7 +853,7 @@ test.describe('desktop runtime routing guardrails', () => {
         if (url.includes('127.0.0.1:46123/api/market/v1/test')) {
           throw new Error('ECONNREFUSED');
         }
-        if (url.includes('worldmonitor.app/api/market/v1/test')) {
+        if (url.includes('worldview.app/api/market/v1/test')) {
           return responseJson({ quotes: [] }, 200);
         }
         return responseJson({ ok: true }, 200);
@@ -854,7 +875,7 @@ test.describe('desktop runtime routing guardrails', () => {
         return {
           status: response.status,
           hasQuotes: Array.isArray(body.quotes),
-          cloudCalls: calls.filter(u => u.includes('worldmonitor.app')).length,
+          cloudCalls: calls.filter(u => u.includes('worldview.app')).length,
           wmKeyHeader: capturedHeaders['X-WorldMonitor-Key'] || null,
         };
       } finally {

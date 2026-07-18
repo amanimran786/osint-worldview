@@ -1396,18 +1396,17 @@ export class GlobeMap {
       <div class="toggle-list" style="max-height:32vh;overflow-y:auto;scrollbar-width:thin;">
         ${layers.map(({ key, label, icon, premium }) => {
           const isLocked = premium === 'locked' && !_wmKey;
-          const isEnhanced = premium === 'enhanced' && !_wmKey;
           return `
           <label class="layer-toggle${isLocked ? ' layer-toggle-locked' : ''}" data-layer="${key}">
             <input type="checkbox" ${this.layers[key] ? 'checked' : ''}${isLocked ? ' disabled' : ''}>
             <span class="toggle-icon">${icon}</span>
-            <span class="toggle-label">${label}${isLocked ? ' \uD83D\uDD12' : ''}${isEnhanced ? ' <span class="layer-pro-badge">PRO</span>' : ''}</span>
+            <span class="toggle-label">${label}${isLocked ? ' \uD83D\uDD12' : ''}</span>
           </label>`;
         }).join('')}
       </div>`;
     const authorBadge = document.createElement('div');
     authorBadge.className = 'map-author-badge';
-    authorBadge.textContent = '© Aman Imran · WorldView';
+    authorBadge.textContent = '© WorldView';
     el.appendChild(authorBadge);
     this.container.appendChild(el);
 

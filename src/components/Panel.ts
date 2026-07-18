@@ -733,7 +733,7 @@ export class Panel {
 
     const lockedChildren: (HTMLElement | string)[] = [
       iconEl,
-      h('div', { className: 'panel-locked-desc' }, t('premium.lockedDesc')),
+      h('div', { className: 'panel-locked-desc' }, 'This panel is unavailable in the current configuration.'),
     ];
 
     if (features.length > 0) {
@@ -743,14 +743,6 @@ export class Panel {
       }
       lockedChildren.push(featureList);
     }
-
-    const ctaBtn = h('button', { type: 'button', className: 'panel-locked-cta' }, t('premium.joinWaitlist'));
-    if (isDesktopRuntime()) {
-      ctaBtn.addEventListener('click', () => void invokeTauri<void>('open_url', { url: 'https://worldview.app/pro' }).catch(() => window.open('https://worldview.app/pro', '_blank')));
-    } else {
-      ctaBtn.addEventListener('click', () => window.open('https://worldview.app/pro', '_blank'));
-    }
-    lockedChildren.push(ctaBtn);
 
     replaceChildren(this.content, h('div', { className: 'panel-locked-state' }, ...lockedChildren));
   }

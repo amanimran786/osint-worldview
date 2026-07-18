@@ -888,50 +888,6 @@ export interface MilitaryActivitySummary {
   lastUpdate: Date;
 }
 
-// PizzINT - Pentagon Pizza Index Types
-export type PizzIntDefconLevel = 1 | 2 | 3 | 4 | 5;
-export type PizzIntDataFreshness = 'fresh' | 'stale';
-
-export interface PizzIntLocation {
-  place_id: string;
-  name: string;
-  address: string;
-  current_popularity: number;
-  percentage_of_usual: number | null;
-  is_spike: boolean;
-  spike_magnitude: number | null;
-  data_source: string;
-  recorded_at: string;
-  data_freshness: PizzIntDataFreshness;
-  is_closed_now: boolean;
-  lat?: number;
-  lng?: number;
-  distance_miles?: number;
-}
-
-export interface PizzIntStatus {
-  defconLevel: PizzIntDefconLevel;
-  defconLabel: string;
-  aggregateActivity: number;
-  activeSpikes: number;
-  locationsMonitored: number;
-  locationsOpen: number;
-  lastUpdate: Date;
-  dataFreshness: PizzIntDataFreshness;
-  locations: PizzIntLocation[];
-}
-
-// GDELT Country Tension Pairs
-export interface GdeltTensionPair {
-  id: string;
-  countries: [string, string];
-  label: string;
-  score: number;
-  trend: 'rising' | 'stable' | 'falling';
-  changePercent: number;
-  region: string;
-}
-
 // NASA EONET Natural Events
 export type NaturalEventCategory =
   | 'severeStorms'

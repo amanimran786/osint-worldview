@@ -128,7 +128,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 9990;
+  z-index: 0;
   pointer-events: none;
   background:
     /* faint perspective grid */
@@ -154,7 +154,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 9991;
+  z-index: 0;
   pointer-events: none;
   background:
     repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 3px, rgba(78,240,255,0.022) 3px 4px);
@@ -315,7 +315,7 @@ body::after {
   content: '';
   position: absolute;
   inset: 5px;
-  z-index: 2;
+  z-index: 0;
   pointer-events: none;
   border-radius: 3px;
   background:
@@ -336,13 +336,21 @@ body::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   background: linear-gradient(180deg, transparent 0%, rgba(78, 240, 255, 0.07) 50%, transparent 100%);
   background-size: 100% 220%;
   background-position: 0 -120%;
   opacity: 0;
   transition: opacity 0.2s ease;
+}
+
+.app-shell,
+.settings-window-shell,
+.live-channels-window-shell,
+.panel > * {
+  position: relative;
+  z-index: 1;
 }
 
 .panel:hover {
@@ -415,12 +423,12 @@ body::after {
    HOLO CONTROLS  ·  buttons + inputs
    ============================================================================ */
 
-button:not(.panel-toggle-item):not(.side-nav-item),
+button:not(.panel-toggle-item):not(.side-nav-item):not([class*="close"]):not([class*="remove"]):not([class*="danger"]),
 .btn,
 .icon-btn {
   transition: all 0.16s ease;
 }
-button:not(.panel-toggle-item):not(.side-nav-item):hover,
+button:not(.panel-toggle-item):not(.side-nav-item):not([class*="close"]):not([class*="remove"]):not([class*="danger"]):hover,
 .icon-btn:hover {
   color: var(--holo) !important;
   text-shadow: 0 0 8px rgba(78, 240, 255, 0.6);
@@ -506,6 +514,143 @@ textarea:focus {
     radial-gradient(ellipse 70% 50% at 20% 0%, rgba(157, 92, 255, 0.22), transparent 60%),
     radial-gradient(ellipse 60% 50% at 85% 100%, rgba(78, 240, 255, 0.14), transparent 55%),
     #050414 !important;
+}
+
+/* ============================================================================
+   RESPONSIVE HUD  ·  collapse the command rail before it creates overflow
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .app-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .side-nav {
+    display: none !important;
+  }
+
+  .app-main,
+  .main-content,
+  .header,
+  .command-dashboard,
+  .map-section,
+  .panels-grid,
+  .site-footer {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .app-main,
+  .main-content {
+    overflow-x: hidden !important;
+  }
+
+  .app-main {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .command-dashboard {
+    padding-inline: 12px !important;
+  }
+
+  .command-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)) !important;
+  }
+
+  .panel.col-span-2,
+  .panel.col-span-3,
+  .panel.panel-wide {
+    grid-column: span 1 !important;
+  }
+
+  .map-section {
+    margin-inline: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #app::before {
+    background:
+      linear-gradient(rgba(124, 92, 255, 0.04) 1px, transparent 1px) 0 0 / 100% 40px,
+      linear-gradient(90deg, rgba(124, 92, 255, 0.04) 1px, transparent 1px) 0 0 / 40px 100%,
+      linear-gradient(var(--holo), var(--holo)) 10px 10px / 34px 2px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) 10px 10px / 2px 34px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) right 10px top 10px / 34px 2px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) right 10px top 10px / 2px 34px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) left 10px bottom 10px / 34px 2px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) left 10px bottom 10px / 2px 34px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) right 10px bottom 10px / 34px 2px no-repeat,
+      linear-gradient(var(--holo), var(--holo)) right 10px bottom 10px / 2px 34px no-repeat,
+      radial-gradient(ellipse 120% 120% at 50% 50%, transparent 62%, rgba(2, 1, 10, 0.62) 100%);
+    opacity: 0.42;
+  }
+
+  .command-bar {
+    flex-wrap: wrap;
+    min-width: 0 !important;
+    padding-inline: 10px !important;
+  }
+
+  .command-bar-left,
+  .command-bar-center,
+  .command-bar-right {
+    min-width: 0 !important;
+  }
+
+  .command-bar-center {
+    flex: 1 1 100% !important;
+    order: 3;
+  }
+
+  .command-tag {
+    display: none !important;
+  }
+
+  .command-search {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .command-dashboard {
+    padding-inline: 8px !important;
+  }
+
+  .command-metrics {
+    grid-template-columns: 1fr !important;
+  }
+
+  .site-footer {
+    display: none !important;
+  }
+
+  .search-mobile-fab {
+    background: rgba(8, 6, 28, 0.94) !important;
+    border: 1px solid rgba(94, 234, 255, 0.65) !important;
+    color: var(--holo) !important;
+    box-shadow: 0 0 18px rgba(78, 240, 255, 0.3), 0 8px 28px rgba(0, 0, 0, 0.55) !important;
+  }
+
+  .panel,
+  .command-card,
+  .panel-toggle-item {
+    border-radius: 5px !important;
+  }
+
+  .app-shell::before {
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em;
+    padding-inline: 24px;
+    text-align: center;
+  }
 }
 
 /* ============================================================================

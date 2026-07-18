@@ -78,13 +78,6 @@
   --threat-low: #6B8F5E;
   --threat-info: #7BA5C4;
 
-  /* DEFCON levels — warm gradient instead of warning */
-  --defcon-1: #C4A35A;
-  --defcon-2: #A8B86B;
-  --defcon-3: #7BA5C4;
-  --defcon-4: #6B8F5E;
-  --defcon-5: #8BAF7A;
-
   /* Status indicators */
   --status-live: #6B8F5E;
   --status-cached: #C4A35A;

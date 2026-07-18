@@ -1,18 +1,10 @@
 /**
  * Unified intelligence service module.
  *
- * Re-exports from legacy service files that have complex client-side logic
- * (DEFCON calculation, circuit breakers, batch classification, GDELT DOC API).
+ * Re-exports from service files that have complex client-side logic
+ * (circuit breakers, batch classification, GDELT DOC API).
  * Server-side edge functions are consolidated in the handler.
  */
-
-// PizzINT dashboard + GDELT tensions
-export {
-  fetchPizzIntStatus,
-  fetchGdeltTensions,
-  getPizzIntStatus,
-  getGdeltStatus,
-} from '../pizzint';
 
 // Risk scores (CII + strategic risk)
 export {

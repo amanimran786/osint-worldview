@@ -296,8 +296,8 @@ import { clearChunkReloadGuard, installChunkReloadGuard } from '@/bootstrap/chun
 // Auto-reload on stale chunk 404s after deployment (Vite fires this for modulepreload failures).
 const chunkReloadStorageKey = installChunkReloadGuard(__APP_VERSION__);
 
-// Initialize Vercel Analytics
-inject();
+// Analytics and service workers are production-only; dev must stay deterministic.
+if (import.meta.env.PROD) inject();
 
 // Initialize dynamic meta tags for sharing
 initMetaTags();
@@ -389,7 +389,7 @@ if ('__TAURI_INTERNALS__' in window || '__TAURI__' in window) {
   });
 }
 
-if (!('__TAURI_INTERNALS__' in window) && !('__TAURI__' in window) && 'serviceWorker' in navigator) {
+if (import.meta.env.PROD && !('__TAURI_INTERNALS__' in window) && !('__TAURI__' in window) && 'serviceWorker' in navigator) {
   // One-time nuke: clear stale SWs and caches from old deploys, then re-register fresh.
   // Safe to remove after 2026-03-20 when all users have cycled through.
   const nukeKey = 'wm-sw-nuked-v2';

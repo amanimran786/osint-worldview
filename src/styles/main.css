@@ -108,13 +108,6 @@
   --threat-low: #00ff88;
   --threat-info: #00d9ff;
 
-  /* DEFCON levels */
-  --defcon-1: #ff1744;
-  --defcon-2: #ff6b35;
-  --defcon-3: #ffa500;
-  --defcon-4: #00d9ff;
-  --defcon-5: #00ff88;
-
   /* Status indicators */
   --status-live: #00ff88;
   --status-cached: #ff6b35;
@@ -10496,245 +10489,6 @@ a.prediction-link:hover {
 }
 
 /* ==========================================================================
-   PizzINT DEFCON Indicator
-   ========================================================================== */
-
-.pizzint-indicator {
-  position: relative;
-  z-index: 1000;
-  font-family: var(--font-mono);
-}
-
-.pizzint-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid var(--overlay-heavy);
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.pizzint-toggle:hover {
-  background: var(--overlay-medium);
-  border-color: var(--border-strong);
-}
-
-.pizzint-icon {
-  font-size: 14px;
-}
-
-.pizzint-defcon {
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 5px;
-  border-radius: 3px;
-  background: var(--text-ghost);
-  color: var(--accent);
-}
-
-.pizzint-score {
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.pizzint-panel {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 8px;
-  width: 320px;
-  background: var(--bg);
-  border: 1px solid var(--overlay-heavy);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px var(--shadow-color);
-}
-
-.pizzint-panel.hidden {
-  display: none;
-}
-
-.pizzint-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--overlay-medium);
-}
-
-.pizzint-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--accent);
-}
-
-.pizzint-close {
-  background: none;
-  border: none;
-  color: var(--text-faint);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-
-.pizzint-close:hover {
-  color: var(--accent);
-}
-
-.pizzint-status-bar {
-  padding: 12px 16px;
-  background: var(--overlay-light);
-}
-
-.pizzint-defcon-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text);
-  text-align: center;
-}
-
-.pizzint-locations {
-  padding: 8px 16px;
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-.pizzint-location {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--overlay-light);
-  font-size: 11px;
-}
-
-.pizzint-location:last-child {
-  border-bottom: none;
-}
-
-.pizzint-location-name {
-  color: var(--text);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 8px;
-}
-
-.pizzint-location-status {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.pizzint-location-status.spike {
-  background: var(--defcon-1);
-  color: var(--accent);
-}
-
-.pizzint-location-status.high {
-  background: var(--defcon-2);
-  color: var(--accent);
-}
-
-.pizzint-location-status.elevated {
-  background: var(--defcon-3);
-  color: var(--bg);
-}
-
-.pizzint-location-status.nominal {
-  background: var(--defcon-4);
-  color: var(--accent);
-}
-
-.pizzint-location-status.quiet {
-  background: var(--status-live);
-  color: var(--bg);
-}
-
-.pizzint-location-status.closed {
-  background: var(--text-ghost);
-  color: var(--text-dim);
-}
-
-.pizzint-tensions {
-  padding: 12px 16px;
-  border-top: 1px solid var(--overlay-medium);
-}
-
-.pizzint-tensions-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-faint);
-  margin-bottom: 8px;
-}
-
-.pizzint-tension-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-  font-size: 11px;
-}
-
-.pizzint-tension-label {
-  color: var(--text);
-}
-
-.pizzint-tension-score {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pizzint-tension-value {
-  color: var(--accent);
-  font-weight: bold;
-}
-
-.pizzint-tension-trend {
-  font-size: 10px;
-}
-
-.pizzint-tension-trend.rising {
-  color: var(--defcon-2);
-}
-
-.pizzint-tension-trend.falling {
-  color: var(--status-live);
-}
-
-.pizzint-tension-trend.stable {
-  color: var(--text-dim);
-}
-
-.pizzint-footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 16px;
-  border-top: 1px solid var(--overlay-medium);
-  font-size: 10px;
-  color: var(--text-ghost);
-}
-
-.pizzint-footer a {
-  color: var(--text-faint);
-  text-decoration: none;
-}
-
-.pizzint-footer a:hover {
-  color: var(--accent);
-}
-
-/* ==========================================================================
    Mobile Hamburger Menu
    ========================================================================== */
 
@@ -11273,14 +11027,13 @@ a.prediction-link:hover {
     display: none;
   }
 
-  /* Hide DEFCON indicator and FOCUS region selector on mobile */
-  .pizzint-indicator,
+  /* Hide the compact region selector on mobile. */
   .focus-label,
   .focus-select {
     display: none !important;
   }
 
-  /* Mobile: show "World Monitor" instead of "MONITOR" */
+  /* Mobile: show the compact WorldView wordmark. */
   .logo {
     display: none;
   }
@@ -14352,24 +14105,19 @@ a.prediction-link:hover {
 /* Layer performance warning dialog */
 .layer-warn-overlay {
   position: fixed;
-  inset: 0;
+  right: 16px;
+  bottom: 16px;
   z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0);
-  transition: background 0.2s, backdrop-filter 0.2s;
+  width: min(340px, calc(100vw - 32px));
+  pointer-events: none;
 }
 
 .layer-warn-overlay.layer-warn-in {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: transparent;
 }
 
 .layer-warn-overlay.layer-warn-out {
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0);
+  background: transparent;
 }
 
 .layer-warn-dialog {
@@ -14378,6 +14126,7 @@ a.prediction-link:hover {
   border-radius: 6px;
   padding: 24px 20px 20px;
   max-width: 340px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14389,6 +14138,7 @@ a.prediction-link:hover {
   transition: transform 0.2s, opacity 0.2s;
   position: relative;
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .layer-warn-dialog::before {

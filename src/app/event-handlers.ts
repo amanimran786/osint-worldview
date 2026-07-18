@@ -7,7 +7,6 @@ import type { DashboardSnapshot } from '@/services/storage';
 import {
   PlaybackControl,
   StatusPanel,
-  PizzIntIndicator,
   CIIPanel,
   PredictionPanel,
 } from '@/components';
@@ -249,6 +248,32 @@ export class EventHandlerManager implements AppModule {
     document.getElementById('searchBtn')?.addEventListener('click', openSearch);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', openSearch);
     document.getElementById('searchMobileFab')?.addEventListener('click', openSearch);
+    const commandSearchInput = document.getElementById('commandSearchInput') as HTMLInputElement | null;
+    commandSearchInput?.addEventListener('click', openSearch);
+    commandSearchInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openSearch();
+      }
+    });
+
+    this.ctx.container.querySelectorAll<HTMLButtonElement>('.command-tab[data-target]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const targetId = tab.dataset.target;
+        const target = targetId === 'commandDashboard'
+          ? this.ctx.container.querySelector('.command-dashboard')
+          : document.getElementById(targetId ?? '');
+        if (!target) return;
+
+        this.ctx.container.querySelectorAll('.command-tab').forEach((candidate) => {
+          const active = candidate === tab;
+          candidate.classList.toggle('active', active);
+          if (active) candidate.setAttribute('aria-current', 'page');
+          else candidate.removeAttribute('aria-current');
+        });
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
 
     document.getElementById('copyLinkBtn')?.addEventListener('click', async () => {
       const shareUrl = this.getShareUrl();
@@ -755,16 +780,6 @@ export class EventHandlerManager implements AppModule {
 
   setupStatusPanel(): void {
     this.ctx.statusPanel = new StatusPanel();
-  }
-
-  setupPizzIntIndicator(): void {
-    if (SITE_VARIANT === 'tech' || SITE_VARIANT === 'finance' || SITE_VARIANT === 'happy') return;
-
-    this.ctx.pizzintIndicator = new PizzIntIndicator();
-    const headerLeft = this.ctx.container.querySelector('.header-left');
-    if (headerLeft) {
-      headerLeft.appendChild(this.ctx.pizzintIndicator.getElement());
-    }
   }
 
   setupExportPanel(): void {

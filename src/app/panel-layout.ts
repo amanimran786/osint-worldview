@@ -36,6 +36,7 @@ import {
   WorldClockPanel,
   AirlineIntelPanel,
   AviationCommandBar,
+  JarvisOsintPanel,
 } from '@/components';
 import { SatelliteFiresPanel } from '@/components/SatelliteFiresPanel';
 import { focusInvestmentOnMap } from '@/services/investments-focus';
@@ -121,15 +122,12 @@ export class PanelLayoutManager implements AppModule {
             <span class="side-nav-logo">WORLDVIEW</span>
             <span class="side-nav-sub">OSINT PLATFORM</span>
           </div>
-          <div class="side-nav-section">CLASSIFIED</div>
+          <div class="side-nav-section">GLOBAL INTELLIGENCE</div>
           <nav class="side-nav-items">
             <a class="side-nav-item active" href="/">Dashboard</a>
             <a class="side-nav-item" href="/#panelsGrid">Signals</a>
             <a class="side-nav-item" href="/#mapSection">World View</a>
-            <a class="side-nav-item" href="/#panelsGrid">Cases</a>
-            <a class="side-nav-item" href="/?settings=1">Rules</a>
-            <a class="side-nav-item" href="/?settings=1">Sources</a>
-            <a class="side-nav-item" href="/#panelsGrid">Analytics</a>
+            <a class="side-nav-item" href="/?settings=1">Settings</a>
           </nav>
           <div class="side-nav-quick">
             <span class="side-nav-quick-title">QUICK LINKS</span>
@@ -138,9 +136,8 @@ export class PanelLayoutManager implements AppModule {
             <a class="side-nav-quick-link" href="/?settings=1">Settings</a>
           </div>
           <div class="side-nav-footer">
-            <span class="side-nav-status">SYSTEMS NOMINAL</span>
-            <span class="side-nav-code">SYS: WV-3.0</span>
-            <span class="side-nav-code">LINK: ACTIVE</span>
+            <span class="side-nav-status">WORLDVIEW</span>
+            <span class="side-nav-code">v${__APP_VERSION__}</span>
           </div>
         </aside>
         <div class="app-main">
@@ -202,7 +199,7 @@ export class PanelLayoutManager implements AppModule {
           <div class="brand-block">
             <span class="logo">WORLDVIEW</span>
             <span class="logo-mobile">WorldView</span>
-            <span class="brand-tag">ASTRAL INTEL</span>
+            <span class="brand-tag">GLOBAL INTELLIGENCE</span>
           </div>
           <span class="version">v${__APP_VERSION__}</span>${BETA_MODE ? '<span class="beta-badge">BETA</span>' : ''}
           <button class="mobile-settings-btn" id="mobileSettingsBtn" title="${t('header.settings')}">
@@ -229,15 +226,6 @@ export class PanelLayoutManager implements AppModule {
           </button>
         </div>
         <div class="header-right">
-          ${this.ctx.isDesktopApp ? '' : `<div class="download-wrapper" id="downloadWrapper">
-            <button class="download-btn" id="downloadBtn" title="${t('header.downloadApp')}">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <span id="downloadBtnLabel">${t('header.downloadApp')}</span>
-            </button>
-            <div class="download-dropdown" id="downloadDropdown"></div>
-          </div>`}
-          ${this.ctx.isDesktopApp ? '' : `<button class="copy-link-btn" id="copyLinkBtn">${t('header.copyLink')}</button>`}
-          ${this.ctx.isDesktopApp ? '' : `<button class="fullscreen-btn" id="fullscreenBtn" title="${t('header.fullscreen')}">⛶</button>`}
           ${SITE_VARIANT === 'happy' ? `<button class="tv-mode-btn" id="tvModeBtn" title="TV Mode (Shift+T)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>` : ''}
           <span id="unifiedSettingsMount"></span>
         </div>
@@ -248,16 +236,16 @@ export class PanelLayoutManager implements AppModule {
           <span class="command-status">LIVE</span>
         </div>
         <div class="command-bar-center">
-          <span class="command-tag">TOP SECRET // SI // NOFORN</span>
+          <span class="command-tag">OPEN-SOURCE INTELLIGENCE</span>
           <div class="command-search">
-            <input id="commandSearchInput" type="text" placeholder="Search signals, sources, locations..." />
-            <button class="command-search-btn" id="searchBtn" aria-label="Search">⌕</button>
+            <input id="commandSearchInput" type="text" placeholder="Search signals, sources, locations..." readonly aria-label="Open global search" />
+            <button class="command-search-btn" id="searchBtn" aria-label="Open global search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
           </div>
         </div>
         <div class="command-bar-right">
           <span class="command-time" id="headerClock" translate="no"></span>
-          <span class="command-pill">REC</span>
-          <span class="command-pill">SAT: 12/12</span>
         </div>
       </div>
       <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
@@ -324,44 +312,17 @@ export class PanelLayoutManager implements AppModule {
       </div>
       <div class="main-content">
         <section class="command-dashboard">
-          <div class="command-metrics">
-            <div class="command-card">
-              <span class="command-card-label">Signals</span>
-              <span class="command-card-value">15</span>
-              <span class="command-card-meta">UNTRIAGED</span>
-            </div>
-            <div class="command-card">
-              <span class="command-card-label">Critical</span>
-              <span class="command-card-value">11</span>
-              <span class="command-card-meta">ACTIVE</span>
-            </div>
-            <div class="command-card">
-              <span class="command-card-label">Open Cases</span>
-              <span class="command-card-value">4</span>
-              <span class="command-card-meta">IN REVIEW</span>
-            </div>
-            <div class="command-card">
-              <span class="command-card-label">Sources</span>
-              <span class="command-card-value">8</span>
-              <span class="command-card-meta">LIVE</span>
-            </div>
-            <div class="command-card">
-              <span class="command-card-label">Geolocated</span>
-              <span class="command-card-value">15</span>
-              <span class="command-card-meta">CONFIRMED</span>
-            </div>
-          </div>
-          <div class="command-tabs">
-            <button class="command-tab active">Overview</button>
-            <button class="command-tab">Threat Map</button>
-            <button class="command-tab">Analytics</button>
+          <div class="command-tabs" role="navigation" aria-label="Dashboard sections">
+            <button class="command-tab active" data-target="commandDashboard" aria-current="page">Overview</button>
+            <button class="command-tab" data-target="mapSection">Threat Map</button>
+            <button class="command-tab" data-target="panelsGrid">Signals</button>
           </div>
         </section>
         <div class="map-section" id="mapSection">
           <div class="map-hud">
             <div class="map-hud-left">
               <span class="map-hud-title">${SITE_VARIANT === 'tech' ? t('panels.techMap') : SITE_VARIANT === 'happy' ? 'Good News Map' : t('panels.map')}</span>
-              <span class="map-hud-sub">ASTRAL GRID · LIVE TELEMETRY</span>
+              <span class="map-hud-sub">GLOBAL SIGNAL MAP · LIVE DATA</span>
             </div>
             <div class="map-hud-right">
               <div class="map-hud-actions" id="mapDimensionToggle">
@@ -383,7 +344,9 @@ export class PanelLayoutManager implements AppModule {
           <div class="map-resize-handle" id="mapResizeHandle"></div>
         </div>
         <div class="panels-grid" id="panelsGrid"></div>
-        <button class="search-mobile-fab" id="searchMobileFab" aria-label="Search">\u{1F50D}</button>
+        <button class="search-mobile-fab" id="searchMobileFab" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
       </div>
   <footer class="site-footer">
         <div class="site-footer-brand">
@@ -414,7 +377,7 @@ export class PanelLayoutManager implements AppModule {
 
   private setupMobileMapToggle(): void {
     const mapSection = document.getElementById('mapSection');
-    const headerLeft = mapSection?.querySelector('.panel-header-left');
+    const headerLeft = mapSection?.querySelector('.map-hud-left');
     if (!mapSection || !headerLeft) return;
 
     const stored = localStorage.getItem('mobile-map-collapsed');
@@ -603,7 +566,6 @@ export class PanelLayoutManager implements AppModule {
     this.createNewsPanel('layoffs', 'panels.layoffs');
     this.createNewsPanel('ai', 'panels.ai');
     this.createNewsPanel('startups', 'panels.startups');
-    this.createNewsPanel('vcblogs', 'panels.vcblogs');
     this.createNewsPanel('regionalStartups', 'panels.regionalStartups');
     this.createNewsPanel('unicorns', 'panels.unicorns');
     this.createNewsPanel('accelerators', 'panels.accelerators');
@@ -747,6 +709,10 @@ export class PanelLayoutManager implements AppModule {
       import('@/components/TelegramIntelPanel').then(m => new m.TelegramIntelPanel()),
       undefined,
       _lockPanels ? [t('premium.features.telegramIntel1'), t('premium.features.telegramIntel2')] : undefined,
+    );
+
+    this.lazyPanel('jarvis-osint', () =>
+      Promise.resolve(new JarvisOsintPanel()),
     );
 
     if (this.shouldCreatePanel('gcc-investments')) {

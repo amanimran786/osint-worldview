@@ -160,6 +160,63 @@ function polymarketPlugin(): Plugin {
   };
 }
 
+/** Execute selected Vercel Edge handlers in Vite instead of serving their source files. */
+function edgeApiDevPlugin(): Plugin {
+  const routes = new Map([
+    ['/api/bootstrap', '/api/bootstrap.js'],
+    ['/api/telegram-feed', '/api/telegram-feed.js'],
+    ['/api/military-flights', '/api/military-flights.js'],
+  ]);
+
+  return {
+    name: 'edge-api-dev',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url) return next();
+
+        const port = server.config.server.port || 3000;
+        const url = new URL(req.url, `http://localhost:${port}`);
+        const modulePath = routes.get(url.pathname);
+        if (!modulePath) return next();
+
+        try {
+          const headers = new Headers();
+          for (const [key, value] of Object.entries(req.headers)) {
+            if (typeof value === 'string') headers.set(key, value);
+            else if (Array.isArray(value)) headers.set(key, value.join(', '));
+          }
+
+          let body: Buffer | undefined;
+          if (req.method && !['GET', 'HEAD'].includes(req.method)) {
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) {
+              chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+            }
+            body = Buffer.concat(chunks);
+          }
+
+          const edgeRequest = new Request(url, {
+            method: req.method,
+            headers,
+            body,
+          });
+          const handlerModule = await server.ssrLoadModule(modulePath);
+          const response = await handlerModule.default(edgeRequest) as Response;
+
+          res.statusCode = response.status;
+          response.headers.forEach((value, key) => res.setHeader(key, value));
+          res.end(Buffer.from(await response.arrayBuffer()));
+        } catch (error) {
+          server.config.logger.error(`[edge-api-dev] ${url.pathname}: ${String(error)}`);
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Local API handler failed' }));
+        }
+      });
+    },
+  };
+}
+
 /**
  * Vite dev server plugin for sebuf API routes.
  *
@@ -606,6 +663,7 @@ export default defineConfig({
   },
   plugins: [
     htmlVariantPlugin(),
+    edgeApiDevPlugin(),
     polymarketPlugin(),
     rssProxyPlugin(),
     youtubeLivePlugin(),

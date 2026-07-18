@@ -6,6 +6,7 @@ const DESKTOP_ORIGIN_PATTERNS = [
 ];
 
 const BROWSER_ORIGIN_PATTERNS = [
+  /^https:\/\/(.*\.)?worldview\.app$/,
   /^https:\/\/(.*\.)?worldmonitor\.app$/,
   /^https:\/\/worldmonitor-[a-z0-9-]+-elie-[a-z0-9]+\.vercel\.app$/,
   ...(process.env.NODE_ENV === 'production' ? [] : [
@@ -46,7 +47,7 @@ export function validateApiKey(req, options = {}) {
     return { valid: true, required: true };
   }
 
-  // Trusted browser origin (worldmonitor.app, Vercel previews, localhost dev) — no key needed
+  // Trusted browser origins, Vercel previews, and localhost dev need no key.
   if (isTrustedBrowserOrigin(origin)) {
     if (forceKey && !key) {
       return { valid: false, required: true, error: 'API key required' };

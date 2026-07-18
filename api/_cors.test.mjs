@@ -7,8 +7,16 @@ function makeRequest(origin) {
   if (origin !== null) {
     headers.set('origin', origin);
   }
-  return new Request('https://worldmonitor.app/api/test', { headers });
+  return new Request('https://worldview.app/api/test', { headers });
 }
+
+test('allows WorldView production origins', () => {
+  for (const origin of ['https://worldview.app', 'https://api.worldview.app']) {
+    const req = makeRequest(origin);
+    assert.equal(isDisallowedOrigin(req), false);
+    assert.equal(getCorsHeaders(req)['Access-Control-Allow-Origin'], origin);
+  }
+});
 
 test('allows desktop Tauri origins', () => {
   const origins = [
@@ -31,7 +39,7 @@ test('rejects unrelated external origins', () => {
   const req = makeRequest('https://evil.example.com');
   assert.equal(isDisallowedOrigin(req), true);
   const cors = getCorsHeaders(req);
-  assert.equal(cors['Access-Control-Allow-Origin'], 'https://worldmonitor.app');
+  assert.equal(cors['Access-Control-Allow-Origin'], 'https://worldview.app');
 });
 
 test('requests without origin remain allowed', () => {

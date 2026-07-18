@@ -191,7 +191,6 @@ export const DEFAULT_PANELS: Record<string, PanelConfig> = {
   ai: { name: 'AI/ML News', enabled: true, priority: 1 },
   tech: { name: 'Technology', enabled: true, priority: 1 },
   startups: { name: 'Startups & VC', enabled: true, priority: 1 },
-  vcblogs: { name: 'VC Insights & Essays', enabled: true, priority: 1 },
   regionalStartups: { name: 'Global Startup News', enabled: true, priority: 1 },
   unicorns: { name: 'Unicorn Tracker', enabled: true, priority: 1 },
   accelerators: { name: 'Accelerators & Demo Days', enabled: true, priority: 1 },
