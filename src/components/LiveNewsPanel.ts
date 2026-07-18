@@ -465,7 +465,7 @@ export class LiveNewsPanel extends Panel {
 
   private get embedOrigin(): string {
     if (isDesktopRuntime()) return `http://localhost:${getLocalApiPort()}`;
-    try { return new URL(getRemoteApiBaseUrl()).origin; } catch { return 'https://worldview.app'; }
+    try { return new URL(getRemoteApiBaseUrl()).origin; } catch { return 'https://osint-worldview-cyan.vercel.app'; }
   }
 
   private setupBridgeMessageListener(): void {
@@ -502,9 +502,7 @@ export class LiveNewsPanel extends Panel {
   }
 
   private static resolveYouTubeOrigin(): string | null {
-    const fallbackOrigin = SITE_VARIANT === 'tech'
-      ? 'https://worldview.app'
-      : 'https://worldview.app';
+    const fallbackOrigin = 'https://osint-worldview-cyan.vercel.app';
 
     try {
       const { protocol, origin, host } = window.location;
@@ -996,9 +994,12 @@ export class LiveNewsPanel extends Panel {
       <div class="live-offline">
         <div class="offline-icon">📺</div>
         <div class="offline-text">${t('components.liveNews.notLive', { name: safeName })}</div>
-        <button class="offline-retry" onclick="this.closest('.panel').querySelector('.live-channel-btn.active')?.click()">${t('common.retry')}</button>
+        <button class="offline-retry" type="button">${t('common.retry')}</button>
       </div>
     `;
+    this.content.querySelector<HTMLButtonElement>('.offline-retry')?.addEventListener('click', () => {
+      this.channelSwitcher?.querySelector<HTMLButtonElement>('.live-channel-btn.active')?.click();
+    });
   }
 
   private showEmbedError(channel: LiveChannel, errorCode: number): void {
@@ -1096,7 +1097,7 @@ export class LiveNewsPanel extends Panel {
     if (quality !== 'auto') params.set('vq', quality);
     // origin = canonical site origin YouTube trusts for embed restrictions.
     // parentOrigin = actual parent frame origin so postMessage round-trips work.
-    params.set('origin', this.youtubeOrigin || 'https://worldview.app');
+    params.set('origin', this.youtubeOrigin || 'https://osint-worldview-cyan.vercel.app');
     params.set('parentOrigin', window.location.origin);
     const embedUrl = `http://localhost:${getLocalApiPort()}/api/youtube-embed?${params.toString()}`;
 

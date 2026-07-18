@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Sytuacja globalna z analizami AI"
   },
   "countryBrief": {
@@ -203,7 +203,6 @@
     "panelCatDeals": "Transakcje & Instytucjonalne",
     "panelCatGulfMena": "Zatoka & MENA",
     "panelCatTradePolicy": "Polityka Handlowa",
-    "downloadApp": "Pobierz aplikację",
     "selectRegion": "Wybierz region"
   },
   "panels": {
@@ -475,17 +474,6 @@
       "dontShowAgain": "Nie pokazuj więcej",
       "gotIt": "Rozumiem"
     },
-    "downloadBanner": {
-      "title": "Dostępny komputer stacjonarny",
-      "description": "Natywna wydajność, bezpieczne lokalne przechowywanie kluczy, kafelki map offline.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "dismiss": "Odrzucać",
-      "showAllPlatforms": "Pokaż wszystkie platformy",
-      "showLess": "Pokaż mniej"
-    },
     "runtimeConfig": {
       "title": "Konfiguracja pulpitu",
       "alertTitle": {
@@ -521,8 +509,7 @@
         "NASA_FIRMS_API_KEY": "System informacji o pożarach do zarządzania zasobami.",
         "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
         "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
-      },
-      "skipSetup": "Pomiń konfigurację — jedna licencja World Monitor odblokowuje wszystko. Dołącz do listy oczekujących, aby uzyskać wczesny dostęp."
+      }
     },
     "countryIntel": {
       "identifying": "Identyfikacja kraju...",
@@ -638,33 +625,7 @@
         "duration": "Czas trwania"
       },
       "sidecarUnreachable": "Wózek boczny nieosiągalny.",
-      "logCleared": "Log wyczyszczony.",
-      "worldMonitor": {
-        "apiKey": {
-          "description": "Wklej swoją licencję, aby natychmiast odblokować wszystkie źródła danych i funkcje AI.",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "statusMissing": "BRAK LICENCJI",
-          "statusValid": "LICENCJONOWANE",
-          "title": "Klucz licencyjny"
-        },
-        "byokDescription": "Wolisz pełną kontrolę? Przejdź do zakładek Klucze API i LLM, aby skonfigurować każde źródło danych i dostawcę AI indywidualnie.",
-        "byokTitle": "Lub użyj własnych kluczy",
-        "dividerOr": "LUB",
-        "heroDescription": "Jedna licencja World Monitor zastępuje wszystkie klucze API i dostawców LLM, które musiałbyś skonfigurować samodzielnie. Podsumowania AI, wywiad w czasie rzeczywistym, dane rynkowe, śledzenie konfliktów, wykrywanie pożarów, obrazy satelitarne — wszystko zasilane, wszystko zarządzane, zero konfiguracji.",
-        "heroTitle": "Jeden klucz. Wszystko w cenie.",
-        "register": {
-          "alreadyRegistered": "Jesteś już na liście oczekujących.",
-          "description": "Przygotowujemy się do uruchomienia licencji World Monitor. Zarejestruj się teraz i bądź pierwszy w kolejce — pierwsi członkowie otrzymają priorytetowy dostęp i cenę założycielską.",
-          "emailPlaceholder": "twoj@email.pl",
-          "error": "Rejestracja nie powiodła się. Spróbuj ponownie.",
-          "invalidEmail": "Wprowadź prawidłowy adres e-mail.",
-          "submitBtn": "Dołącz do listy oczekujących",
-          "submitting": "Wysyłanie...",
-          "success": "Jesteś na liście! Powiadomimy Cię jako pierwszego.",
-          "title": "Zarezerwuj swoje miejsce"
-        },
-        "tabLabel": "World Monitor"
-      }
+      "logCleared": "Log wyczyszczony."
     }
   },
   "components": {
@@ -1044,29 +1005,6 @@
       "low": "NIS",
       "info": "INFO"
     },
-    "pizzint": {
-      "title": "Indeks pizzy Pentagonu",
-      "tensionsTitle": "Napięcia geopolityczne",
-      "source": "Źródło:",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Zaktualizowano {{timeAgo}}",
-      "statusClosed": "ZAMKNIĘTE",
-      "statusSpike": "SKOK",
-      "statusHigh": "WYSOKI",
-      "statusElevated": "PODWYŻSZONY",
-      "statusNominal": "NOMINALNY",
-      "statusQuiet": "SPOKOJNY",
-      "justNow": "właśnie",
-      "minutesAgo": "{{m}}m temu",
-      "hoursAgo": "{{h}}h temu",
-      "defconLabels": {
-        "1": "PISTOLET Z NACIĘCIEM - MAKSYMALNA GOTOWOŚĆ",
-        "2": "SZYBKIE TEMPO – SIŁY ZBROJNE W GOTOWIE",
-        "3": "OKRĄGŁY DOM - ZWIĘKSZ GOTOWOŚĆ SIŁOWĄ",
-        "4": "PODWÓJNE UJĘCIE - ZEGAREK O WIĘKSZEJ INTELIGENCJI",
-        "5": "FADE OUT - NAJNIŻSZA GOTOWOŚĆ"
-      }
-    },
     "playback": {
       "toggleMode": "Przełącz tryb odtwarzania",
       "historicalPlayback": "Odtwarzanie historyczne",
@@ -1431,9 +1369,6 @@
       "aiFlowBrowserLabel": "Lokalny model przeglądarki",
       "aiFlowBrowserDesc": "Uruchom AI lokalnie w przeglądarce",
       "aiFlowBrowserWarn": "Na komputer zostanie pobrane około 250 MB danych",
-      "aiFlowOllamaCta": "Chcesz w pełni lokalną AI?",
-      "aiFlowOllamaCtaDesc": "Pobierz aplikację desktopową dla wsparcia Ollama",
-      "aiFlowDownloadDesktop": "Pobierz aplikację desktopową →",
       "aiFlowStatusActive": "Cloud AI aktywne",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + Model przeglądarki aktywne",
       "aiFlowStatusBrowserOnly": "Tylko model przeglądarki",
@@ -2158,7 +2093,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "Siedziba NATO",
       "pla_mss_activity": "Aktywność PLA/MSS",
-      "pentagon_pizza_index": "Indeks pizzy Pentagonu",
       "piracy_conflict": "Piractwo/konflikt",
       "qatar_al_udeid": "Katar/Al Udeid",
       "saudi_gip_mbs": "Saudyjski GIP/MBS",

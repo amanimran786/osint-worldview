@@ -27,7 +27,6 @@ import {
   INTEL_SOURCES,
   DEFAULT_PANELS,
 } from '@/config';
-import { VARIANT_META } from '@/config/variant-meta';
 import {
   saveSnapshot,
   initAisStream,
@@ -40,10 +39,7 @@ import {
   trackMapViewChange,
   trackMapLayerToggle,
   trackPanelToggled,
-  trackDownloadClicked,
 } from '@/services/analytics';
-import { detectPlatform, allButtons, buttonsForPlatform } from '@/components/DownloadBanner';
-import type { Platform } from '@/components/DownloadBanner';
 import { invokeTauri } from '@/services/tauri-bridge';
 import { dataFreshness } from '@/services/data-freshness';
 import { mlWorker } from '@/services/ml-worker';
@@ -77,8 +73,6 @@ export class EventHandlerManager implements AppModule {
   private boundTvKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
   private boundFocalPointsReadyHandler: (() => void) | null = null;
   private boundThemeChangedHandler: (() => void) | null = null;
-  private boundDropdownClickHandler: ((e: MouseEvent) => void) | null = null;
-  private boundDropdownKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
   private boundMapResizeMoveHandler: ((e: MouseEvent) => void) | null = null;
   private boundMapEndResizeHandler: (() => void) | null = null;
   private boundMapResizeVisChangeHandler: (() => void) | null = null;
@@ -201,14 +195,6 @@ export class EventHandlerManager implements AppModule {
       window.removeEventListener('theme-changed', this.boundThemeChangedHandler);
       this.boundThemeChangedHandler = null;
     }
-    if (this.boundDropdownClickHandler) {
-      document.removeEventListener('click', this.boundDropdownClickHandler);
-      this.boundDropdownClickHandler = null;
-    }
-    if (this.boundDropdownKeydownHandler) {
-      document.removeEventListener('keydown', this.boundDropdownKeydownHandler);
-      this.boundDropdownKeydownHandler = null;
-    }
     if (this.boundMapResizeMoveHandler) {
       document.removeEventListener('mousemove', this.boundMapResizeMoveHandler);
       this.boundMapResizeMoveHandler = null;
@@ -288,8 +274,6 @@ export class EventHandlerManager implements AppModule {
       }
     });
 
-    this.initDownloadDropdown();
-
     this.boundStorageHandler = (e: StorageEvent) => {
       if (e.key === STORAGE_KEYS.panels && e.newValue) {
         try {
@@ -320,16 +304,12 @@ export class EventHandlerManager implements AppModule {
     }) as EventListener;
     this.ctx.container.addEventListener('wm:panel-close', this.boundPanelCloseHandler);
 
-    const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     this.ctx.container.querySelectorAll<HTMLAnchorElement>('.variant-option').forEach(link => {
       link.addEventListener('click', (e) => {
         const variant = link.dataset.variant;
         if (!variant || variant === SITE_VARIANT) return;
         e.preventDefault();
-        void this.navigateToVariant(variant, {
-          href: link.href,
-          isLocalDev,
-        });
+        void this.navigateToVariant(variant);
       });
     });
 
@@ -428,12 +408,11 @@ export class EventHandlerManager implements AppModule {
     overlay.addEventListener('click', () => this.closeMobileMenu());
     closeBtn.addEventListener('click', () => this.closeMobileMenu());
 
-    const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     menu.querySelectorAll<HTMLButtonElement>('.mobile-menu-variant').forEach(btn => {
       btn.addEventListener('click', () => {
         const variant = btn.dataset.variant;
         if (!variant || variant === SITE_VARIANT) return;
-        void this.navigateToVariant(variant, { isLocalDev });
+        void this.navigateToVariant(variant);
       });
     });
 
@@ -579,7 +558,7 @@ export class EventHandlerManager implements AppModule {
     if (!this.ctx.map) return null;
     const state = this.ctx.map.getState();
     const center = this.ctx.map.getCenter();
-    const baseUrl = `${window.location.origin}${window.location.pathname}`;
+    const baseUrl = window.location.href;
     const briefPage = this.ctx.countryBriefPage;
     const isCountryVisible = briefPage?.isVisible() ?? false;
     return buildMapUrl(baseUrl, {
@@ -606,87 +585,6 @@ export class EventHandlerManager implements AppModule {
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
-  }
-
-  private platformLabel(p: Platform): string {
-    switch (p) {
-      case 'macos-arm64': return '\uF8FF Silicon';
-      case 'macos-x64': return '\uF8FF Intel';
-      case 'macos': return '\uF8FF macOS';
-      case 'windows': return 'Windows';
-      case 'linux': return 'Linux';
-      default: return t('header.downloadApp');
-    }
-  }
-
-  private initDownloadDropdown(): void {
-    const btn = document.getElementById('downloadBtn');
-    const dropdown = document.getElementById('downloadDropdown');
-    const label = document.getElementById('downloadBtnLabel');
-    if (!btn || !dropdown) return;
-
-    const platform = detectPlatform();
-    if (label) label.textContent = this.platformLabel(platform);
-
-    const primary = buttonsForPlatform(platform);
-    const all = allButtons();
-    const others = all.filter(b => !primary.some(p => p.href === b.href));
-
-    const renderDropdown = () => {
-      const primaryHtml = primary.map(b =>
-        `<a class="dl-dd-btn ${b.cls} primary" href="${b.href}">${b.label}</a>`
-      ).join('');
-      const othersHtml = others.map(b =>
-        `<a class="dl-dd-btn ${b.cls}" href="${b.href}">${b.label}</a>`
-      ).join('');
-
-      dropdown.innerHTML = `
-        <div class="dl-dd-tagline">${t('modals.downloadBanner.description')}</div>
-        <div class="dl-dd-buttons">${primaryHtml}</div>
-        ${others.length ? `<button class="dl-dd-toggle" id="dlDdToggle">${t('modals.downloadBanner.showAllPlatforms')}</button>
-        <div class="dl-dd-others" id="dlDdOthers">${othersHtml}</div>` : ''}
-      `;
-
-      dropdown.querySelectorAll<HTMLAnchorElement>('.dl-dd-btn').forEach(a => {
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          const plat = new URL(a.href, location.origin).searchParams.get('platform') || 'unknown';
-          trackDownloadClicked(plat);
-          window.open(a.href, '_blank');
-          dropdown.classList.remove('open');
-        });
-      });
-
-      const toggle = dropdown.querySelector('#dlDdToggle');
-      const othersEl = dropdown.querySelector('#dlDdOthers') as HTMLElement | null;
-      if (toggle && othersEl) {
-        toggle.addEventListener('click', () => {
-          const showing = othersEl.classList.toggle('show');
-          toggle.textContent = showing
-            ? t('modals.downloadBanner.showLess')
-            : t('modals.downloadBanner.showAllPlatforms');
-        });
-      }
-    };
-
-    renderDropdown();
-
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle('open');
-    });
-
-    this.boundDropdownClickHandler = (e: MouseEvent) => {
-      if (!dropdown.contains(e.target as Node) && !btn.contains(e.target as Node)) {
-        dropdown.classList.remove('open');
-      }
-    };
-    document.addEventListener('click', this.boundDropdownClickHandler);
-
-    this.boundDropdownKeydownHandler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') dropdown.classList.remove('open');
-    };
-    document.addEventListener('keydown', this.boundDropdownKeydownHandler);
   }
 
   private setCopyLinkFeedback(button: HTMLElement | null, message: string): void {
@@ -722,21 +620,19 @@ export class EventHandlerManager implements AppModule {
     } catch { /* proceed with navigation regardless */ }
   }
 
-  private async navigateToVariant(
-    variant: string,
-    options: { href?: string; isLocalDev: boolean },
-  ): Promise<void> {
+  private async navigateToVariant(variant: string): Promise<void> {
     trackVariantSwitch(SITE_VARIANT, variant);
     await this.exitFullscreenForNavigation();
+    localStorage.setItem('worldview-variant', variant);
 
-    if (this.ctx.isDesktopApp || options.isLocalDev) {
-      localStorage.setItem('worldview-variant', variant);
+    if (this.ctx.isDesktopApp) {
       window.location.reload();
       return;
     }
 
-    const target = options.href || VARIANT_META[variant]?.url;
-    if (target) window.location.href = target;
+    const target = new URL(window.location.href);
+    target.searchParams.set('variant', variant);
+    window.location.href = target.toString();
   }
 
   toggleFullscreen(): void {

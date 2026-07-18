@@ -4,7 +4,7 @@ import type {
   MarketServiceHandler,
 } from '../../../../src/generated/server/worldmonitor/market/v1/service_server';
 import { parseStringArray } from './_shared';
-import { getStoredStockAnalysisHistory } from './premium-stock-store';
+import { getStoredStockAnalysisHistory } from './stock-analysis-store';
 
 const DEFAULT_LIMIT_PER_SYMBOL = 4;
 const MAX_LIMIT_PER_SYMBOL = 32;

@@ -4,7 +4,6 @@ package worldmonitor.intelligence.v1;
 
 import "sebuf/http/annotations.proto";
 import "worldmonitor/intelligence/v1/get_risk_scores.proto";
-import "worldmonitor/intelligence/v1/get_pizzint_status.proto";
 import "worldmonitor/intelligence/v1/classify_event.proto";
 import "worldmonitor/intelligence/v1/get_country_intel_brief.proto";
 import "worldmonitor/intelligence/v1/search_gdelt_documents.proto";
@@ -12,18 +11,13 @@ import "worldmonitor/intelligence/v1/deduct_situation.proto";
 import "worldmonitor/intelligence/v1/get_country_facts.proto";
 
 // IntelligenceService provides APIs for cross-domain intelligence synthesis including
-// risk scores, PizzINT monitoring, GDELT tension analysis, and AI-powered classification.
+// risk scores, GDELT document search, and AI-powered classification.
 service IntelligenceService {
   option (sebuf.http.service_config) = {base_path: "/api/intelligence/v1"};
 
   // GetRiskScores retrieves composite instability and strategic risk assessments.
   rpc GetRiskScores(GetRiskScoresRequest) returns (GetRiskScoresResponse) {
     option (sebuf.http.config) = {path: "/get-risk-scores", method: HTTP_METHOD_GET};
-  }
-
-  // GetPizzintStatus retrieves Pentagon Pizza Index and GDELT tension pair data.
-  rpc GetPizzintStatus(GetPizzintStatusRequest) returns (GetPizzintStatusResponse) {
-    option (sebuf.http.config) = {path: "/get-pizzint-status", method: HTTP_METHOD_GET};
   }
 
   // ClassifyEvent classifies a real-world event using AI (Groq).

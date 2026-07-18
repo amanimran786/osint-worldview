@@ -11,7 +11,7 @@ interface StoryMeta {
 }
 
 const variantMeta = VARIANT_META[SITE_VARIANT] ?? VARIANT_META.full;
-const BASE_URL = variantMeta.url.replace(/\/$/, '');
+const BASE_URL = new URL(variantMeta.url).origin;
 const DEFAULT_IMAGE = `${BASE_URL}/favico/${SITE_VARIANT === 'full' ? '' : SITE_VARIANT + '/'}og-image.png`;
 
 export function updateMetaTagsForStory(meta: StoryMeta): void {
@@ -46,14 +46,14 @@ export function resetMetaTags(): void {
 
   setMetaTag('title', variantMeta.title);
   setMetaTag('description', variantMeta.description);
-  setCanonicalLink(BASE_URL + '/');
+  setCanonicalLink(variantMeta.url);
   setMetaTag('og:title', variantMeta.title);
   setMetaTag('og:description', variantMeta.description);
-  setMetaTag('og:url', BASE_URL + '/');
+  setMetaTag('og:url', variantMeta.url);
   setMetaTag('og:image', DEFAULT_IMAGE);
   setMetaTag('twitter:title', variantMeta.title);
   setMetaTag('twitter:description', variantMeta.description);
-  setMetaTag('twitter:url', BASE_URL + '/');
+  setMetaTag('twitter:url', variantMeta.url);
   setMetaTag('twitter:image', DEFAULT_IMAGE);
 
   sessionStorage.removeItem('storyMeta');

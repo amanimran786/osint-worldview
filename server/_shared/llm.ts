@@ -137,8 +137,8 @@ export function getProviderCredentials(provider: string): ProviderCredentials | 
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://worldmonitor.app',
-        'X-Title': 'WorldMonitor',
+        'HTTP-Referer': 'https://osint-worldview-cyan.vercel.app',
+        'X-Title': 'WorldView',
       },
     };
   }

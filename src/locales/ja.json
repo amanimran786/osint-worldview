@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "AIインサイト付きグローバル情勢"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "設定",
     "sources": "ソース",
     "copyLink": "リンクをコピー",
-    "downloadApp": "アプリをダウンロード",
     "fullscreen": "全画面",
     "pinMap": "マップを上部に固定",
     "selectRegion": "地域を選択",
@@ -475,17 +474,6 @@
       "dontShowAgain": "今後表示しない",
       "gotIt": "了解"
     },
-    "downloadBanner": {
-      "title": "デスクトップ版あり",
-      "description": "ネイティブパフォーマンス、安全なローカルキー保存、オフラインマップタイル。",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "全プラットフォームを表示",
-      "showLess": "折りたたむ",
-      "dismiss": "閉じる"
-    },
     "runtimeConfig": {
       "title": "デスクトップ設定",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "一部の機能にAPIキーが必要"
       },
       "openSettings": "設定を開く",
-      "skipSetup": "セットアップをスキップ — World Monitorライセンス1つですべてが利用可能になります。早期アクセスのウェイトリストにご参加ください。",
       "summary": {
         "desktop": "デスクトップモード",
         "web": "Webモード（読み取り専用、サーバー管理の認証情報）",
@@ -538,32 +525,6 @@
       "noTraffic": "まだトラフィックが記録されていない。",
       "sidecarUnreachable": "サイドカーに接続不能。",
       "logCleared": "ログをクリア済。",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "1つのキーですべてが揃います。",
-        "heroDescription": "World Monitorライセンス1つで、個別に設定が必要なすべてのAPIキーとLLMプロバイダーを代替できます。AI要約、リアルタイムインテリジェンス、市場データ、紛争追跡、火災検出、衛星画像 — すべて稼働、すべて管理、セットアップ不要。",
-        "apiKey": {
-          "title": "ライセンスキー",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "ライセンスを貼り付けると、すべてのデータソースとAI機能が即座に利用可能になります。",
-          "statusValid": "ライセンス済",
-          "statusMissing": "ライセンスなし"
-        },
-        "dividerOr": "または",
-        "register": {
-          "title": "あなたの席を確保",
-          "description": "World Monitorライセンスのローンチ準備中です。今すぐ登録して優先アクセスと創設メンバー価格を手に入れましょう。",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "ウェイトリストに参加",
-          "submitting": "送信中...",
-          "success": "リストに登録されました！最優先でお知らせします。",
-          "alreadyRegistered": "すでにウェイトリストに登録済みです。",
-          "error": "登録に失敗しました。もう一度お試しください。",
-          "invalidEmail": "有効なメールアドレスを入力してください。"
-        },
-        "byokTitle": "または自分のキーを使用",
-        "byokDescription": "完全な制御をご希望ですか？APIキーとLLMタブから各データソースとAIプロバイダーを個別に設定してください。"
-      },
       "table": {
         "time": "時刻",
         "method": "メソッド",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "ペンタゴンピザ指数",
-      "defcon": "DEFCON {{level}}",
-      "updated": "{{timeAgo}}に更新",
-      "tensionsTitle": "地政学的緊張",
-      "source": "ソース:",
-      "statusClosed": "閉鎖",
-      "statusSpike": "急上昇",
-      "statusHigh": "高",
-      "statusElevated": "上昇",
-      "statusNominal": "通常",
-      "statusQuiet": "静穏",
-      "justNow": "たった今",
-      "minutesAgo": "{{m}}分前",
-      "hoursAgo": "{{h}}時間前",
-      "defconLabels": {
-        "1": "COCKED PISTOL — 最大即応態勢",
-        "2": "FAST PACE — 軍即応態勢",
-        "3": "ROUND HOUSE — 即応態勢強化",
-        "4": "DOUBLE TAKE — 情報監視強化",
-        "5": "FADE OUT — 最低即応態勢"
-      }
     },
     "strategicPosture": {
       "elapsed": "経過: {{elapsed}} 秒",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "ブラウザローカルモデル",
       "aiFlowBrowserDesc": "ブラウザ内でAIをローカル実行",
       "aiFlowBrowserWarn": "約250MBのデータがコンピュータにダウンロードされます",
-      "aiFlowOllamaCta": "完全ローカルAIをご希望ですか？",
-      "aiFlowOllamaCtaDesc": "Ollamaサポート用のデスクトップアプリをダウンロード",
-      "aiFlowDownloadDesktop": "デスクトップアプリをダウンロード →",
       "aiFlowStatusActive": "クラウドAI有効",
       "aiFlowStatusCloudAndBrowser": "クラウドAI + ブラウザモデル有効",
       "aiFlowStatusBrowserOnly": "ブラウザモデルのみ",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "モサド/IDF",
       "nato_hq": "NATO本部",
       "pla_mss_activity": "PLA/MSS活動",
-      "pentagon_pizza_index": "ペンタゴンピザ指数",
       "piracy_conflict": "海賊/紛争",
       "qatar_al_udeid": "カタール/アルウデイド",
       "saudi_gip_mbs": "サウジGIP/MBS",

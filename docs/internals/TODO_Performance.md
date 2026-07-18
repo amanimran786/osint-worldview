@@ -1,4 +1,4 @@
-# WorldMonitor — Performance Optimization Roadmap
+# WorldView — Performance Optimization Roadmap
 
 All items below target **end-user perceived speed**: faster initial load, smoother panel rendering,
 lower memory footprint, and snappier map interactions. Items are ordered roughly by expected impact.
@@ -405,7 +405,7 @@ Status:  · 🔄 Partial · ❌ Not started
 ### PERF-049 — Preconnect to External Domains
 
 - **Impact:** 🟢 Low | **Effort:** ~15 minutes
-- **Status:**  — `index.html` includes `<link rel="preconnect">` for `api.maptiler.com`, `a.basemaps.cartocdn.com`, `fonts.googleapis.com`, `fonts.gstatic.com`, and `WorldMonitor.io`, plus `<link rel="dns-prefetch">` for `earthquake.usgs.gov`, `api.gdeltproject.org`, and `query1.finance.yahoo.com`.
+- **Status:**  — `index.html` includes `<link rel="preconnect">` for `api.maptiler.com`, `a.basemaps.cartocdn.com`, `fonts.googleapis.com`, `fonts.gstatic.com`, and `WorldView.io`, plus `<link rel="dns-prefetch">` for `earthquake.usgs.gov`, `api.gdeltproject.org`, and `query1.finance.yahoo.com`.
 - Add `<link rel="preconnect">` in `index.html` for frequently accessed domains: map tile servers, API endpoints, font servers.
 - **Expected gain:** Saves 100–200ms DNS+TLS handshake per domain.
 

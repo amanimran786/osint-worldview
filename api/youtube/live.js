@@ -32,7 +32,7 @@ export default async function handler(request) {
   const relayBase = getRelayBaseUrl();
   if (relayBase) {
     try {
-      const relayHeaders = getRelayHeaders({ 'User-Agent': 'WorldMonitor-Edge/1.0' });
+      const relayHeaders = getRelayHeaders({ 'User-Agent': 'WorldView-Edge/1.0' });
       const relayRes = await fetch(`${relayBase}/youtube-live?${qs}`, { headers: relayHeaders });
       if (relayRes.ok) {
         const data = await relayRes.json();

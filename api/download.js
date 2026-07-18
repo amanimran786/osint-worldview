@@ -2,7 +2,7 @@
 export const config = { runtime: 'edge' };
 
 const RELEASES_URL = 'https://api.github.com/repos/amanimran786/osint-worldview/releases/latest';
-const RELEASES_PAGE = 'https://github.com/koala73/worldmonitor/releases/latest';
+const RELEASES_PAGE = 'https://github.com/amanimran786/osint-worldview/releases/latest';
 
 const PLATFORM_PATTERNS = {
   'windows-exe': (name) => name.endsWith('_x64-setup.exe'),
@@ -16,9 +16,14 @@ const PLATFORM_PATTERNS = {
 const VARIANT_IDENTIFIERS = {
   full: ['worldview', 'worldmonitor'],
   world: ['worldview', 'worldmonitor'],
-  tech: ['techmonitor'],
-  finance: ['financemonitor'],
+  tech: ['worldviewtech', 'techmonitor'],
+  finance: ['worldviewmarkets', 'financemonitor'],
 };
+
+const SPECIALIZED_IDENTIFIERS = [
+  ...VARIANT_IDENTIFIERS.tech,
+  ...VARIANT_IDENTIFIERS.finance,
+];
 
 function canonicalAssetName(name) {
   return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -34,7 +39,11 @@ function findAssetForVariant(assets, variant, platformMatcher) {
     const hasVariantIdentifier = identifiers.some((identifier) =>
       normalizedAssetName.includes(identifier)
     );
-    return hasVariantIdentifier && platformMatcher(assetName);
+    const isSpecializedAsset = SPECIALIZED_IDENTIFIERS.some((identifier) =>
+      normalizedAssetName.includes(identifier)
+    );
+    const isFullVariant = variant === 'full' || variant === 'world';
+    return hasVariantIdentifier && (!isFullVariant || !isSpecializedAsset) && platformMatcher(assetName);
   }) ?? null;
 }
 

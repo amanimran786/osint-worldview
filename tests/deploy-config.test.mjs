@@ -75,6 +75,11 @@ const getHeaderValue = (key) => {
 };
 
 describe('security header guardrails', () => {
+  it('leaves API CORS ownership to the function handlers', () => {
+    const apiRule = vercelConfig.headers.find((entry) => entry.source === '/api/(.*)');
+    assert.equal(apiRule, undefined, 'Vercel must not inject wildcard or duplicate API CORS headers');
+  });
+
   it('includes all 6 required security headers on catch-all route', () => {
     const required = [
       'X-Content-Type-Options',
@@ -140,11 +145,33 @@ describe('security header guardrails', () => {
     assert.ok(!connectSrc.includes('http://localhost'), 'CSP connect-src must not contain http://localhost in production');
   });
 
-  it('CSP script-src uses hashes instead of unsafe-inline', () => {
+  it('CSP blocks executable inline scripts', () => {
     const csp = getHeaderValue('Content-Security-Policy');
     const scriptSrc = csp.match(/script-src\s+([^;]+)/)?.[1] ?? '';
-    assert.ok(!scriptSrc.includes("'unsafe-inline'"), 'CSP script-src must not contain unsafe-inline — use sha256 hashes');
-    assert.match(scriptSrc, /sha256-/, 'CSP script-src should contain at least one sha256 hash');
+    assert.ok(!scriptSrc.includes("'unsafe-inline'"), 'CSP script-src must not contain unsafe-inline');
+
+    for (const file of ['index.html', 'settings.html', 'live-channels.html']) {
+      const html = readFileSync(resolve(__dirname, `../${file}`), 'utf-8');
+      const executableInlineScripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)]
+        .filter(([, attrs, body]) => !/\bsrc=/i.test(attrs) && !/type=["']application\/ld\+json["']/i.test(attrs) && body.trim());
+      assert.equal(executableInlineScripts.length, 0, `${file} must not contain executable inline scripts`);
+    }
+  });
+
+  it('serves startup scripts as same-origin JavaScript files', () => {
+    const startupScripts = ['early-theme.js', 'service-worker-recovery.js'];
+    const indexHtml = readFileSync(resolve(__dirname, '../index.html'), 'utf-8');
+
+    for (const file of startupScripts) {
+      const source = readFileSync(resolve(__dirname, `../public/${file}`), 'utf-8');
+      assert.ok(source.trim().length > 0, `${file} must not be empty`);
+      assert.match(indexHtml, new RegExp(`<script src="/${file.replace('.', '\\.')}"></script>`));
+    }
+
+    for (const file of ['settings.html', 'live-channels.html']) {
+      const html = readFileSync(resolve(__dirname, `../${file}`), 'utf-8');
+      assert.match(html, /<script src="\/early-theme\.js"><\/script>/);
+    }
   });
 
   it('security.txt exists in public/.well-known/', () => {

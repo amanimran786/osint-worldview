@@ -13,9 +13,9 @@ body:
       label: Variant
       description: Which variant are you using?
       options:
-        - worldview.app (Full / Geopolitical)
-        - tech.worldview.app (Tech / Startup)
-        - finance.worldview.app (Finance)
+        - Web app (World / Geopolitical)
+        - Web app (Tech / Startup)
+        - Web app (Finance)
         - Desktop app (Windows)
         - Desktop app (macOS)
         - Desktop app (Linux)

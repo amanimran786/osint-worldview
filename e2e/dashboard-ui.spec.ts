@@ -66,4 +66,18 @@ test.describe('WorldView dashboard controls', () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
   });
+
+  test('dashboard variants switch on the production-compatible route', async ({ page }) => {
+    await page.goto('/');
+
+    await page.locator('.variant-option[data-variant="tech"]').click();
+    await expect(page).toHaveURL(/\bvariant=tech\b/);
+    await expect(page.locator('html')).toHaveAttribute('data-variant', 'tech');
+    await expect(page.locator('.variant-option[data-variant="tech"]')).toHaveClass(/active/);
+
+    await page.locator('.variant-option[data-variant="full"]').click();
+    await expect(page).toHaveURL(/\bvariant=full\b/);
+    await expect(page.locator('html')).not.toHaveAttribute('data-variant', 'tech');
+    await expect(page.locator('.variant-option[data-variant="full"]')).toHaveClass(/active/);
+  });
 });

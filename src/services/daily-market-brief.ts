@@ -57,7 +57,7 @@ async function getPersistentCacheApi(): Promise<{
   return { getPersistentCache, setPersistentCache };
 }
 
-const CACHE_PREFIX = 'premium:daily-market-brief:v1';
+const CACHE_PREFIX = 'daily-market-brief:v1';
 const DEFAULT_SCHEDULE_HOUR = 8;
 const DEFAULT_TARGET_COUNT = 4;
 const BRIEF_NEWS_CATEGORIES = ['markets', 'economic', 'crypto', 'finance'];

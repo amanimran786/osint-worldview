@@ -490,7 +490,7 @@ async function importHandler(modulePath) {
 
 function resolveConfig(options = {}) {
   const port = Number(options.port ?? process.env.LOCAL_API_PORT ?? 46123);
-  const remoteBase = String(options.remoteBase ?? process.env.LOCAL_API_REMOTE_BASE ?? 'https://api.worldmonitor.app').replace(/\/$/, '');
+  const remoteBase = String(options.remoteBase ?? process.env.LOCAL_API_REMOTE_BASE ?? 'https://osint-worldview-cyan.vercel.app').replace(/\/$/, '');
   const resourceDir = String(options.resourceDir ?? process.env.LOCAL_API_RESOURCE_DIR ?? process.cwd());
   const apiDir = options.apiDir
     ? String(options.apiDir)
@@ -560,7 +560,7 @@ const SIDECAR_ALLOWED_ORIGINS = [
   /^https?:\/\/localhost(:\d+)?$/,
   /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
   /^https?:\/\/tauri\.localhost(:\d+)?$/,
-  // Only allow exact domain or single-level subdomains (e.g. preview-xyz.worldmonitor.app).
+  // Only allow exact domains or project preview subdomains.
   // The previous (.*\.)? pattern was overly broad. Anchored to prevent spoofing
   // via domains like worldmonitorEVIL.vercel.app.
   /^https:\/\/([a-z0-9-]+\.)?worldmonitor\.app$/,
@@ -1139,49 +1139,6 @@ async function dispatch(requestUrl, req, routes, context) {
     }
     return json({ verboseMode });
   }
-  // Registration — call Convex directly when CONVEX_URL is available (self-hosted),
-  // otherwise proxy to cloud (desktop sidecar never has CONVEX_URL).
-  if (requestUrl.pathname === '/api/register-interest' && req.method === 'POST') {
-    const convexUrl = process.env.CONVEX_URL;
-    if (!convexUrl) {
-      const cloudResponse = await tryCloudFallback(requestUrl, req, context, 'no CONVEX_URL');
-      if (cloudResponse) return cloudResponse;
-      return json({ error: 'Registration service unavailable' }, 503);
-    }
-    try {
-      const body = await new Promise((resolve, reject) => {
-        const chunks = [];
-        req.on('data', c => chunks.push(c));
-        req.on('end', () => resolve(Buffer.concat(chunks).toString()));
-        req.on('error', reject);
-      });
-      const parsed = JSON.parse(body);
-      const email = parsed.email;
-      if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return json({ error: 'Invalid email address' }, 400);
-      }
-      const response = await fetchWithTimeout(`${convexUrl}/api/mutation`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          path: 'registerInterest:register',
-          args: { email, source: parsed.source || 'desktop', appVersion: parsed.appVersion || 'unknown' },
-          format: 'json',
-        }),
-      }, 15000);
-      const responseBody = await response.text();
-      let result;
-      try { result = JSON.parse(responseBody); } catch { result = { status: 'registered' }; }
-      if (result.status === 'error') {
-        return json({ error: result.errorMessage || 'Registration failed' }, 500);
-      }
-      return json(result.value || result);
-    } catch (e) {
-      context.logger.error(`[register-interest] error: ${e.message}`);
-      return json({ error: 'Registration service unreachable' }, 502);
-    }
-  }
-
   // YouTube live detection — requires residential proxy (Railway relay).
   // Direct fetch from sidecar fails (YouTube blocks datacenter IPs).
   // Always proxy to cloud, bypassing the cloudFallback flag.

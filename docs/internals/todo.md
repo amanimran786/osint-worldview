@@ -1,4 +1,4 @@
-# WorldMonitor — Feature & Improvement Roadmap
+# WorldView — Feature & Improvement Roadmap
 
 Items are prefixed with `TODO-` and a three-digit number.
 Priority: 🔴 High · 🟡 Medium · 🟢 Low.
@@ -840,12 +840,11 @@ Add scheduled export and a public API endpoint for integration with external too
 ### TODO-099 — Customizable Dashboard Presets
 
 - **Priority:** 🟢 Low | **Effort:** ~1 day
-- Let users save and load named panel configurations: "DefCon View" (military + CII only), "Market Watch" (financial panels only), "Full Intel".
 
 ### TODO-100 — Story Share Card Redesign
 
 - **Priority:** 🟢 Low | **Effort:** ~4 hours
-- Redesign the `story-share.ts` OG card template with richer previews: map snapshot, event title, CII score, and WorldMonitor branding.
+- Redesign the `story-share.ts` OG card template with richer previews: map snapshot, event title, CII score, and WorldView branding.
 
 ### TODO-101 — Multi-Event Comparison View
 

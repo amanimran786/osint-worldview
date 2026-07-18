@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Situación global con información de IA"
   },
   "countryBrief": {
@@ -203,7 +203,6 @@
     "panelCatDeals": "Operaciones e Institucional",
     "panelCatGulfMena": "Golfo y MENA",
     "panelCatTradePolicy": "Política Comercial",
-    "downloadApp": "Descargar app",
     "selectRegion": "Seleccionar región"
   },
   "panels": {
@@ -475,17 +474,6 @@
       "dontShowAgain": "No volver a mostrar",
       "gotIt": "Entiendo"
     },
-    "downloadBanner": {
-      "title": "Escritorio disponible",
-      "description": "Rendimiento nativo, almacenamiento de claves local seguro, mosaicos de mapas sin conexión.",
-      "macSilicon": "macOS (Apple Silicio)",
-      "macIntel": "MacOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "dismiss": "Despedir",
-      "showAllPlatforms": "Mostrar todas las plataformas",
-      "showLess": "Mostrar menos"
-    },
     "runtimeConfig": {
       "title": "Configuración de escritorio",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Algunas funciones necesitan claves API"
       },
       "openSettings": "Abrir configuración",
-      "skipSetup": "Omita la configuración — una sola licencia de World Monitor lo desbloquea todo. Únase a la lista de espera para acceso anticipado.",
       "summary": {
         "desktop": "Modo escritorio",
         "web": "Modo web (credenciales administradas por el servidor de solo lectura)",
@@ -638,33 +625,7 @@
         "duration": "Duración"
       },
       "sidecarUnreachable": "Sidecar no accesible.",
-      "logCleared": "Registro borrado.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Una clave. Todo incluido.",
-        "heroDescription": "Una sola licencia de World Monitor reemplaza cada clave API y proveedor de LLM que de otro modo configuraría usted mismo. Resúmenes de IA, inteligencia en tiempo real, datos de mercado, seguimiento de conflictos, detección de incendios, imágenes satelitales — todo alimentado, todo gestionado, cero configuración.",
-        "apiKey": {
-          "title": "Clave de licencia",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Pegue su licencia para desbloquear todas las fuentes de datos y funciones de IA al instante.",
-          "statusValid": "LICENCIADO",
-          "statusMissing": "SIN LICENCIA"
-        },
-        "dividerOr": "O",
-        "register": {
-          "title": "Reserve su lugar",
-          "description": "Estamos preparando el lanzamiento de las licencias de World Monitor. Regístrese ahora y sea el primero — los miembros tempranos obtienen acceso prioritario y precios de miembro fundador.",
-          "emailPlaceholder": "su@email.com",
-          "submitBtn": "Unirse a la lista de espera",
-          "submitting": "Enviando...",
-          "success": "¡Está en la lista! Le notificaremos primero.",
-          "alreadyRegistered": "Ya está en la lista de espera.",
-          "error": "El registro falló. Por favor, inténtelo de nuevo.",
-          "invalidEmail": "Por favor, introduzca una dirección de correo electrónico válida."
-        },
-        "byokTitle": "O traiga sus propias claves",
-        "byokDescription": "¿Prefiere control total? Vaya a las pestañas de Claves API y LLMs para configurar cada fuente de datos y proveedor de IA individualmente."
-      }
+      "logCleared": "Registro borrado."
     }
   },
   "components": {
@@ -1060,29 +1021,6 @@
       "medium": "MED",
       "low": "BAJO",
       "info": "INFO"
-    },
-    "pizzint": {
-      "title": "Índice de pizza del Pentágono",
-      "tensionsTitle": "Tensiones geopolíticas",
-      "source": "Fuente:",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Actualizado {{timeAgo}}",
-      "statusClosed": "CERRADO",
-      "statusSpike": "PICO",
-      "statusHigh": "ALTO",
-      "statusElevated": "ELEVADO",
-      "statusNominal": "NOMINAL",
-      "statusQuiet": "TRANQUILO",
-      "justNow": "En este momento",
-      "minutesAgo": "Hace {{m}}m",
-      "hoursAgo": "Hace {{h}}h",
-      "defconLabels": {
-        "1": "PISTOLA ARMADA - MÁXIMA PREPARACIÓN",
-        "2": "RITMO RÁPIDO - FUERZAS ARMADAS PREPARADAS",
-        "3": "CASA REDONDA - AUMENTAR LA PREPARACIÓN DE LA FUERZA",
-        "4": "DOBLE TOMA: VIGILANCIA DE INTELIGENCIA AUMENTADA",
-        "5": "DESVANECIMIENTO - PREPARACIÓN MÍNIMA"
-      }
     },
     "playback": {
       "toggleMode": "Alternar modo de reproducción",
@@ -1485,9 +1423,6 @@
       "aiFlowBrowserLabel": "Modelo local del navegador",
       "aiFlowBrowserDesc": "Ejecutar IA localmente en su navegador",
       "aiFlowBrowserWarn": "Se descargarán aproximadamente 250 MB de datos en su computadora",
-      "aiFlowOllamaCta": "¿Quiere IA completamente local?",
-      "aiFlowOllamaCtaDesc": "Descargue la app de escritorio para soporte de Ollama",
-      "aiFlowDownloadDesktop": "Descargar App de Escritorio →",
       "aiFlowStatusActive": "IA en la nube activa",
       "aiFlowStatusCloudAndBrowser": "IA en la nube + Modelo del navegador activos",
       "aiFlowStatusBrowserOnly": "Solo modelo del navegador",
@@ -2161,7 +2096,6 @@
       "mossad_idf": "Mossad/FDI",
       "nato_hq": "Sede de la OTAN",
       "pla_mss_activity": "Actividad PLA/MSS",
-      "pentagon_pizza_index": "Índice de pizza del Pentágono",
       "piracy_conflict": "Piratería/Conflicto",
       "qatar_al_udeid": "Catar/Al Udeid",
       "saudi_gip_mbs": "GIP saudita/MBS",

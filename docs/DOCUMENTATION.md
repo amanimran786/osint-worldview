@@ -1,8 +1,8 @@
-# World Monitor — Full Documentation
+# WorldView — Full Documentation
 
 AI-powered real-time global intelligence dashboard aggregating news, markets, geopolitical data, and infrastructure monitoring into a unified situation awareness interface.
 
-[Live Demo: worldmonitor.app](https://worldmonitor.app) | [Tech Variant: tech.worldmonitor.app](https://tech.worldmonitor.app) | [Finance Variant: finance.worldmonitor.app](https://finance.worldmonitor.app) | [Happy Variant: happy.worldmonitor.app](https://happy.worldmonitor.app)
+[Live Demo: osint-worldview-cyan.vercel.app](https://osint-worldview-cyan.vercel.app) | [Tech Variant: osint-worldview-cyan.vercel.app/?variant=tech](https://osint-worldview-cyan.vercel.app/?variant=tech) | [Finance Variant: osint-worldview-cyan.vercel.app/?variant=finance](https://osint-worldview-cyan.vercel.app/?variant=finance) | [Happy Variant: osint-worldview-cyan.vercel.app/?variant=happy](https://osint-worldview-cyan.vercel.app/?variant=happy)
 
 ## Documentation Index
 
@@ -16,9 +16,7 @@ AI-powered real-time global intelligence dashboard aggregating news, markets, ge
 | [AI Intelligence](./AI_INTELLIGENCE.md) | LLM chains, RAG, threat classification, deduction |
 | [Desktop App](./DESKTOP_APP.md) | Tauri architecture, sidecar, secret management |
 | [Finance Data](./FINANCE_DATA.md) | Market radar, Gulf FDI, stablecoins, BIS, WTO |
-| [Premium Finance](./PREMIUM_FINANCE.md) | Premium stock analysis, stored history, backtests, daily brief |
-| [Premium Finance Search Layer](./PREMIUM_FINANCE_SEARCH.md) | Targeted stock-news provider chain layered on top of premium finance |
-| [Orbital Surveillance](./ORBITAL_SURVEILLANCE.md) | Satellite tracking, SGP4 propagation, tier availability, roadmap |
+| [Orbital Surveillance](./internals/ORBITAL_SURVEILLANCE.md) | Satellite tracking, SGP4 propagation, current availability, roadmap |
 | [API Reference](./api/) | OpenAPI specs for all 22 services |
 | [Adding Endpoints](./ADDING_ENDPOINTS.md) | Guide for adding new RPC endpoints |
 | [Release Packaging](./RELEASE_PACKAGING.md) | Desktop build and release process |
@@ -27,18 +25,18 @@ AI-powered real-time global intelligence dashboard aggregating news, markets, ge
 
 ## Platform Variants
 
-World Monitor runs four specialized variants from a single codebase, each optimized for different monitoring needs:
+WorldView runs four specialized variants from a single codebase, each optimized for different monitoring needs:
 
 | Variant | URL | Focus |
 |---------|-----|-------|
-| **🌍 World Monitor** | [worldmonitor.app](https://worldmonitor.app) | Geopolitical intelligence, military tracking, conflict monitoring, infrastructure security |
-| **💻 Tech Monitor** | [tech.worldmonitor.app](https://tech.worldmonitor.app) | Technology sector intelligence, AI/startup ecosystems, cloud infrastructure, tech events |
+| **🌍 WorldView** | [osint-worldview-cyan.vercel.app](https://osint-worldview-cyan.vercel.app) | Geopolitical intelligence, military tracking, conflict monitoring, infrastructure security |
+| **💻 WorldView Tech** | [osint-worldview-cyan.vercel.app/?variant=tech](https://osint-worldview-cyan.vercel.app/?variant=tech) | Technology sector intelligence, AI/startup ecosystems, cloud infrastructure, tech events |
 
 A compact **variant switcher** in the header allows seamless navigation between variants while preserving your map position and panel configuration.
 
 ---
 
-## World Monitor (Geopolitical)
+## WorldView (Geopolitical)
 
 The primary variant focuses on geopolitical intelligence, military tracking, and infrastructure security monitoring.
 
@@ -68,9 +66,9 @@ The primary variant focuses on geopolitical intelligence, military tracking, and
 
 ---
 
-## Tech Monitor
+## WorldView Tech
 
-The tech variant ([tech.worldmonitor.app](https://tech.worldmonitor.app)) provides specialized layers for technology sector monitoring.
+The tech variant ([osint-worldview-cyan.vercel.app/?variant=tech](https://osint-worldview-cyan.vercel.app/?variant=tech)) provides specialized layers for technology sector monitoring.
 
 ### Tech Ecosystem Layers
 
@@ -1370,53 +1368,6 @@ The system tracks the composite score over time:
 
 ---
 
-## Pentagon Pizza Index (PizzINT)
-
-The dashboard integrates real-time foot traffic data from strategic locations near government and military facilities. This "Pizza Index" concept—tracking late-night activity spikes at restaurants near the Pentagon, Langley, and other facilities—provides an unconventional indicator of crisis activity.
-
-### How It Works
-
-The system aggregates percentage-of-usual metrics from monitored locations:
-
-1. **Locations**: Fast food, pizza shops, and convenience stores near Pentagon, CIA, NSA, State Dept, and other facilities
-2. **Aggregation**: Activity percentages are averaged, capped at 100%
-3. **Spike Detection**: Locations exceeding their baseline are flagged
-
-### DEFCON-Style Alerting
-
-Aggregate activity maps to a 5-level readiness scale:
-
-| Level | Threshold | Label | Meaning |
-|-------|-----------|-------|---------|
-| **DEFCON 1** | ≥90% | COCKED PISTOL | Maximum readiness; crisis response active |
-| **DEFCON 2** | ≥75% | FAST PACE | High activity; significant event underway |
-| **DEFCON 3** | ≥50% | ROUND HOUSE | Elevated; above-normal operations |
-| **DEFCON 4** | ≥25% | DOUBLE TAKE | Increased vigilance |
-| **DEFCON 5** | <25% | FADE OUT | Normal peacetime operations |
-
-### GDELT Tension Pairs
-
-The indicator also displays geopolitical tension scores from GDELT (Global Database of Events, Language, and Tone):
-
-| Pair | Monitored Relationship |
-|------|----------------------|
-| USA ↔ Russia | Primary nuclear peer adversary |
-| USA ↔ China | Economic and military competition |
-| USA ↔ Iran | Middle East regional tensions |
-| Israel ↔ Iran | Direct conflict potential |
-| China ↔ Taiwan | Cross-strait relations |
-| Russia ↔ Ukraine | Active conflict zone |
-
-Each pair shows:
-
-- **Current tension score** (GDELT's normalized metric)
-- **7-day trend** (rising, falling, stable)
-- **Percentage change** from previous period
-
-This provides context for the activity levels—a spike at Pentagon locations during a rising China-Taiwan tension score carries different weight than during a quiet period.
-
----
-
 ## Related Assets
 
 News clusters are automatically enriched with nearby critical infrastructure. When a story mentions a geographic region, the system identifies relevant assets within 600km, providing immediate operational context.
@@ -2469,7 +2420,6 @@ On screens narrower than 768px or touch devices:
 - **Fixed layer set** - Layer toggle buttons are hidden; a curated set of layers is enabled by default
 - **Simplified controls** - Map resize handle and pin button are hidden
 - **Touch-optimized markers** - Expanded touch targets (44px) for easy tapping
-- **Hidden DEFCON indicator** - Pentagon Pizza Index hidden to reduce header clutter
 - **Hidden FOCUS selector** - Regional focus buttons hidden (use preset views instead)
 - **Compact header** - Social link shows X logo instead of username text
 
@@ -2524,7 +2474,6 @@ On larger screens, the full feature set is available:
 - Map labels visible at appropriate zoom levels
 - Resizable map section
 - Pinnable map (keeps map visible while scrolling panels)
-- Full DEFCON indicator with tension pairs
 - FOCUS regional selector for rapid navigation
 
 ---
@@ -3197,7 +3146,7 @@ This ensures the dashboard always displays meaningful data even during upstream 
 
 ## Service Status Monitoring
 
-The Service Status panel tracks the operational health of external services that WorldMonitor users may depend on.
+The Service Status panel tracks the operational health of external services that WorldView users may depend on.
 
 ### Monitored Services
 
@@ -3249,7 +3198,6 @@ Different data sources update at different frequencies based on volatility and A
 | **Internet outages** | 60 min | BGP events are rare |
 | **Economic data** | 30 min | FRED data rarely changes intraday |
 | **Military tracking** | 5 min | Activity patterns need timely updates |
-| **PizzINT** | 10 min | Foot traffic changes slowly |
 
 ### Real-Time Streams
 
@@ -3337,7 +3285,7 @@ define: {
 }
 
 // App.ts
-const header = `World Monitor v${__APP_VERSION__}`;
+const header = `WorldView v${__APP_VERSION__}`;
 ```
 
 ---
@@ -3348,8 +3296,7 @@ const header = `World Monitor v${__APP_VERSION__}`;
 
 ```bash
 # Clone the repository
-git clone https://github.com/koala73/worldmonitor.git
-cd worldmonitor
+cd osint-worldview
 
 # Install everything (buf, sebuf plugins, npm deps, proto deps)
 make install
@@ -3394,7 +3341,6 @@ The dashboard fetches data from various public APIs and data sources:
 | AISStream | Live vessel positions | Yes (relay) |
 | OpenSky Network | Military aircraft tracking | Yes (free) |
 | Wingbits | Aircraft enrichment (owner, operator) | Yes (free) |
-| PizzINT | Pentagon-area activity metrics | No |
 
 ### Optional API Keys
 
@@ -3427,7 +3373,6 @@ src/
 │   ├── MapPopup.ts           # Contextual info popups
 │   ├── SearchModal.ts        # Universal search (⌘K)
 │   ├── SignalModal.ts        # Signal intelligence display with focal points
-│   ├── PizzIntIndicator.ts   # Pentagon Pizza Index display
 │   ├── VirtualList.ts        # Virtual/windowed scrolling
 │   ├── InsightsPanel.ts      # AI briefings + focal point display
 │   ├── EconomicPanel.ts      # FRED economic indicators
@@ -3462,7 +3407,6 @@ src/
 │   ├── military-surge.ts     # Surge detection with news correlation
 │   ├── cached-theater-posture.ts # Theater posture API client with caching
 │   ├── wingbits.ts           # Aircraft enrichment (owner, operator, type)
-│   ├── pizzint.ts            # Pentagon Pizza Index + GDELT tensions
 │   ├── protests.ts           # ACLED + GDELT integration
 │   ├── gdelt-intel.ts        # GDELT Doc API topic intelligence
 │   ├── gdacs.ts              # UN GDACS disaster alerts
@@ -3657,7 +3601,7 @@ Original dashboard concept inspired by Reggie James ([@HipCityReg](https://x.com
 
 Special thanks to **Yanal at [Wingbits](https://wingbits.com)** for providing API access for aircraft enrichment data, enabling military aircraft classification and ownership tracking
 
-Thanks to **[@fai9al](https://github.com/fai9al)** for the inspiration and original PR that led to the Tech Monitor variant
+Thanks to **[@fai9al](https://github.com/fai9al)** for the inspiration and original PR that led to the WorldView Tech variant
 
 ---
 
@@ -3722,9 +3666,9 @@ See [ROADMAP.md](../.planning/ROADMAP.md) for detailed planning. Recent intellig
 - ✅ **Significant Protest Filtering** - Map shows only riots and high-severity protests
 - ✅ **Intelligence Findings Detail Modal** - Click any alert for full context and component breakdown
 - ✅ **Build-Time Version Sync** - Header version auto-syncs with package.json
-- ✅ **Tech Monitor Variant** - Dedicated technology sector dashboard with startup ecosystems, cloud regions, and tech events
+- ✅ **WorldView Tech Variant** - Dedicated technology sector dashboard with startup ecosystems, cloud regions, and tech events
 - ✅ **Smart Marker Clustering** - Geographic grouping of nearby markers with click-to-expand popups
-- ✅ **Variant Switcher UI** - Compact orbital navigation between World Monitor and Tech Monitor
+- ✅ **Variant Switcher UI** - Compact orbital navigation between WorldView and WorldView Tech
 - ✅ **CII Learning Mode** - 15-minute calibration period with visual progress indicator
 - ✅ **Regional Tech Coverage** - Verified tech HQ data for MENA, Europe, Asia-Pacific hubs
 - ✅ **Service Status Panel** - External service health monitoring (AI providers, cloud platforms)
@@ -4083,7 +4027,7 @@ MIT
 
 ## Author
 
-**Elie Habib**
+**WorldView maintainers**
 
 ---
 

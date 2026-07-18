@@ -1,20 +1,30 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
+import { validateApiKey } from './_api-key.js';
 
 function makeRequest(origin) {
   const headers = new Headers();
   if (origin !== null) {
     headers.set('origin', origin);
   }
-  return new Request('https://worldview.app/api/test', { headers });
+  return new Request('https://osint-worldview-cyan.vercel.app/api/test', { headers });
 }
 
-test('allows WorldView production origins', () => {
-  for (const origin of ['https://worldview.app', 'https://api.worldview.app']) {
+test('allows the exact WorldView production origin', () => {
+  const origin = 'https://osint-worldview-cyan.vercel.app';
+  const req = makeRequest(origin);
+  assert.equal(isDisallowedOrigin(req), false);
+  assert.equal(getCorsHeaders(req)['Access-Control-Allow-Origin'], origin);
+});
+
+test('rejects preview and disconnected custom-domain origins', () => {
+  for (const origin of [
+    'https://osint-worldview-git-main-aman-imrans-projects.vercel.app',
+    'https://worldview.app',
+  ]) {
     const req = makeRequest(origin);
-    assert.equal(isDisallowedOrigin(req), false);
-    assert.equal(getCorsHeaders(req)['Access-Control-Allow-Origin'], origin);
+    assert.equal(isDisallowedOrigin(req), true, `origin should be rejected: ${origin}`);
   }
 });
 
@@ -39,10 +49,22 @@ test('rejects unrelated external origins', () => {
   const req = makeRequest('https://evil.example.com');
   assert.equal(isDisallowedOrigin(req), true);
   const cors = getCorsHeaders(req);
-  assert.equal(cors['Access-Control-Allow-Origin'], 'https://worldview.app');
+  assert.equal(cors['Access-Control-Allow-Origin'], 'https://osint-worldview-cyan.vercel.app');
 });
 
 test('requests without origin remain allowed', () => {
   const req = makeRequest(null);
   assert.equal(isDisallowedOrigin(req), false);
+});
+
+test('allows keyless API access only from the exact production browser origin', () => {
+  const production = makeRequest('https://osint-worldview-cyan.vercel.app');
+  const preview = makeRequest('https://osint-worldview-git-main-aman-imrans-projects.vercel.app');
+
+  assert.deepEqual(validateApiKey(production), { valid: true, required: false });
+  assert.deepEqual(validateApiKey(preview), {
+    valid: false,
+    required: true,
+    error: 'API key required',
+  });
 });

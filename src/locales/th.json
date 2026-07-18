@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "สถานการณ์โลกพร้อมข้อมูลเชิงลึกจาก AI"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "การตั้งค่า",
     "sources": "แหล่งข้อมูล",
     "copyLink": "คัดลอกลิงก์",
-    "downloadApp": "ดาวน์โหลดแอป",
     "fullscreen": "เต็มจอ",
     "pinMap": "ปักหมุดแผนที่ไว้ด้านบน",
     "selectRegion": "เลือกภูมิภาค",
@@ -475,17 +474,6 @@
       "dontShowAgain": "ไม่แสดงอีก",
       "gotIt": "เข้าใจแล้ว"
     },
-    "downloadBanner": {
-      "title": "มีแอปเดสก์ท็อป",
-      "description": "ประสิทธิภาพระดับเนทีฟ, การจัดเก็บคีย์ในเครื่องที่ปลอดภัย, ไทล์แผนที่ออฟไลน์",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "แสดงทุกแพลตฟอร์ม",
-      "showLess": "แสดงน้อยลง",
-      "dismiss": "ปิด"
-    },
     "runtimeConfig": {
       "title": "การกำหนดค่าเดสก์ท็อป",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "บางฟีเจอร์ต้องการ API key"
       },
       "openSettings": "เปิดการตั้งค่า",
-      "skipSetup": "ข้ามการตั้งค่า — ใบอนุญาต World Monitor ใบเดียวปลดล็อกทุกอย่าง เข้าร่วมรายชื่อรอเพื่อรับการเข้าถึงก่อน",
       "summary": {
         "desktop": "โหมดเดสก์ท็อป",
         "web": "โหมดเว็บ (อ่านอย่างเดียว, ข้อมูลรับรองจากเซิร์ฟเวอร์)",
@@ -538,32 +525,6 @@
       "noTraffic": "ยังไม่มีทราฟฟิกที่บันทึกไว้",
       "sidecarUnreachable": "ไม่สามารถเชื่อมต่อ Sidecar ได้",
       "logCleared": "ล้างบันทึกแล้ว",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "คีย์เดียว ครบทุกอย่าง",
-        "heroDescription": "ใบอนุญาต World Monitor ใบเดียวแทนที่คีย์ API และผู้ให้บริการ LLM ทุกรายที่คุณต้องกำหนดค่าเอง สรุป AI ข่าวกรองเรียลไทม์ ข้อมูลตลาด การติดตามความขัดแย้ง การตรวจจับไฟ ภาพดาวเทียม — ทุกอย่างพร้อม จัดการครบ ไม่ต้องตั้งค่า",
-        "apiKey": {
-          "title": "คีย์ใบอนุญาต",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "วางใบอนุญาตของคุณเพื่อปลดล็อกแหล่งข้อมูลและฟีเจอร์ AI ทั้งหมดทันที",
-          "statusValid": "ได้รับอนุญาต",
-          "statusMissing": "ไม่มีใบอนุญาต"
-        },
-        "dividerOr": "หรือ",
-        "register": {
-          "title": "จองที่ของคุณ",
-          "description": "เรากำลังเตรียมเปิดตัวใบอนุญาต World Monitor ลงทะเบียนตอนนี้เพื่อเป็นคนแรก — สมาชิกรุ่นแรกได้รับสิทธิ์เข้าถึงก่อนและราคาผู้ก่อตั้ง",
-          "emailPlaceholder": "อีเมลของคุณ@email.com",
-          "submitBtn": "เข้าร่วมรายชื่อรอ",
-          "submitting": "กำลังส่ง...",
-          "success": "คุณอยู่ในรายชื่อแล้ว! เราจะแจ้งคุณเป็นคนแรก",
-          "alreadyRegistered": "คุณอยู่ในรายชื่อรอแล้ว",
-          "error": "การลงทะเบียนล้มเหลว กรุณาลองอีกครั้ง",
-          "invalidEmail": "กรุณากรอกอีเมลที่ถูกต้อง"
-        },
-        "byokTitle": "หรือใช้คีย์ของคุณเอง",
-        "byokDescription": "ต้องการควบคุมเต็มรูปแบบ? ไปที่แท็บคีย์ API และ LLM เพื่อกำหนดค่าแหล่งข้อมูลและผู้ให้บริการ AI แต่ละรายทีละรายการ"
-      },
       "table": {
         "time": "เวลา",
         "method": "เมธอด",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "ดัชนีพิซซ่าเพนตากอน",
-      "defcon": "DEFCON {{level}}",
-      "updated": "อัปเดต {{timeAgo}}",
-      "tensionsTitle": "ความตึงเครียดภูมิรัฐศาสตร์",
-      "source": "แหล่งที่มา:",
-      "statusClosed": "ปิด",
-      "statusSpike": "พุ่งสูง",
-      "statusHigh": "สูง",
-      "statusElevated": "ยกระดับ",
-      "statusNominal": "ปกติ",
-      "statusQuiet": "เงียบ",
-      "justNow": "เมื่อสักครู่",
-      "minutesAgo": "{{m}}น. ที่แล้ว",
-      "hoursAgo": "{{h}}ชม. ที่แล้ว",
-      "defconLabels": {
-        "1": "COCKED PISTOL - ความพร้อมสูงสุด",
-        "2": "FAST PACE - กองกำลังพร้อมรบ",
-        "3": "ROUND HOUSE - เพิ่มความพร้อมรบ",
-        "4": "DOUBLE TAKE - เพิ่มการเฝ้าระวังข่าวกรอง",
-        "5": "FADE OUT - ความพร้อมต่ำสุด"
-      }
     },
     "strategicPosture": {
       "elapsed": "ผ่านไป: {{elapsed}} วิ.",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "โมเดลท้องถิ่นในเบราว์เซอร์",
       "aiFlowBrowserDesc": "เรียกใช้ AI ในเบราว์เซอร์ของคุณ",
       "aiFlowBrowserWarn": "จะดาวน์โหลดข้อมูลประมาณ 250MB ลงในคอมพิวเตอร์ของคุณ",
-      "aiFlowOllamaCta": "ต้องการ AI ท้องถิ่นเต็มรูปแบบ?",
-      "aiFlowOllamaCtaDesc": "ดาวน์โหลดแอปเดสก์ท็อปเพื่อรองรับ Ollama",
-      "aiFlowDownloadDesktop": "ดาวน์โหลด Desktop App →",
       "aiFlowStatusActive": "Cloud AI ทำงานอยู่",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + โมเดลเบราว์เซอร์ทำงานอยู่",
       "aiFlowStatusBrowserOnly": "โมเดลเบราว์เซอร์เท่านั้น",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "มอสสาด/IDF",
       "nato_hq": "สำนักงานใหญ่นาโต้",
       "pla_mss_activity": "กิจกรรม PLA/MSS",
-      "pentagon_pizza_index": "ดัชนีพิซซ่าเพนตากอน",
       "piracy_conflict": "โจรสลัด/ขัดแย้ง",
       "qatar_al_udeid": "กาตาร์/อัลอูเดด",
       "saudi_gip_mbs": "ซาอุดิอาระเบีย GIP/MBS",

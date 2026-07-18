@@ -1,4 +1,4 @@
-# Component Documentation — World Monitor
+# Component Documentation — WorldView
 
 > Auto-generated reference for all UI components in `src/components/`.
 > Last updated: 2026-02-19
@@ -35,7 +35,7 @@
 
 ## Overview
 
-World Monitor's UI is built entirely with **vanilla TypeScript** — no React, Vue, or
+WorldView's UI is built entirely with **vanilla TypeScript** — no React, Vue, or
 Angular. Every component is a plain ES class that owns its own DOM subtree and
 communicates through method calls, callbacks, and a handful of
 `document`/`window`-level custom events.
@@ -175,7 +175,7 @@ None — `Panel` is a pure base class and renders identically in all variants.
 
 ## Map System
 
-World Monitor ships two independent map renderers and an adapter that picks the
+WorldView ships two independent map renderers and an adapter that picks the
 right one at runtime.
 
 ### DeckGLMap
@@ -1062,15 +1062,6 @@ small UI affordances.
 | **Exported** | `mountCommunityWidget()` |
 | **Notes** | Dismissible via `localStorage`. |
 
-### PizzIntIndicator
-
-| Field | Detail |
-|---|---|
-| **File** | `src/components/PizzIntIndicator.ts` |
-| **Purpose** | DEFCON-style 1–5 threat indicator with expandable detail panel. |
-| **DOM** | Toggle button + expandable panel. |
-| **Notes** | Links to `pizzint.watch`. |
-
 ### IntelligenceGapBadge (IntelligenceFindingsBadge)
 
 | Field | Detail |
@@ -1145,7 +1136,6 @@ small UI affordances.
 | MobileWarningModal | ✅ | ✅ | ✅ |
 | DownloadBanner | ✅ | ✅ | ✅ |
 | CommunityWidget | ✅ | ✅ | ✅ |
-| PizzIntIndicator | ✅ | — | — |
 | IntelligenceFindingsBadge | ✅ | — | — |
 | VerificationChecklist | ✅ | ✅ | — |
 
@@ -1233,7 +1223,6 @@ graph TD
         CTL[CountryTimeline]
         STM[StoryModal]
         IGB[IntelligenceFindingsBadge]
-        PIZ[PizzIntIndicator]
     end
 
     subgraph Services["Service Layer"]

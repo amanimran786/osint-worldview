@@ -133,21 +133,21 @@ Client-side fetch uses a circuit breaker: 3 consecutive failures trigger a 10-mi
 
 ---
 
-## Tier Availability
+## Current Availability
 
-| Feature | Free | Pro | Enterprise |
-|---------|------|-----|------------|
-| Live satellite positions on globe | Yes | Yes | Yes |
-| Orbit trails (15-min trace) | Yes | Yes | Yes |
-| Ground footprint markers | Yes | Yes | Yes |
-| Overhead pass predictions | — | Yes | Yes |
-| Revisit frequency analysis | — | Yes | Yes |
-| Imaging window alerts | — | Yes | Yes |
-| Cross-layer correlation (sat + GPS jam, sat + conflict) | — | Yes | Yes |
-| Satellite intel summary panel | — | Yes | Yes |
-| Sensor swath / FOV visualization | — | Yes | — |
-| Historical pass log (24h) | — | Yes | 30-day archive |
-| Actual satellite imagery (SAR/optical) | — | — | Yes |
+| Feature | Status |
+|---------|--------|
+| Live satellite positions on globe | Available |
+| Orbit trails (15-min trace) | Available |
+| Ground footprint markers | Available |
+| Overhead pass predictions | Not implemented |
+| Revisit frequency analysis | Not implemented |
+| Imaging window alerts | Not implemented |
+| Cross-layer correlation | Not implemented |
+| Satellite summary panel | Not implemented |
+| Sensor swath / FOV visualization | Not implemented |
+| Historical pass log | Not implemented |
+| Satellite imagery (SAR/optical) | Not implemented |
 
 ---
 
@@ -163,7 +163,7 @@ Calculate how often a location is observed by hostile or friendly satellites. Us
 
 ### Imaging Window Alerts
 
-Push notifications when SAR or optical satellites are overhead a user's watched regions. Integrates with Pro delivery channels (Slack, Telegram, WhatsApp, Email).
+Notify users when SAR or optical satellites are overhead watched regions.
 
 ### Sensor Swath Visualization
 
@@ -179,8 +179,8 @@ Detect intelligence-relevant patterns by combining satellite positions with othe
 
 ### Satellite Intel Summary Panel
 
-Dedicated Pro panel with a table of tracked satellites: operator, sensor capability, orbit type, current position, and next pass over user-defined points of interest.
+Dedicated panel with a table of tracked satellites: operator, sensor capability, orbit type, current position, and next pass over user-defined points of interest.
 
 ### Historical Pass Log
 
-Which satellites passed over a given location in the last 24h (Pro) or 30 days (Enterprise). Useful for post-event analysis: _"What imaging assets were overhead during the incident?"_
+Record which satellites passed over a given location for post-event analysis.

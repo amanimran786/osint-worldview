@@ -203,7 +203,6 @@
     "panelCatDeals": "الصفقات والمؤسسات",
     "panelCatGulfMena": "الخليج والشرق الأوسط",
     "panelCatTradePolicy": "السياسة التجارية",
-    "downloadApp": "تحميل التطبيق",
     "selectRegion": "اختر المنطقة"
   },
   "panels": {
@@ -475,17 +474,6 @@
       "dontShowAgain": "لا تعرض مجدداً",
       "gotIt": "حسناً"
     },
-    "downloadBanner": {
-      "title": "تطبيق سطح المكتب متاح",
-      "description": "أداء أصلي، تخزين آمن للمفاتيح محلياً، خرائط غير متصلة.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "عرض جميع المنصات",
-      "showLess": "عرض أقل",
-      "dismiss": "تجاهل"
-    },
     "runtimeConfig": {
       "title": "تهيئة سطح المكتب",
       "alertTitle": {
@@ -521,8 +509,7 @@
         "NASA_FIRMS_API_KEY": "نظام معلومات الحرائق لإدارة الموارد.",
         "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
         "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
-      },
-      "skipSetup": "تخطَّ الإعداد — ترخيص واحد لـ World Monitor يفتح كل شيء. انضم إلى قائمة الانتظار للحصول على وصول مبكر."
+      }
     },
     "settingsWindow": {
       "validating": "جارٍ التحقق من مفاتيح API...",
@@ -544,32 +531,6 @@
         "path": "المسار",
         "status": "الحالة",
         "duration": "المدة"
-      },
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "مفتاح واحد. كل شيء مشمول.",
-        "heroDescription": "ترخيص واحد لـ World Monitor يحل محل كل مفتاح API ومزود LLM كنت ستهيئه بنفسك. ملخصات AI، استخبارات فورية، بيانات سوقية، تتبع النزاعات، كشف الحرائق، صور الأقمار الصناعية — الكل مفعّل، الكل مُدار، بدون أي إعداد.",
-        "apiKey": {
-          "title": "مفتاح الترخيص",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "الصق ترخيصك لفتح جميع مصادر البيانات وميزات AI فوراً.",
-          "statusValid": "مُرخَّص",
-          "statusMissing": "بدون ترخيص"
-        },
-        "dividerOr": "أو",
-        "register": {
-          "title": "احجز مكانك",
-          "description": "نحن نستعد لإطلاق تراخيص World Monitor. سجّل الآن وكن أول من يحصل على الوصول — الأعضاء الأوائل يحصلون على أولوية الوصول وتسعير المؤسسين.",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "انضم لقائمة الانتظار",
-          "submitting": "جارٍ الإرسال...",
-          "success": "أنت في القائمة! سنُخبرك أولاً.",
-          "alreadyRegistered": "أنت مسجّل بالفعل في قائمة الانتظار.",
-          "error": "فشل التسجيل. يرجى المحاولة مرة أخرى.",
-          "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صالح."
-        },
-        "byokTitle": "أو استخدم مفاتيحك الخاصة",
-        "byokDescription": "تفضّل التحكم الكامل؟ انتقل إلى تبويبتي مفاتيح API وLLMs لتهيئة كل مصدر بيانات ومزود AI على حدة."
       }
     },
     "countryIntel": {
@@ -818,29 +779,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "مؤشر بيتزا البنتاغون",
-      "defcon": "DEFCON {{level}}",
-      "updated": "تم التحديث {{timeAgo}}",
-      "tensionsTitle": "التوترات الجيوسياسية",
-      "source": "المصدر:",
-      "statusClosed": "مغلق",
-      "statusSpike": "ارتفاع حاد",
-      "statusHigh": "مرتفع",
-      "statusElevated": "متصاعد",
-      "statusNominal": "طبيعي",
-      "statusQuiet": "هادئ",
-      "justNow": "الآن",
-      "minutesAgo": "{{m}}د مضت",
-      "hoursAgo": "{{h}}س مضت",
-      "defconLabels": {
-        "1": "مسدس مُعدّ - أقصى جاهزية",
-        "2": "وتيرة سريعة - القوات المسلحة جاهزة",
-        "3": "بيت دائري - زيادة جاهزية القوات",
-        "4": "نظرة مزدوجة - تعزيز المراقبة الاستخباراتية",
-        "5": "تلاشي - أدنى مستوى جاهزية"
-      }
     },
     "strategicPosture": {
       "elapsed": "المنقضي: {{elapsed}} ث",
@@ -1160,9 +1098,6 @@
       "aiFlowBrowserLabel": "نموذج محلي في المتصفح",
       "aiFlowBrowserDesc": "تشغيل الذكاء الاصطناعي محلياً في متصفحك",
       "aiFlowBrowserWarn": "سيتم تنزيل حوالي 250 ميجابايت من البيانات إلى جهازك",
-      "aiFlowOllamaCta": "تريد ذكاء اصطناعي محلي بالكامل؟",
-      "aiFlowOllamaCtaDesc": "قم بتنزيل تطبيق سطح المكتب لدعم Ollama",
-      "aiFlowDownloadDesktop": "تنزيل تطبيق سطح المكتب ←",
       "aiFlowStatusActive": "Cloud AI نشط",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + نموذج المتصفح نشط",
       "aiFlowStatusBrowserOnly": "نموذج المتصفح فقط",
@@ -2161,7 +2096,6 @@
       "mossad_idf": "الموساد/الجيش الإسرائيلي",
       "nato_hq": "مقر NATO",
       "pla_mss_activity": "نشاط جيش التحرير الشعبي/أمن الدولة",
-      "pentagon_pizza_index": "مؤشر بيتزا البنتاغون",
       "piracy_conflict": "قرصنة/نزاع",
       "qatar_al_udeid": "قطر/قاعدة العديد",
       "saudi_gip_mbs": "السعودية/رئاسة الاستخبارات",

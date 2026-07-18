@@ -1,6 +1,6 @@
 # State Management
 
-World Monitor is an AI-powered real-time global intelligence dashboard built with **vanilla TypeScript** — no framework, no reactive stores. All state is managed manually through class properties, `localStorage`, `IndexedDB`, and URL query parameters.
+WorldView is an AI-powered real-time global intelligence dashboard built with **vanilla TypeScript** — no framework, no reactive stores. All state is managed manually through class properties, `localStorage`, `IndexedDB`, and URL query parameters.
 
 This document is the canonical reference for how state is stored, updated, and persisted across the application.
 
@@ -107,7 +107,6 @@ private exportPanel: ExportPanel | null = null;
 private languageSelector: LanguageSelector | null = null;
 private searchModal: SearchModal | null = null;
 private mobileWarningModal: MobileWarningModal | null = null;
-private pizzintIndicator: PizzIntIndicator | null = null;
 private countryBriefPage: CountryBriefPage | null = null;
 private countryTimeline: CountryTimeline | null = null;
 private findingsBadge: IntelligenceGapBadge | null = null;
@@ -688,7 +687,7 @@ stateDiagram-v2
 
 ## 9. All localStorage Keys
 
-Complete reference of every `localStorage` key used by World Monitor:
+Complete reference of every `localStorage` key used by WorldView:
 
 | Key | Purpose | Format | Source |
 |-----|---------|--------|--------|

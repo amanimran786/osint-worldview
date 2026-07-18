@@ -62,7 +62,7 @@
 }
 
 [dir="rtl"] .signal-item.convergence {
-  border-right-color: var(--defcon-4);
+  border-right-color: var(--status-info);
 }
 
 [dir="rtl"] .signal-item.triangulation {

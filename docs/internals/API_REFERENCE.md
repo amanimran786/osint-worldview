@@ -1,8 +1,8 @@
-# World Monitor — API Reference
+# WorldView — API Reference
 
-> Comprehensive reference for all Vercel Edge Function endpoints powering the World Monitor intelligence dashboard.
+> Comprehensive reference for all Vercel Edge Function endpoints powering the WorldView intelligence dashboard.
 
-**Base URL**: All endpoints are relative to `/api/` (e.g., `https://worldmonitor.app/api/earthquakes`).
+**Base URL**: All endpoints are relative to `/api/` (e.g., `https://osint-worldview-cyan.vercel.app/api/earthquakes`).
 
 ---
 
@@ -86,7 +86,6 @@
 | `GET` | `/api/risk-scores` | None | 600 s | — | Risk |
 | `GET/POST` | `/api/temporal-baseline` | None | 7 776 000 s (90 d) | — | Risk |
 | `GET` | `/api/eia/*` | `EIA_API_KEY` | CDN 3 600 s | — | Proxy |
-| `GET` | `/api/pizzint/*` | None | CDN 120 s | — | Proxy |
 | `GET` | `/api/wingbits/*` | `WINGBITS_API_KEY` | CDN 15–300 s | — | Proxy |
 | `GET` | `/api/youtube/*` | None | — | — | Proxy |
 
@@ -94,7 +93,7 @@
 
 ## Overview
 
-World Monitor exposes **60+ serverless endpoints** deployed as **Vercel Edge Functions** (unless noted otherwise). Every endpoint:
+WorldView exposes **60+ serverless endpoints** deployed as **Vercel Edge Functions** (unless noted otherwise). Every endpoint:
 
 1. Applies **CORS middleware** — only whitelisted origins may call the API.
 2. Optionally applies **IP-based rate limiting** via a sliding-window algorithm.
@@ -135,8 +134,8 @@ Eight regex patterns control access:
 
 | # | Pattern | Matches |
 |---|---------|---------|
-| 1 | `worldmonitor\.app$` | `https://worldmonitor.app` |
-| 2 | `\.worldmonitor\.app$` | `https://*.worldmonitor.app` |
+| 1 | `worldmonitor\.app$` | `https://osint-worldview-cyan.vercel.app` |
+| 2 | `\.worldmonitor\.app$` | `https://*.osint-worldview-cyan.vercel.app` |
 | 3 | `\.vercel\.app$` | Vercel preview deploys |
 | 4 | `localhost(:\d+)?$` | `http://localhost:*` |
 | 5 | `127\.0\.0\.1(:\d+)?$` | IPv4 loopback |
@@ -2140,31 +2139,6 @@ EIA (Energy Information Administration) energy data proxy.
 
 ---
 
-#### `GET /api/pizzint/*`
-
-Proxy to pizzint.watch intelligence APIs.
-
-**Endpoints**
-
-| Path | Purpose |
-|------|---------|
-| `/api/pizzint/dashboard-data` | Dashboard data |
-| `/api/pizzint/gdelt/batch` | GDELT batch queries |
-
-**Auth & External API**
-
-| Env Var | Required | Upstream URL |
-|---------|----------|--------------|
-| — | — | `https://pizzint.watch/` |
-
-**Caching**
-
-| Layer | TTL |
-|-------|-----|
-| CDN | `s-maxage=120` |
-
----
-
 #### `GET /api/wingbits/*`
 
 Wingbits aircraft tracking data proxy.
@@ -2279,7 +2253,7 @@ Content-Type: application/json
 
 ## Caching Architecture
 
-World Monitor uses a **multi-tier caching strategy** to minimize upstream API calls, reduce latency, and stay within third-party rate limits.
+WorldView uses a **multi-tier caching strategy** to minimize upstream API calls, reduce latency, and stay within third-party rate limits.
 
 ### Tier Overview
 
@@ -2352,7 +2326,6 @@ The `_cache-telemetry.js` module records HIT/MISS/STALE per endpoint, accessible
 |-----|----------|-----------|
 | 8–15 s | Real-time | `ais-snapshot`, `opensky`, `wingbits/flights` |
 | 60 s | 1 min | `finnhub`, `yahoo-finance`, `service-status` |
-| 120 s | 2 min | `coingecko`, `stablecoin-markets`, `pizzint/*` |
 | 300 s | 5 min | `gdelt-doc`, `gdelt-geo`, `rss-proxy`, `hackernews`, `polymarket`, `theater-posture:fresh` |
 | 600 s | 10 min | `acled`, `acled-conflict`, `firms-fires`, `cyber-threats`, `cloudflare-outages`, `risk-scores`, `version` |
 | 900 s | 15 min | `etf-flows` |

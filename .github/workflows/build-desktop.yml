@@ -192,7 +192,15 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "BUILD_VARIANT=${{ github.event.inputs.variant }}" >> $GITHUB_ENV
           else
-            echo "BUILD_VARIANT=full" >> $GITHUB_ENV
+            TAG_NAME="${{ github.ref_name }}"
+            if [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-tech$ ]]; then
+              echo "BUILD_VARIANT=tech" >> $GITHUB_ENV
+            elif [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "BUILD_VARIANT=full" >> $GITHUB_ENV
+            else
+              echo "Unsupported desktop release tag: $TAG_NAME" >&2
+              exit 1
+            fi
           fi
 
       # ── Build with tauri-action ──
@@ -207,8 +215,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_VARIANT: full
           VITE_DESKTOP_RUNTIME: '1'
-          VITE_WS_API_URL: https://worldmonitor.app
-          CONVEX_URL: ${{ secrets.CONVEX_URL }}
+          VITE_WS_API_URL: https://osint-worldview-cyan.vercel.app
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ env.APPLE_SIGNING_IDENTITY }}
@@ -217,7 +224,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           tagName: v__VERSION__
-          releaseName: 'World Monitor v__VERSION__'
+          releaseName: 'WorldView v__VERSION__'
           releaseBody: 'See changelog below.'
           releaseDraft: ${{ github.event_name == 'workflow_dispatch' && fromJSON(github.event.inputs.draft) }}
           prerelease: false
@@ -232,11 +239,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_VARIANT: full
           VITE_DESKTOP_RUNTIME: '1'
-          VITE_WS_API_URL: https://worldmonitor.app
-          CONVEX_URL: ${{ secrets.CONVEX_URL }}
+          VITE_WS_API_URL: https://osint-worldview-cyan.vercel.app
         with:
           tagName: v__VERSION__
-          releaseName: 'World Monitor v__VERSION__'
+          releaseName: 'WorldView v__VERSION__'
           releaseBody: 'See changelog below.'
           releaseDraft: ${{ github.event_name == 'workflow_dispatch' && fromJSON(github.event.inputs.draft) }}
           prerelease: false
@@ -251,8 +257,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_VARIANT: tech
           VITE_DESKTOP_RUNTIME: '1'
-          VITE_WS_API_URL: https://worldmonitor.app
-          CONVEX_URL: ${{ secrets.CONVEX_URL }}
+          VITE_WS_API_URL: https://osint-worldview-cyan.vercel.app
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ env.APPLE_SIGNING_IDENTITY }}
@@ -261,7 +266,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           tagName: v__VERSION__-tech
-          releaseName: 'Tech Monitor v__VERSION__'
+          releaseName: 'WorldView Tech v__VERSION__'
           releaseBody: 'See changelog below.'
           releaseDraft: ${{ github.event_name == 'workflow_dispatch' && fromJSON(github.event.inputs.draft) }}
           prerelease: false
@@ -277,11 +282,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_VARIANT: tech
           VITE_DESKTOP_RUNTIME: '1'
-          VITE_WS_API_URL: https://worldmonitor.app
-          CONVEX_URL: ${{ secrets.CONVEX_URL }}
+          VITE_WS_API_URL: https://osint-worldview-cyan.vercel.app
         with:
           tagName: v__VERSION__-tech
-          releaseName: 'Tech Monitor v__VERSION__'
+          releaseName: 'WorldView Tech v__VERSION__'
           releaseBody: 'See changelog below.'
           releaseDraft: ${{ github.event_name == 'workflow_dispatch' && fromJSON(github.event.inputs.draft) }}
           prerelease: false
@@ -504,7 +508,15 @@ jobs:
         shell: bash
         run: |
           VERSION=$(jq -r .version src-tauri/tauri.conf.json)
-          TAG="v${VERSION}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.variant }}" = "tech" ]; then
+              TAG="v${VERSION}-tech"
+            else
+              TAG="v${VERSION}"
+            fi
+          else
+            TAG="${{ github.ref_name }}"
+          fi
           PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo "")
 
           if [ -z "$PREV_TAG" ]; then

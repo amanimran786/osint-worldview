@@ -36,53 +36,6 @@ export interface StrategicRisk {
   trend: TrendDirection;
 }
 
-export interface GetPizzintStatusRequest {
-  includeGdelt: boolean;
-}
-
-export interface GetPizzintStatusResponse {
-  pizzint?: PizzintStatus;
-  tensionPairs: GdeltTensionPair[];
-}
-
-export interface PizzintStatus {
-  defconLevel: number;
-  defconLabel: string;
-  aggregateActivity: number;
-  activeSpikes: number;
-  locationsMonitored: number;
-  locationsOpen: number;
-  updatedAt: number;
-  dataFreshness: DataFreshness;
-  locations: PizzintLocation[];
-}
-
-export interface PizzintLocation {
-  placeId: string;
-  name: string;
-  address: string;
-  currentPopularity: number;
-  percentageOfUsual: number;
-  isSpike: boolean;
-  spikeMagnitude: number;
-  dataSource: string;
-  recordedAt: string;
-  dataFreshness: DataFreshness;
-  isClosedNow: boolean;
-  lat: number;
-  lng: number;
-}
-
-export interface GdeltTensionPair {
-  id: string;
-  countries: string[];
-  label: string;
-  score: number;
-  trend: TrendDirection;
-  changePercent: number;
-  region: string;
-}
-
 export interface ClassifyEventRequest {
   title: string;
   description: string;
@@ -171,8 +124,6 @@ export type SeverityLevel = "SEVERITY_LEVEL_UNSPECIFIED" | "SEVERITY_LEVEL_LOW" 
 
 export type TrendDirection = "TREND_DIRECTION_UNSPECIFIED" | "TREND_DIRECTION_RISING" | "TREND_DIRECTION_STABLE" | "TREND_DIRECTION_FALLING";
 
-export type DataFreshness = "DATA_FRESHNESS_UNSPECIFIED" | "DATA_FRESHNESS_FRESH" | "DATA_FRESHNESS_STALE";
-
 export interface FieldViolation {
   field: string;
   description: string;
@@ -219,7 +170,6 @@ export interface RouteDescriptor {
 
 export interface IntelligenceServiceHandler {
   getRiskScores(ctx: ServerContext, req: GetRiskScoresRequest): Promise<GetRiskScoresResponse>;
-  getPizzintStatus(ctx: ServerContext, req: GetPizzintStatusRequest): Promise<GetPizzintStatusResponse>;
   classifyEvent(ctx: ServerContext, req: ClassifyEventRequest): Promise<ClassifyEventResponse>;
   getCountryIntelBrief(ctx: ServerContext, req: GetCountryIntelBriefRequest): Promise<GetCountryIntelBriefResponse>;
   searchGdeltDocuments(ctx: ServerContext, req: SearchGdeltDocumentsRequest): Promise<SearchGdeltDocumentsResponse>;
@@ -258,53 +208,6 @@ export function createIntelligenceServiceRoutes(
 
           const result = await handler.getRiskScores(ctx, body);
           return new Response(JSON.stringify(result as GetRiskScoresResponse), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        } catch (err: unknown) {
-          if (err instanceof ValidationError) {
-            return new Response(JSON.stringify({ violations: err.violations }), {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
-          if (options?.onError) {
-            return options.onError(err, req);
-          }
-          const message = err instanceof Error ? err.message : String(err);
-          return new Response(JSON.stringify({ message }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-      },
-    },
-    {
-      method: "GET",
-      path: "/api/intelligence/v1/get-pizzint-status",
-      handler: async (req: Request): Promise<Response> => {
-        try {
-          const pathParams: Record<string, string> = {};
-          const url = new URL(req.url, "http://localhost");
-          const params = url.searchParams;
-          const body: GetPizzintStatusRequest = {
-            includeGdelt: params.get("include_gdelt") === "true",
-          };
-          if (options?.validateRequest) {
-            const bodyViolations = options.validateRequest("getPizzintStatus", body);
-            if (bodyViolations) {
-              throw new ValidationError(bodyViolations);
-            }
-          }
-
-          const ctx: ServerContext = {
-            request: req,
-            pathParams,
-            headers: Object.fromEntries(req.headers.entries()),
-          };
-
-          const result = await handler.getPizzintStatus(ctx, body);
-          return new Response(JSON.stringify(result as GetPizzintStatusResponse), {
             status: 200,
             headers: { "Content-Type": "application/json" },
           });
@@ -566,4 +469,3 @@ export function createIntelligenceServiceRoutes(
     },
   ];
 }
-

@@ -644,7 +644,7 @@ fn open_settings_window(app: &AppHandle) -> Result<(), String> {
     }
 
     let _settings_window = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
-        .title("World Monitor Settings")
+        .title("WorldView Settings")
         .title_bar_style(tauri::TitleBarStyle::Overlay)
         .inner_size(980.0, 600.0)
         .min_inner_size(820.0, 480.0)
@@ -682,7 +682,7 @@ fn open_live_channels_window(app: &AppHandle, base_url: Option<String>) -> Resul
     };
 
     let _live_channels_window = WebviewWindowBuilder::new(app, "live-channels", url)
-    .title("Channel management - World Monitor")
+    .title("Channel management - WorldView")
     .title_bar_style(tauri::TitleBarStyle::Overlay)
     .inner_size(680.0, 760.0)
     .min_inner_size(520.0, 600.0)
@@ -748,15 +748,15 @@ fn build_app_menu(handle: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     )?;
 
     let about_metadata = AboutMetadata {
-        name: Some("World Monitor".into()),
+        name: Some("WorldView".into()),
         version: Some(env!("CARGO_PKG_VERSION").into()),
-        copyright: Some("\u{00a9} 2025 Elie Habib".into()),
-        website: Some("https://worldmonitor.app".into()),
-        website_label: Some("worldmonitor.app".into()),
+        copyright: Some("\u{00a9} 2026 Aman Imran".into()),
+        website: Some("https://osint-worldview-cyan.vercel.app".into()),
+        website_label: Some("WorldView on the web".into()),
         ..Default::default()
     };
     let about_item =
-        PredefinedMenuItem::about(handle, Some("About World Monitor"), Some(about_metadata))?;
+        PredefinedMenuItem::about(handle, Some("About WorldView"), Some(about_metadata))?;
     let github_item = MenuItem::with_id(
         handle,
         MENU_HELP_GITHUB_ID,
@@ -1111,13 +1111,6 @@ fn start_local_api(app: &AppHandle) -> Result<(), String> {
         "INFO",
         &format!("injected {secret_count} keychain secrets into sidecar env"),
     );
-
-    // Inject build-time secrets (CI) with runtime env fallback (dev)
-    if let Some(url) = option_env!("CONVEX_URL") {
-        cmd.env("CONVEX_URL", url);
-    } else if let Ok(url) = std::env::var("CONVEX_URL") {
-        cmd.env("CONVEX_URL", url);
-    }
 
     let child = cmd
         .spawn()

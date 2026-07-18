@@ -18,7 +18,7 @@ import {
   getStoredHistoricalBacktestAnalyses,
   storeHistoricalBacktestAnalysisRecords,
   storeStockBacktestSnapshot,
-} from './premium-stock-store';
+} from './stock-analysis-store';
 import { sanitizeSymbol } from './_shared';
 
 const CACHE_TTL_SECONDS = 900;

@@ -12,11 +12,11 @@ Only the latest version on the `main` branch is actively maintained and receives
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-If you discover a security vulnerability in World Monitor, please report it responsibly:
+If you discover a security vulnerability in WorldView, please report it responsibly:
 
-1. **GitHub Private Vulnerability Reporting**: Use [GitHub's private vulnerability reporting](https://github.com/koala73/worldmonitor/security/advisories/new) to submit your report directly through the repository.
+1. **GitHub Private Vulnerability Reporting**: Use [GitHub's private vulnerability reporting](https://github.com/amanimran786/osint-worldview/security/advisories/new) to submit your report directly through the repository.
 
-2. **Direct Contact**: Alternatively, reach out to the repository owner [@koala73](https://github.com/koala73) directly through GitHub.
+2. **Direct Contact**: Alternatively, reach out to the repository owner [@amanimran786](https://github.com/amanimran786) through GitHub.
 
 ### What to Include
 
@@ -40,7 +40,7 @@ If you discover a security vulnerability in World Monitor, please report it resp
 
 ## Security Considerations
 
-World Monitor is a client-side intelligence dashboard that aggregates publicly available data. Here are the key security areas:
+WorldView is a client-side intelligence dashboard that aggregates publicly available data. Here are the key security areas:
 
 ### API Keys & Secrets
 
@@ -74,7 +74,7 @@ World Monitor is a client-side intelligence dashboard that aggregates publicly a
 
 ### Data Sources
 
-- World Monitor aggregates publicly available OSINT data
+- WorldView aggregates publicly available OSINT data
 - No classified or restricted data sources are used
 - State-affiliated sources are flagged with propaganda risk ratings
 - All data is consumed read-only — the platform does not modify upstream sources
@@ -83,7 +83,7 @@ World Monitor is a client-side intelligence dashboard that aggregates publicly a
 
 The following are **in scope** for security reports:
 
-- Vulnerabilities in the World Monitor codebase
+- Vulnerabilities in the WorldView codebase
 - Edge function security issues (SSRF, injection, auth bypass)
 - XSS or content injection through RSS feeds or external data
 - API key exposure or secret leakage
@@ -109,4 +109,4 @@ The following are **out of scope**:
 
 ---
 
-Thank you for helping keep World Monitor and its users safe! 🔒
+Thank you for helping keep WorldView and its users safe!

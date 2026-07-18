@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Globální situace s postřehy umělé inteligence"
   },
   "countryBrief": {
@@ -203,7 +203,6 @@
     "panelCatDeals": "Transakce a instituce",
     "panelCatGulfMena": "Záliv a MENA",
     "panelCatTradePolicy": "Obchodní politika",
-    "downloadApp": "Stáhnout aplikaci",
     "selectRegion": "Vybrat region"
   },
   "panels": {
@@ -475,17 +474,6 @@
       "dontShowAgain": "Příště nezobrazovat",
       "gotIt": "Rozumím"
     },
-    "downloadBanner": {
-      "title": "K dispozici pro desktop",
-      "description": "Nativní výkon, bezpečné lokální uložení klíčů, offline mapové podklady.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "Zobrazit všechny platformy",
-      "showLess": "Zobrazit méně",
-      "dismiss": "Zavřít"
-    },
     "runtimeConfig": {
       "title": "Konfigurace desktopu",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Některé funkce vyžadují klíče API"
       },
       "openSettings": "Otevřít nastavení",
-      "skipSetup": "Přeskočit nastavení — jedna licence World Monitor odemkne vše. Zapište se na čekací listinu pro předběžný přístup.",
       "summary": {
         "desktop": "Desktopový režim",
         "web": "Webový režim (pouze pro čtení, přihlašovací údaje spravuje server)",
@@ -538,32 +525,6 @@
       "noTraffic": "Zatím nebyl zaznamenán žádný provoz.",
       "sidecarUnreachable": "Sidecar aplikace není dostupná.",
       "logCleared": "Protokol vymazán.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Jeden klíč. Vše v ceně.",
-        "heroDescription": "Jediná licence World Monitor nahradí všechny API klíče a poskytovatele LLM, které byste jinak museli konfigurovat sami. AI souhrny, zpravodajství v reálném čase, tržní data, sledování konfliktů, detekce požárů, satelitní snímky — vše poháněno, vše spravováno, nulové nastavení.",
-        "apiKey": {
-          "title": "Licenční klíč",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Vložte svou licenci a okamžitě odemkněte všechny datové zdroje a AI funkce.",
-          "statusValid": "LICENCOVÁNO",
-          "statusMissing": "BEZ LICENCE"
-        },
-        "dividerOr": "NEBO",
-        "register": {
-          "title": "Rezervujte si své místo",
-          "description": "Připravujeme spuštění licencí World Monitor. Zaregistrujte se nyní a buďte první v řadě — první členové získají prioritní přístup a zakladatelské ceny.",
-          "emailPlaceholder": "vas@email.cz",
-          "submitBtn": "Zapsat na čekací listinu",
-          "submitting": "Odesílám...",
-          "success": "Jste na seznamu! Dáme vám vědět jako prvním.",
-          "alreadyRegistered": "Již jste na čekací listině.",
-          "error": "Registrace selhala. Zkuste to prosím znovu.",
-          "invalidEmail": "Zadejte prosím platnou e-mailovou adresu."
-        },
-        "byokTitle": "Nebo použijte vlastní klíče (BYOK)",
-        "byokDescription": "Dáváte přednost plné kontrole? Přejděte na karty API Klíče a LLM a nakonfigurujte každý datový zdroj a poskytovatele AI jednotlivě."
-      },
       "table": {
         "time": "Čas",
         "method": "Metoda",
@@ -835,29 +796,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "Pentagon Pizza Index",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Aktualizováno před {{timeAgo}}",
-      "tensionsTitle": "Geopolitické napětí",
-      "source": "Zdroj:",
-      "statusClosed": "ZAVŘENO",
-      "statusSpike": "NÁRŮST",
-      "statusHigh": "VYSOKÁ",
-      "statusElevated": "ZVÝŠENÁ",
-      "statusNominal": "NOMINÁLNÍ",
-      "statusQuiet": "KLID",
-      "justNow": "právě teď",
-      "minutesAgo": "před {{m}} min",
-      "hoursAgo": "před {{h}} h",
-      "defconLabels": {
-        "1": "COCKED PISTOL - MAXIMÁLNÍ PŘIPRAVENOST",
-        "2": "FAST PACE - OZBROJENÉ SÍLY PŘIPRAVENY",
-        "3": "ROUND HOUSE - ZVÝŠENÁ PŘIPRAVENOST SIL",
-        "4": "DOUBLE TAKE - ZVÝŠENÝ ZPRAVODAJSKÝ DOHLED",
-        "5": "FADE OUT - NEJNIŽŠÍ PŘIPRAVENOST"
-      }
     },
     "strategicPosture": {
       "elapsed": "Uplynulo: {{elapsed}} s",
@@ -1180,9 +1118,6 @@
       "aiFlowBrowserLabel": "Lokální model v prohlížeči",
       "aiFlowBrowserDesc": "Spustit AI lokálně ve vašem prohlížeči",
       "aiFlowBrowserWarn": "Stáhne se ~250 MB dat modelu do vašeho prohlížeče",
-      "aiFlowOllamaCta": "Chcete plně lokální AI?",
-      "aiFlowOllamaCtaDesc": "Stáhněte si aplikaci pro desktop pro podporu Ollama",
-      "aiFlowDownloadDesktop": "Stáhnout desktopovou aplikaci →",
       "aiFlowStatusActive": "Cloud AI aktivní",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + model v prohlížeči aktivní",
       "aiFlowStatusBrowserOnly": "Pouze model v prohlížeči",
@@ -2161,7 +2096,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "Centrála NATO",
       "pla_mss_activity": "Aktivita PLA/MSS",
-      "pentagon_pizza_index": "Pentagon Pizza Index",
       "piracy_conflict": "Pirátsví/Konflikt",
       "qatar_al_udeid": "Katar/Al Udeid",
       "saudi_gip_mbs": "Saúdská Arábie GIP/MBS",

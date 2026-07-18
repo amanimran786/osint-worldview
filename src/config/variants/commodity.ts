@@ -1,4 +1,4 @@
-// Commodity variant - commodity.worldmonitor.app -- Focused on mining, metals, energy commodities, and critical minerals
+// Commodity variant focused on mining, metals, energy, and critical minerals.
 import type { PanelConfig, MapLayers } from '@/types';
 import type { VariantConfig } from './base';
 

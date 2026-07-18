@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Παγκόσμια Κατάσταση με Αναλύσεις AI"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "ΡΥΘΜΙΣΕΙΣ",
     "sources": "ΠΗΓΕΣ",
     "copyLink": "Αντιγραφή Συνδέσμου",
-    "downloadApp": "Λήψη εφαρμογής",
     "fullscreen": "Πλήρης Οθόνη",
     "pinMap": "Καρφίτσωμα χάρτη στην κορυφή",
     "selectRegion": "Επιλογή περιοχής",
@@ -475,17 +474,6 @@
       "dontShowAgain": "Να μην εμφανιστεί ξανά",
       "gotIt": "Κατάλαβα"
     },
-    "downloadBanner": {
-      "title": "Διαθέσιμη Εφαρμογή Desktop",
-      "description": "Εγγενής απόδοση, ασφαλής τοπική αποθήκευση κλειδιών, offline πλακίδια χάρτη.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "Εμφάνιση όλων των πλατφορμών",
-      "showLess": "Εμφάνιση λιγότερων",
-      "dismiss": "Απόρριψη"
-    },
     "runtimeConfig": {
       "title": "Ρύθμιση Desktop",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Ορισμένες λειτουργίες χρειάζονται API keys"
       },
       "openSettings": "Άνοιγμα Ρυθμίσεων",
-      "skipSetup": "Παραλείψτε τη ρύθμιση — μία μόνο άδεια World Monitor ξεκλειδώνει τα πάντα. Γραφτείτε στη λίστα αναμονής για πρώιμη πρόσβαση.",
       "summary": {
         "desktop": "Λειτουργία desktop",
         "web": "Λειτουργία web (μόνο ανάγνωση, διαχειριζόμενα διαπιστευτήρια)",
@@ -538,32 +525,6 @@
       "noTraffic": "Δεν έχει καταγραφεί κίνηση ακόμα.",
       "sidecarUnreachable": "Το sidecar δεν είναι προσβάσιμο.",
       "logCleared": "Το αρχείο καταγραφής καθαρίστηκε.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Ένα κλειδί. Τα πάντα περιλαμβάνονται.",
-        "heroDescription": "Μία μόνο άδεια World Monitor αντικαθιστά κάθε API key και πάροχο LLM που θα ρυθμίζατε μόνοι σας. Περιλήψεις AI, πληροφορίες σε πραγματικό χρόνο, δεδομένα αγοράς, παρακολούθηση συγκρούσεων, ανίχνευση πυρκαγιών, δορυφορικές εικόνες — όλα ενεργοποιημένα, όλα διαχειριζόμενα, μηδενική ρύθμιση.",
-        "apiKey": {
-          "title": "Κλειδί Άδειας",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Επικολλήστε την άδειά σας για άμεσο ξεκλείδωμα κάθε πηγής δεδομένων και λειτουργίας AI.",
-          "statusValid": "ΑΔΕΙΟΔΟΤΗΜΕΝΟ",
-          "statusMissing": "ΧΩΡΙΣ ΑΔΕΙΑ"
-        },
-        "dividerOr": "Ή",
-        "register": {
-          "title": "Κρατήστε τη Θέση σας",
-          "description": "Ετοιμαζόμαστε να λανσάρουμε τις άδειες World Monitor. Εγγραφείτε τώρα και γίνετε πρώτοι στη σειρά — τα πρώτα μέλη λαμβάνουν προτεραιότητα πρόσβασης και τιμολόγηση ιδρυτικού μέλους.",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "Εγγραφή στη Λίστα",
-          "submitting": "Υποβολή...",
-          "success": "Είστε στη λίστα! Θα σας ειδοποιήσουμε πρώτους.",
-          "alreadyRegistered": "Είστε ήδη στη λίστα αναμονής.",
-          "error": "Η εγγραφή απέτυχε. Παρακαλώ δοκιμάστε ξανά.",
-          "invalidEmail": "Παρακαλώ εισάγετε μια έγκυρη διεύθυνση email."
-        },
-        "byokTitle": "Ή χρησιμοποιήστε τα δικά σας keys",
-        "byokDescription": "Προτιμάτε πλήρη έλεγχο; Μεταβείτε στις καρτέλες API Keys και LLMs για να ρυθμίσετε κάθε πηγή δεδομένων και πάροχο AI ξεχωριστά."
-      },
       "table": {
         "time": "Χρόνος",
         "method": "Μέθοδος",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "Pentagon Pizza Index",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Ενημερώθηκε {{timeAgo}}",
-      "tensionsTitle": "Γεωπολιτικές Εντάσεις",
-      "source": "Πηγή:",
-      "statusClosed": "ΚΛΕΙΣΤΟ",
-      "statusSpike": "ΚΟΡΥΦΩΣΗ",
-      "statusHigh": "ΥΨΗΛΟ",
-      "statusElevated": "ΑΥΞΗΜΕΝΟ",
-      "statusNominal": "ΚΑΝΟΝΙΚΟ",
-      "statusQuiet": "ΗΣΥΧΟ",
-      "justNow": "μόλις τώρα",
-      "minutesAgo": "{{m}}λ πριν",
-      "hoursAgo": "{{h}}ω πριν",
-      "defconLabels": {
-        "1": "COCKED PISTOL - ΜΕΓΙΣΤΗ ΕΤΟΙΜΟΤΗΤΑ",
-        "2": "FAST PACE - ΕΝΟΠΛΕΣ ΔΥΝΑΜΕΙΣ ΕΤΟΙΜΕΣ",
-        "3": "ROUND HOUSE - ΑΥΞΗΣΗ ΕΤΟΙΜΟΤΗΤΑΣ ΔΥΝΑΜΕΩΝ",
-        "4": "DOUBLE TAKE - ΑΥΞΗΜΕΝΗ ΕΠΙΤΗΡΗΣΗ ΠΛΗΡΟΦΟΡΙΩΝ",
-        "5": "FADE OUT - ΧΑΜΗΛΟΤΕΡΗ ΕΤΟΙΜΟΤΗΤΑ"
-      }
     },
     "strategicPosture": {
       "elapsed": "Χρόνος: {{elapsed}} δ",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "Τοπικό Μοντέλο Περιηγητή",
       "aiFlowBrowserDesc": "Εκτέλεση AI τοπικά στον περιηγητή σας",
       "aiFlowBrowserWarn": "Θα ληφθούν περίπου 250MB δεδομένων στον υπολογιστή σας",
-      "aiFlowOllamaCta": "Θέλετε πλήρως τοπικό AI;",
-      "aiFlowOllamaCtaDesc": "Κατεβάστε την εφαρμογή desktop για υποστήριξη Ollama",
-      "aiFlowDownloadDesktop": "Λήψη Desktop App →",
       "aiFlowStatusActive": "Cloud AI ενεργό",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + Τοπικό μοντέλο ενεργά",
       "aiFlowStatusBrowserOnly": "Μόνο τοπικό μοντέλο",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "Μοσάντ/IDF",
       "nato_hq": "Αρχηγείο NATO",
       "pla_mss_activity": "Δραστηριότητα PLA/MSS",
-      "pentagon_pizza_index": "Pentagon Pizza Index",
       "piracy_conflict": "Πειρατεία/Σύγκρουση",
       "qatar_al_udeid": "Κατάρ/Al Udeid",
       "saudi_gip_mbs": "Σαουδική GIP/MBS",

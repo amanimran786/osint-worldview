@@ -168,15 +168,15 @@ export async function renderHappyShareCard(item: NewsItem): Promise<HTMLCanvasEl
   ctx.lineTo(SIZE - PAD, lineY);
   ctx.stroke();
 
-  // -- HappyMonitor branding --
+  // -- WorldView branding --
   const brandY = SIZE - 120;
   ctx.font = '700 28px Nunito, system-ui, sans-serif';
   ctx.fillStyle = '#C4A35A'; // gold
-  ctx.fillText('\u2600 HappyMonitor', PAD, brandY); // sun emoji (Unicode escape)
+  ctx.fillText('\u2600 WorldView Good News', PAD, brandY); // sun emoji (Unicode escape)
 
   ctx.font = '400 22px Nunito, system-ui, sans-serif';
   ctx.fillStyle = '#A0AEC0';
-  ctx.fillText('happy.worldview.app', PAD, brandY + 34);
+  ctx.fillText('osint-worldview-cyan.vercel.app', PAD, brandY + 34);
 
   return canvas;
 }

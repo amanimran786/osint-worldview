@@ -117,7 +117,7 @@ function downloadStory(): void {
   if (!currentDataUrl) return;
   const a = document.createElement('a');
   a.href = currentDataUrl;
-  a.download = `worldmonitor-${currentData?.countryCode.toLowerCase() || 'story'}-${Date.now()}.png`;
+  a.download = `worldview-${currentData?.countryCode.toLowerCase() || 'story'}-${Date.now()}.png`;
   a.click();
   flashButton('.story-save', t('modals.story.saved'), t('modals.story.save'));
 }
@@ -128,7 +128,7 @@ async function shareWhatsApp(data: StoryData): Promise<void> {
     return;
   }
 
-  const file = new File([currentBlob], `${data.countryCode.toLowerCase()}-worldmonitor.png`, { type: 'image/png' });
+  const file = new File([currentBlob], `${data.countryCode.toLowerCase()}-worldview.png`, { type: 'image/png' });
   const urls = getShareUrls(data);
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {

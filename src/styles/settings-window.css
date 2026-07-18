@@ -365,10 +365,6 @@
   color: var(--settings-text-secondary);
 }
 
-.settings-ov-license {
-  max-width: 560px;
-}
-
 /* ── Feature cards ── */
 .settings-feat-list {
   display: flex;
@@ -951,7 +947,7 @@ tr.diag-ok td { color: var(--settings-text-secondary); }
 tr.diag-warn td { color: var(--settings-yellow); }
 tr.diag-err td { color: var(--settings-red); }
 
-/* ── World Monitor / Overview styles ── */
+/* Legacy overview controls retained for settings import compatibility. */
 .wm-tab {
   max-width: 600px;
   margin: 0 auto;

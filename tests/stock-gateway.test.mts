@@ -10,8 +10,8 @@ afterEach(() => {
   else process.env.WORLDMONITOR_VALID_KEYS = originalKeys;
 });
 
-describe('premium stock gateway enforcement', () => {
-  it('requires a World Monitor key for premium stock RPCs even from trusted browser origins', async () => {
+describe('stock gateway access', () => {
+  it('allows stock analysis RPCs from trusted browser origins without a product-tier key', async () => {
     const handler = createDomainGateway([
       {
         method: 'GET',
@@ -27,21 +27,13 @@ describe('premium stock gateway enforcement', () => {
 
     process.env.WORLDMONITOR_VALID_KEYS = 'real-key-123';
 
-    const premiumBlocked = await handler(new Request('https://worldmonitor.app/api/market/v1/analyze-stock?symbol=AAPL', {
-      headers: { Origin: 'https://worldmonitor.app' },
+    const stockAllowed = await handler(new Request('https://osint-worldview-cyan.vercel.app/api/market/v1/analyze-stock?symbol=AAPL', {
+      headers: { Origin: 'https://osint-worldview-cyan.vercel.app' },
     }));
-    assert.equal(premiumBlocked.status, 401);
+    assert.equal(stockAllowed.status, 200);
 
-    const premiumAllowed = await handler(new Request('https://worldmonitor.app/api/market/v1/analyze-stock?symbol=AAPL', {
-      headers: {
-        Origin: 'https://worldmonitor.app',
-        'X-WorldMonitor-Key': 'real-key-123',
-      },
-    }));
-    assert.equal(premiumAllowed.status, 200);
-
-    const publicAllowed = await handler(new Request('https://worldmonitor.app/api/market/v1/list-market-quotes?symbols=AAPL', {
-      headers: { Origin: 'https://worldmonitor.app' },
+    const publicAllowed = await handler(new Request('https://osint-worldview-cyan.vercel.app/api/market/v1/list-market-quotes?symbols=AAPL', {
+      headers: { Origin: 'https://osint-worldview-cyan.vercel.app' },
     }));
     assert.equal(publicAllowed.status, 200);
   });

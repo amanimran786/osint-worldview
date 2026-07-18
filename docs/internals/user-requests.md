@@ -65,7 +65,6 @@
 | Desalination plants infrastructure layer | @SharmaPrateek, #1029 |
 | GPS jamming + ACAS alert layers (Wingbits) | #126 |
 | Missile & drone defense tracking | #645 |
-| Pentagon pizza tracker / INMARSAT / NAVTEX | @bkerler, #250 |
 | Internet ping speed map per country | @amindorf |
 | American/Allies attacks layer (not just Iran) | @TiredOldGamer |
 | Geopolitical blocs overlay (NATO, AUKUS, Quad, etc.) | @passionfruit18 |

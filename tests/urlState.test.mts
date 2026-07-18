@@ -34,7 +34,7 @@ describe('parseMapUrlState expanded param', () => {
 });
 
 describe('buildMapUrl expanded param', () => {
-  const base = 'https://worldmonitor.app/';
+  const base = 'https://osint-worldview-cyan.vercel.app/';
   const baseState = {
     view: 'global' as const,
     zoom: 2,
@@ -65,7 +65,7 @@ describe('buildMapUrl expanded param', () => {
 });
 
 describe('expanded param round-trip', () => {
-  const base = 'https://worldmonitor.app/';
+  const base = 'https://osint-worldview-cyan.vercel.app/';
   const baseState = {
     view: 'global' as const,
     zoom: 2,
@@ -86,5 +86,33 @@ describe('expanded param round-trip', () => {
     const parsed = parseMapUrlState(new URL(url).search, EMPTY_LAYERS);
     assert.equal(parsed.country, 'IR');
     assert.equal(parsed.expanded, undefined);
+  });
+});
+
+describe('variant param persistence', () => {
+  const baseState = {
+    view: 'global' as const,
+    zoom: 2,
+    center: { lat: 0, lon: 0 },
+    timeRange: '24h' as const,
+    layers: EMPTY_LAYERS,
+  };
+
+  it('preserves a selected dashboard variant', () => {
+    const url = buildMapUrl(
+      'https://osint-worldview-cyan.vercel.app/?variant=tech',
+      baseState
+    );
+    assert.equal(new URL(url).searchParams.get('variant'), 'tech');
+  });
+
+  it('drops unrelated query parameters', () => {
+    const url = buildMapUrl(
+      'https://osint-worldview-cyan.vercel.app/?variant=finance&tracking=remove-me',
+      baseState
+    );
+    const params = new URL(url).searchParams;
+    assert.equal(params.get('variant'), 'finance');
+    assert.equal(params.has('tracking'), false);
   });
 });

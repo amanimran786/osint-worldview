@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Situazione globale con approfondimenti AI"
   },
   "countryBrief": {
@@ -203,7 +203,6 @@
     "panelCatDeals": "Operazioni & Istituzionale",
     "panelCatGulfMena": "Golfo & MENA",
     "panelCatTradePolicy": "Politica Commerciale",
-    "downloadApp": "Scarica l'app",
     "selectRegion": "Seleziona regione"
   },
   "panels": {
@@ -475,17 +474,6 @@
       "dontShowAgain": "Non mostrare più",
       "gotIt": "Fatto"
     },
-    "downloadBanner": {
-      "title": "Tavolo disponibile",
-      "description": "Prestazioni native, archiviazione sicura delle chiavi locali, riquadri della mappa offline.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "dismiss": "Congedare",
-      "showAllPlatforms": "Mostra tutte le piattaforme",
-      "showLess": "Mostra meno"
-    },
     "runtimeConfig": {
       "title": "Configurazione del desktop",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Alcune funzionalità richiedono chiavi API"
       },
       "openSettings": "Apri Impostazioni",
-      "skipSetup": "Salta la configurazione — una singola licenza World Monitor sblocca tutto. Iscriviti alla lista d'attesa per l'accesso anticipato.",
       "summary": {
         "desktop": "Modalità desktop",
         "web": "Modalità Web (credenziali di sola lettura, gestite dal server)",
@@ -638,33 +625,7 @@
         "duration": "Durata"
       },
       "sidecarUnreachable": "Sidecar non raggiungibile.",
-      "logCleared": "Registro cancellato.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Una chiave. Tutto incluso.",
-        "heroDescription": "Una singola licenza World Monitor sostituisce ogni chiave API e fornitore LLM che altrimenti dovresti configurare manualmente. Riassunti IA, intelligence in tempo reale, dati di mercato, monitoraggio conflitti, rilevamento incendi, immagini satellitari — tutto alimentato, tutto gestito, zero configurazione.",
-        "apiKey": {
-          "title": "Chiave di licenza",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Incolla la tua licenza per sbloccare istantaneamente tutte le fonti dati e le funzioni IA.",
-          "statusValid": "LICENZIATO",
-          "statusMissing": "NESSUNA LICENZA"
-        },
-        "dividerOr": "OPPURE",
-        "register": {
-          "title": "Riserva il tuo posto",
-          "description": "Stiamo preparando il lancio delle licenze World Monitor. Iscriviti ora e sii il primo — i membri iniziali ricevono accesso prioritario e prezzi da membro fondatore.",
-          "emailPlaceholder": "tua@email.com",
-          "submitBtn": "Iscriviti alla lista d'attesa",
-          "submitting": "Invio in corso...",
-          "success": "Sei nella lista! Ti avviseremo per primo.",
-          "alreadyRegistered": "Sei già nella lista d'attesa.",
-          "error": "Registrazione fallita. Riprova.",
-          "invalidEmail": "Inserisci un indirizzo email valido."
-        },
-        "byokTitle": "Oppure usa le tue chiavi",
-        "byokDescription": "Preferisci il controllo completo? Vai alle schede Chiavi API e LLM per configurare ogni fonte dati e fornitore IA individualmente."
-      }
+      "logCleared": "Registro cancellato."
     }
   },
   "components": {
@@ -1060,29 +1021,6 @@
       "medium": "MED",
       "low": "BASSO",
       "info": "INFO"
-    },
-    "pizzint": {
-      "title": "Indice Pizza del Pentagono",
-      "tensionsTitle": "Tensioni geopolitiche",
-      "source": "Fonte:",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Aggiornato {{timeAgo}}",
-      "statusClosed": "CHIUSO",
-      "statusSpike": "PICCO",
-      "statusHigh": "ALTO",
-      "statusElevated": "ELEVATO",
-      "statusNominal": "NOMINALE",
-      "statusQuiet": "CALMO",
-      "justNow": "proprio adesso",
-      "minutesAgo": "{{m}}m fa",
-      "hoursAgo": "{{h}}h fa",
-      "defconLabels": {
-        "1": "PISTOLA ARMATA - PRONTEZZA MASSIMA",
-        "2": "RITMO RAPIDO - FORZE ARMATE PRONTE",
-        "3": "ROUND HOUSE - AUMENTARE PRONTEZZA FORZE",
-        "4": "DOPPIO SGUARDO - INTELLIGENCE RAFFORZATA",
-        "5": "FADE OUT - PRONTEZZA MINIMA"
-      }
     },
     "playback": {
       "toggleMode": "Attiva/disattiva la modalità di riproduzione",
@@ -1485,9 +1423,6 @@
       "aiFlowBrowserLabel": "Modello locale del browser",
       "aiFlowBrowserDesc": "Esegui l'IA localmente nel tuo browser",
       "aiFlowBrowserWarn": "Verranno scaricati circa 250 MB di dati sul tuo computer",
-      "aiFlowOllamaCta": "Vuoi un'IA completamente locale?",
-      "aiFlowOllamaCtaDesc": "Scarica l'app desktop per il supporto Ollama",
-      "aiFlowDownloadDesktop": "Scarica App Desktop →",
       "aiFlowStatusActive": "IA Cloud attiva",
       "aiFlowStatusCloudAndBrowser": "IA Cloud + Modello browser attivi",
       "aiFlowStatusBrowserOnly": "Solo modello browser",
@@ -2161,7 +2096,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "Quartier generale della NATO",
       "pla_mss_activity": "Attività PLA/MSS",
-      "pentagon_pizza_index": "Indice della pizza del Pentagono",
       "piracy_conflict": "Pirateria/Conflitto",
       "qatar_al_udeid": "Qatar/Al-Udeid",
       "saudi_gip_mbs": "GIP/MBS saudita",

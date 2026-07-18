@@ -4,7 +4,7 @@ import type {
   MarketServiceHandler,
 } from '../../../../src/generated/server/worldmonitor/market/v1/service_server';
 import { parseStringArray } from './_shared';
-import { getStoredStockBacktestSnapshots } from './premium-stock-store';
+import { getStoredStockBacktestSnapshots } from './stock-analysis-store';
 
 const DEFAULT_EVAL_WINDOW_DAYS = 10;
 

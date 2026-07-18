@@ -1,6 +1,6 @@
 # Panel System Documentation
 
-> **World Monitor** — Config-driven panel architecture powering three site variants.
+> **WorldView** — Config-driven panel architecture powering three site variants.
 >
 > Source of truth: [`src/config/panels.ts`](../src/config/panels.ts) · Panel base class: [`src/components/Panel.ts`](../src/components/Panel.ts) · App wiring: [`src/App.ts`](../src/App.ts)
 
@@ -25,7 +25,7 @@
 
 ## 1. Overview
 
-World Monitor uses a **config-driven panel system** where every dashboard tile — from live news feeds to AI insights to market data — is declared as a `PanelConfig` entry inside a variant-specific configuration object. The system is designed around three principles:
+WorldView uses a **config-driven panel system** where every dashboard tile — from live news feeds to AI insights to market data — is declared as a `PanelConfig` entry inside a variant-specific configuration object. The system is designed around three principles:
 
 1. **Variant isolation** — Each site variant (`full`, `tech`, `finance`) declares its own panel set with variant-appropriate display names and priorities. The build-time environment variable `VITE_VARIANT` selects which set is exported.
 2. **User customization** — Users can toggle panel visibility, reorder panels via drag-and-drop, and resize panels via a drag handle. All preferences persist to `localStorage`.
@@ -35,9 +35,9 @@ World Monitor uses a **config-driven panel system** where every dashboard tile �
 
 | Variant | Domain | Focus | Panel Count |
 |---------|--------|-------|-------------|
-| `full` | worldmonitor.io | Geopolitical intelligence, OSINT, defense | 37 |
-| `tech` | tech.worldmonitor.io | Technology, AI/ML, startups, VC | 34 |
-| `finance` | finance.worldmonitor.io | Markets, trading, macro, commodities | 29 |
+| `full` | `?variant=full` | Geopolitical intelligence, OSINT, defense | 37 |
+| `tech` | `?variant=tech` | Technology, AI/ML, startups, VC | 34 |
+| `finance` | `?variant=finance` | Markets, trading, macro, commodities | 29 |
 
 ### Key Files
 
@@ -239,7 +239,7 @@ Span values are persisted per-panel in the `worldmonitor-panel-spans` localStora
 
 ---
 
-## 4. Full Variant Panels (worldmonitor.io)
+## 4. Full Variant Panels
 
 The full (geopolitical) variant ships **37 panels** focused on OSINT, defense intelligence, geopolitical risk, and global situational awareness.
 
@@ -287,7 +287,7 @@ The full (geopolitical) variant ships **37 panels** focused on OSINT, defense in
 
 ---
 
-## 5. Tech Variant Panels (tech.worldmonitor.io)
+## 5. Tech Variant Panels
 
 The tech variant ships **34 panels** focused on technology news, AI/ML, startup ecosystems, and developer tooling.
 
@@ -332,7 +332,7 @@ The tech variant ships **34 panels** focused on technology news, AI/ML, startup 
 
 ---
 
-## 6. Finance Variant Panels (finance.worldmonitor.io)
+## 6. Finance Variant Panels
 
 The finance variant ships **29 panels** focused on markets, trading, macro indicators, and financial data.
 
@@ -608,7 +608,7 @@ if (storedVariant !== currentVariant) {
 }
 ```
 
-This ensures users switching between variant domains (e.g. from worldmonitor.io to tech.worldmonitor.io) get a clean default experience for the new variant.
+This ensures users switching between variant routes get a clean default experience for the new variant.
 
 ### 9.3 Full Reset
 
@@ -721,7 +721,7 @@ Panels are destroyed when the App instance is torn down. The `Panel.destroy()` m
 
 ## 11. Adding a New Panel
 
-Step-by-step guide to adding a new panel to World Monitor.
+Step-by-step guide to adding a new panel to WorldView.
 
 ### Step 1: Define the Panel Config
 

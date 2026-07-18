@@ -12,12 +12,12 @@ interface ExportData {
   timestamp: number;
 }
 
-export function exportToJSON(data: ExportData, filename = 'worldmonitor-export'): void {
+export function exportToJSON(data: ExportData, filename = 'worldview-export'): void {
   const jsonStr = JSON.stringify(data, null, 2);
   downloadFile(jsonStr, `${filename}.json`, 'application/json');
 }
 
-export function exportToCSV(data: ExportData, filename = 'worldmonitor-export'): void {
+export function exportToCSV(data: ExportData, filename = 'worldview-export'): void {
   const lines: string[] = [];
 
   if (data.news && data.news.length > 0) {
@@ -190,7 +190,7 @@ export class ExportPanel {
   private export(format: ExportFormat): void {
     const data = this.getData();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `worldmonitor-${timestamp}`;
+    const filename = `worldview-${timestamp}`;
 
     if (format === 'json') {
       exportToJSON(data, filename);

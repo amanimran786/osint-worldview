@@ -72,7 +72,7 @@ async function fetchSECData(companyName) {
     const res = await fetch(
       `https://efts.sec.gov/LATEST/search-index?q=${encodeURIComponent(companyName)}&dateRange=custom&startdt=${getDateMonthsAgo(6)}&enddt=${getTodayISO()}&forms=10-K,10-Q,8-K&from=0&size=5`,
       {
-        headers: { 'User-Agent': 'WorldMonitor research@worldmonitor.app', 'Accept': 'application/json' },
+        headers: { 'User-Agent': 'WorldView amanimran786@users.noreply.github.com', 'Accept': 'application/json' },
         signal: AbortSignal.timeout(8000),
       },
     );

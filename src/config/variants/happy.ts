@@ -1,4 +1,4 @@
-// Happy variant - happy.worldmonitor.app
+// Positive-news variant.
 import type { PanelConfig, MapLayers } from '@/types';
 import type { VariantConfig } from './base';
 

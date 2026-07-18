@@ -1,6 +1,6 @@
 # Desktop Runtime Configuration Schema
 
-World Monitor desktop now uses a runtime configuration schema with per-feature toggles and secret-backed credentials.
+WorldView desktop now uses a runtime configuration schema with per-feature toggles and secret-backed credentials.
 
 ## Secret keys
 

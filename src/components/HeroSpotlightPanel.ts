@@ -34,7 +34,7 @@ export class HeroSpotlightPanel extends Panel {
 
     // Image section (optional)
     const imageHtml = item.imageUrl
-      ? `<div class="hero-card-image"><img src="${sanitizeUrl(item.imageUrl)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+      ? `<div class="hero-card-image"><img src="${sanitizeUrl(item.imageUrl)}" alt="" loading="lazy"></div>`
       : '';
 
     // Time formatting
@@ -61,6 +61,9 @@ export class HeroSpotlightPanel extends Panel {
     ${locationHtml}
   </div>
 </div>`;
+
+    const image = this.content.querySelector<HTMLImageElement>('.hero-card-image img');
+    image?.addEventListener('error', () => image.parentElement?.remove());
 
     // Wire location button click handler
     if (hasLocation) {

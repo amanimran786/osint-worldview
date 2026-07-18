@@ -138,7 +138,12 @@ export function buildMapUrl(
   }
 ): string {
   const url = new URL(baseUrl);
+  const variant = url.searchParams.get('variant');
   const params = new URLSearchParams();
+
+  if (variant && ['full', 'tech', 'finance', 'commodity', 'happy'].includes(variant)) {
+    params.set('variant', variant);
+  }
 
   if (state.center) {
     params.set('lat', state.center.lat.toFixed(4));

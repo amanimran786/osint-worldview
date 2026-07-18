@@ -15,7 +15,7 @@ export function generateStoryDeepLink(
   });
   if (score !== undefined) params.set('s', String(score));
   if (level) params.set('l', level);
-  return `https://worldview.app/api/story?${params.toString()}`;
+  return `https://osint-worldview-cyan.vercel.app/api/story?${params.toString()}`;
 }
 
 // Parse deep link parameters

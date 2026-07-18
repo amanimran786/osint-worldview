@@ -1,6 +1,6 @@
 # Data Model Reference
 
-Comprehensive data model documentation for **World Monitor** — an AI-powered real-time global intelligence dashboard. This reference covers all TypeScript interfaces, data structures, and their relationships across the system.
+Comprehensive data model documentation for **WorldView** — an AI-powered real-time global intelligence dashboard. This reference covers all TypeScript interfaces, data structures, and their relationships across the system.
 
 > **Source of truth:** [`src/types/index.ts`](../src/types/index.ts) (1,297 lines, 60+ interfaces)
 
@@ -430,38 +430,6 @@ interface AisDensityZone {
   note?: string;
 }
 ```
-
-### GDELT Tension & PizzINT
-
-```typescript
-interface GdeltTensionPair {
-  id: string;
-  countries: [string, string];
-  label: string;
-  score: number;
-  trend: 'rising' | 'stable' | 'falling';
-  changePercent: number;
-  region: string;
-}
-
-// Pentagon Pizza Index (novelty OSINT indicator)
-type PizzIntDefconLevel = 1 | 2 | 3 | 4 | 5;
-type PizzIntDataFreshness = 'fresh' | 'stale';
-
-interface PizzIntStatus {
-  defconLevel: PizzIntDefconLevel;
-  defconLabel: string;
-  aggregateActivity: number;
-  activeSpikes: number;
-  locationsMonitored: number;
-  locationsOpen: number;
-  lastUpdate: Date;
-  dataFreshness: PizzIntDataFreshness;
-  locations: PizzIntLocation[];
-}
-```
-
----
 
 ## 3. Cyber & Security
 

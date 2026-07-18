@@ -1,8 +1,8 @@
 [package]
 name = "world-monitor"
 version = "2.6.1"
-description = "World Monitor desktop application"
-authors = ["World Monitor"]
+description = "WorldView desktop application"
+authors = ["Aman Imran"]
 edition = "2021"
 
 [build-dependencies]

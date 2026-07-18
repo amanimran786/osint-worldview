@@ -27,13 +27,13 @@ function list(items: string[], tone: string): string {
 
 export class StockAnalysisPanel extends Panel {
   constructor() {
-    super({ id: 'stock-analysis', title: 'Premium Stock Analysis' });
+    super({ id: 'stock-analysis', title: 'Stock Analysis' });
   }
 
   public renderAnalyses(items: StockAnalysisResult[], historyBySymbol: StockAnalysisHistory = {}, source: 'live' | 'cached' = 'live'): void {
     if (items.length === 0) {
       this.setDataBadge('unavailable');
-      this.showRetrying('No premium stock analyses available yet.');
+      this.showRetrying('No stock analyses available yet.');
       return;
     }
 

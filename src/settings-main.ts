@@ -20,7 +20,6 @@ import {
   isFeatureAvailable,
   isFeatureEnabled,
   setFeatureToggle,
-  setSecretValue,
   validateSecret,
   loadDesktopSecrets,
   type RuntimeFeatureDefinition,
@@ -225,9 +224,6 @@ function renderOverview(area: HTMLElement): void {
   const dashOffset = circumference - (pct / 100) * circumference;
   const ringColor = ready === total ? 'var(--settings-green)' : ready > 0 ? 'var(--settings-blue)' : 'var(--settings-yellow)';
 
-  const wmState = getSecretState('WORLDMONITOR_API_KEY');
-  const wmStatusText = wmState.present ? 'Active' : 'Not set';
-  const wmStatusClass = wmState.present ? 'ok' : 'warn';
   const catCards = SETTINGS_CATEGORIES.map(cat => {
     const { ready: catReady, total: catTotal } = getFeatureStatusCounts(cat);
     const cls = catReady === catTotal ? 'ov-cat-ok' : catReady > 0 ? 'ov-cat-partial' : 'ov-cat-warn';
@@ -256,55 +252,12 @@ function renderOverview(area: HTMLElement): void {
       </div>
       <div class="settings-ov-cats">${catCards}</div>
     </div>
-
-    <div class="settings-ov-license">
-      <section class="wm-section">
-        <h2 class="wm-section-title">${t('modals.settingsWindow.worldMonitor.apiKey.title')}</h2>
-        <p class="wm-section-desc">${t('modals.settingsWindow.worldMonitor.apiKey.description')}</p>
-        <div class="wm-key-row">
-          <div class="wm-input-wrap">
-            <label class="settings-sr-only" for="wmApiKeyInput">${t('modals.settingsWindow.worldMonitor.apiKey.title')}</label>
-            <input id="wmApiKeyInput" type="password" class="wm-input" data-wm-key-input
-              placeholder="${t('modals.settingsWindow.worldMonitor.apiKey.placeholder')}"
-              autocomplete="off" spellcheck="false" aria-describedby="wmApiKeyStatus"
-              ${wmState.present ? `value="${MASKED_SENTINEL}"` : ''} />
-            <button type="button" class="wm-toggle-vis" data-wm-toggle title="Show/hide key" aria-controls="wmApiKeyInput" aria-label="Show API key">&#x1f441;</button>
-          </div>
-          <span class="wm-badge ${wmStatusClass}" id="wmApiKeyStatus">${wmStatusText}</span>
-        </div>
-      </section>
-
-    </div>
   `;
 
   initOverviewListeners(area);
 }
 
 function initOverviewListeners(area: HTMLElement): void {
-  const wmKeyInput = area.querySelector<HTMLInputElement>('[data-wm-key-input]');
-  const wmToggle = area.querySelector<HTMLButtonElement>('[data-wm-toggle]');
-
-  const syncWmToggleLabel = () => {
-    if (!wmToggle || !wmKeyInput) return;
-    const visible = wmKeyInput.type === 'text';
-    wmToggle.setAttribute('aria-pressed', String(visible));
-    wmToggle.setAttribute('aria-label', visible ? 'Hide API key' : 'Show API key');
-    wmToggle.title = visible ? 'Hide key' : 'Show key';
-  };
-
-  wmToggle?.addEventListener('click', () => {
-    if (wmKeyInput) wmKeyInput.type = wmKeyInput.type === 'password' ? 'text' : 'password';
-    syncWmToggleLabel();
-  });
-  syncWmToggleLabel();
-
-  area.querySelector<HTMLInputElement>('[data-wm-key-input]')?.addEventListener('input', (e) => {
-    const input = e.target as HTMLInputElement;
-    if (input.value.startsWith(MASKED_SENTINEL)) {
-      input.value = input.value.slice(MASKED_SENTINEL.length);
-    }
-  });
-
   area.querySelectorAll<HTMLButtonElement>('.settings-ov-cat[data-section]').forEach(btn => {
     btn.addEventListener('click', () => {
       const section = btn.dataset.section;
@@ -980,21 +933,13 @@ async function initSettingsWindow(): Promise<void> {
   document.getElementById('okBtn')?.addEventListener('click', () => {
     void (async () => {
       try {
-        const wmKeyInput = document.querySelector<HTMLInputElement>('[data-wm-key-input]');
-        const wmKeyValue = wmKeyInput?.value.trim();
-        const hasWmKeyChange = !!(wmKeyValue && wmKeyValue !== MASKED_SENTINEL && wmKeyValue.length > 0);
-
         const contentArea = document.getElementById('contentArea');
         if (contentArea) settingsManager.captureUnsavedInputs(contentArea);
 
         const hasPending = settingsManager.hasPendingChanges();
-        if (!hasPending && !hasWmKeyChange) {
+        if (!hasPending) {
           closeSettingsWindow();
           return;
-        }
-
-        if (hasWmKeyChange && wmKeyValue) {
-          await setSecretValue('WORLDMONITOR_API_KEY', wmKeyValue);
         }
 
         if (hasPending) {

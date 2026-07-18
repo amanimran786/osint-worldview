@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "AI驱动的全球态势感知"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "设置",
     "sources": "数据源",
     "copyLink": "复制链接",
-    "downloadApp": "下载应用",
     "fullscreen": "全屏",
     "pinMap": "将地图固定到顶部",
     "selectRegion": "选择地区",
@@ -475,17 +474,6 @@
       "dontShowAgain": "不再显示",
       "gotIt": "知道了"
     },
-    "downloadBanner": {
-      "title": "桌面版可用",
-      "description": "原生性能，安全的本地密钥存储，离线地图切片。",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "显示所有平台",
-      "showLess": "收起",
-      "dismiss": "忽略"
-    },
     "runtimeConfig": {
       "title": "桌面端配置",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "部分功能需要API密钥"
       },
       "openSettings": "打开设置",
-      "skipSetup": "跳过设置 — 一个World Monitor许可证即可解锁全部功能。加入候补名单抢先体验。",
       "summary": {
         "desktop": "桌面模式",
         "web": "网页模式（只读，服务器管理凭证）",
@@ -538,32 +525,6 @@
       "noTraffic": "尚未记录任何流量。",
       "sidecarUnreachable": "Sidecar不可达。",
       "logCleared": "日志已清除。",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "一个密钥，万事俱备。",
-        "heroDescription": "一个World Monitor许可证即可替代所有需要自行配置的API密钥和LLM提供商。AI摘要、实时情报、市场数据、冲突追踪、火灾检测、卫星图像 — 全部就绪，全部托管，零配置。",
-        "apiKey": {
-          "title": "许可证密钥",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "粘贴您的许可证，即刻解锁所有数据源和AI功能。",
-          "statusValid": "已授权",
-          "statusMissing": "未授权"
-        },
-        "dividerOr": "或",
-        "register": {
-          "title": "预留您的名额",
-          "description": "World Monitor许可证即将上线。立即注册成为首批用户 — 早期会员享有优先访问和创始会员价格。",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "加入候补名单",
-          "submitting": "提交中...",
-          "success": "您已加入名单！我们会第一时间通知您。",
-          "alreadyRegistered": "您已在候补名单中。",
-          "error": "注册失败，请重试。",
-          "invalidEmail": "请输入有效的电子邮件地址。"
-        },
-        "byokTitle": "或使用自有密钥",
-        "byokDescription": "偏好完全掌控？前往API密钥和LLM标签页，逐一配置各数据源和AI提供商。"
-      },
       "table": {
         "time": "时间",
         "method": "方法",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "五角大楼披萨指数",
-      "defcon": "DEFCON {{level}}",
-      "updated": "更新于{{timeAgo}}",
-      "tensionsTitle": "地缘政治紧张局势",
-      "source": "来源：",
-      "statusClosed": "已关闭",
-      "statusSpike": "激增",
-      "statusHigh": "高",
-      "statusElevated": "升高",
-      "statusNominal": "正常",
-      "statusQuiet": "平静",
-      "justNow": "刚刚",
-      "minutesAgo": "{{m}}分钟前",
-      "hoursAgo": "{{h}}小时前",
-      "defconLabels": {
-        "1": "手枪上膛 - 最高战备",
-        "2": "快速节奏 - 武装部队就绪",
-        "3": "圆屋 - 提高部队战备",
-        "4": "双重确认 - 加强情报监视",
-        "5": "淡出 - 最低战备"
-      }
     },
     "strategicPosture": {
       "elapsed": "已用时：{{elapsed}}秒",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "浏览器本地模型",
       "aiFlowBrowserDesc": "在浏览器中本地运行AI",
       "aiFlowBrowserWarn": "将下载约250MB的数据到您的电脑",
-      "aiFlowOllamaCta": "想要完全本地化的AI？",
-      "aiFlowOllamaCtaDesc": "下载桌面应用以支持Ollama",
-      "aiFlowDownloadDesktop": "下载桌面应用 →",
       "aiFlowStatusActive": "云端AI已激活",
       "aiFlowStatusCloudAndBrowser": "云端AI + 浏览器模型已激活",
       "aiFlowStatusBrowserOnly": "仅浏览器模型",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "摩萨德/以色列国防军",
       "nato_hq": "NATO总部",
       "pla_mss_activity": "解放军/国安部活动",
-      "pentagon_pizza_index": "五角大楼披萨指数",
       "piracy_conflict": "海盗/冲突",
       "qatar_al_udeid": "卡塔尔/乌代德",
       "saudi_gip_mbs": "沙特GIP/MBS",

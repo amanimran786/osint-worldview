@@ -9,7 +9,6 @@
 ### 📖 Documentation Files
 ```
 README.md                 ← START HERE (portfolio-focused)
-PORTFOLIO.md             ← How to present this project
 CONTRIBUTING.md          ← How to contribute
 CODE_OF_CONDUCT.md       ← Community standards
 SECURITY.md              ← Security policy
@@ -58,7 +57,6 @@ worldview/
 │   ├── AI_INTELLIGENCE.md      ← AI fallback chain
 │   ├── DESKTOP_APP.md          ← Tauri setup
 │   ├── HOW_IT_WORKS.md         ← Simple explanation (5yo-friendly)
-│   ├── PORTFOLIO.md            ← How to present the project
 │   └── images/                 ← Diagrams, screenshots
 │
 ├── src/                        ← Frontend source code
@@ -199,7 +197,7 @@ worldview/
 ## 📌 README Best Practices (Implemented)
 
 ✅ **Clear headline** — "WorldView: AI-Powered Intelligence Dashboard"  
-✅ **Live demo links** — [worldview.app](https://worldview.app)  
+✅ **Live demo links** — [WorldView production](https://osint-worldview-cyan.vercel.app)
 ✅ **Problem statement** — "News scattered, no context, overload"  
 ✅ **Solution highlight** — "435+ sources, 45 layers, free AI"  
 ✅ **Feature showcase** — Visual comparisons vs. competitors  
@@ -218,7 +216,7 @@ worldview/
 ### Profile Settings
 - ✅ Profile picture (professional headshot)
 - ✅ Bio: "OSINT Dashboard Creator | Full-stack engineer | Open-source"
-- ✅ Website: https://worldview.app
+- ✅ Website: https://osint-worldview-cyan.vercel.app
 - ✅ Location: [Your city]
 
 ### Pinned Repositories
@@ -307,39 +305,7 @@ See **SECURITY.md** for:
 
 ---
 
-## 📈 Growth Metrics (Track These)
-
-Track these to measure project health:
-
-| Metric | Goal | Current |
-|--------|------|---------|
-| **Stars** | 1K+ | [Check GitHub] |
-| **Forks** | 50+ | [Check GitHub] |
-| **Contributors** | 10+ | [Check GitHub] |
-| **Issues closed** | 90%+ | [Check GitHub] |
-| **PR response time** | < 2 days | [Aim for this] |
-| **Documentation coverage** | 100% | [Check README] |
-| **Test coverage** | 80%+ | [Run tests] |
-| **Download count** | 1K+ | [Track Vercel/Tauri] |
-
----
-
-## 🎬 Content Calendar (Optional)
-
-To build buzz around WorldView:
-
-| Month | Content |
-|-------|---------|
-| **April** | Launch v1.0, blog post, HackerNews |
-| **May** | Tutorial video, Reddit AMA |
-| **June** | 1.0 case studies, conference talk |
-| **July** | Second variant showcase (Tech Monitor) |
-| **August** | Data sources deep-dive |
-| **September** | Desktop app launch |
-
----
-
-## 🏆 Examples of Great GitHub Repos
+## Examples of Well-Documented GitHub Repositories
 
 **Reference these for inspiration:**
 - **kubernetes/kubernetes** — Clear docs, great organization

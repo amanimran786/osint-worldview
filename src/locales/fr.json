@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Informations détaillées et données pour des pays spécifiques."
   },
   "countryBrief": {
@@ -203,7 +203,6 @@
     "panelCatDeals": "Transactions & Institutionnel",
     "panelCatGulfMena": "Golfe & MENA",
     "panelCatTradePolicy": "Politique Commerciale",
-    "downloadApp": "Télécharger l'appli",
     "selectRegion": "Sélectionner la région"
   },
   "panels": {
@@ -475,17 +474,6 @@
       "dontShowAgain": "Ne plus afficher",
       "gotIt": "Compris"
     },
-    "downloadBanner": {
-      "title": "Application Bureau Disponible",
-      "description": "Performance native, stockage local sécurisé des clés, cartes hors ligne.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "dismiss": "Ignorer",
-      "showAllPlatforms": "Afficher toutes les plateformes",
-      "showLess": "Afficher moins"
-    },
     "runtimeConfig": {
       "title": "Configuration Bureau",
       "alertTitle": {
@@ -521,8 +509,7 @@
         "NASA_FIRMS_API_KEY": "Système d'information sur les incendies pour la gestion des ressources.",
         "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
         "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
-      },
-      "skipSetup": "Passez la configuration — une seule licence World Monitor débloque tout. Rejoignez la liste d'attente pour un accès anticipé."
+      }
     },
     "settingsWindow": {
       "validating": "Validation des clés API...",
@@ -544,32 +531,6 @@
         "path": "Chemin",
         "status": "Statut",
         "duration": "Durée"
-      },
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Une clé. Tout inclus.",
-        "heroDescription": "Une seule licence World Monitor remplace chaque clé API et fournisseur LLM que vous auriez à configurer vous-même. Résumés IA, renseignement en temps réel, données de marché, suivi des conflits, détection d'incendies, imagerie satellite — tout est alimenté, tout est géré, zéro configuration.",
-        "apiKey": {
-          "title": "Clé de licence",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Collez votre licence pour débloquer instantanément toutes les sources de données et fonctionnalités IA.",
-          "statusValid": "SOUS LICENCE",
-          "statusMissing": "PAS DE LICENCE"
-        },
-        "dividerOr": "OU",
-        "register": {
-          "title": "Réservez votre place",
-          "description": "Nous préparons le lancement des licences World Monitor. Inscrivez-vous maintenant pour être en première ligne — les premiers membres bénéficient d'un accès prioritaire et d'un tarif fondateur.",
-          "emailPlaceholder": "votre@email.com",
-          "submitBtn": "Rejoindre la liste d'attente",
-          "submitting": "Envoi en cours...",
-          "success": "Vous êtes sur la liste ! Nous vous préviendrons en premier.",
-          "alreadyRegistered": "Vous êtes déjà sur la liste d'attente.",
-          "error": "L'inscription a échoué. Veuillez réessayer.",
-          "invalidEmail": "Veuillez entrer une adresse e-mail valide."
-        },
-        "byokTitle": "Ou apportez vos propres clés",
-        "byokDescription": "Vous préférez le contrôle total ? Rendez-vous dans les onglets Clés API et LLMs pour configurer chaque source de données et fournisseur IA individuellement."
       }
     },
     "countryIntel": {
@@ -818,29 +779,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "Index des pizzas du Pentagone",
-      "defcon": "DEFCON {{level}}",
-      "updated": "{{timeAgo}} mis à jour",
-      "tensionsTitle": "Tensions géopolitiques",
-      "source": "Source:",
-      "statusClosed": "FERMÉ",
-      "statusSpike": "POINTE",
-      "statusHigh": "HAUT",
-      "statusElevated": "ÉLEVÉ",
-      "statusNominal": "NOMINAL",
-      "statusQuiet": "CALME",
-      "justNow": "tout à l'heure",
-      "minutesAgo": "il y a {{m}} min",
-      "hoursAgo": "il y a {{h}} h",
-      "defconLabels": {
-        "1": "PISTOLET ARMÉ - PRÉPARATION MAXIMALE",
-        "2": "RYTHME RAPIDE - FORCES ARMÉES PRÊTES",
-        "3": "MAISON RONDE - AUGMENTER LA PRÉPARATION DE LA FORCE",
-        "4": "DOUBLE PRISE - VEILLE À INTELLIGENCE AUGMENTÉE",
-        "5": "FADE OUT - PRÉPARATION LA PLUS FAIBLE"
-      }
     },
     "strategicPosture": {
       "elapsed": "Écoulé : {{elapsed}} s",
@@ -1160,9 +1098,6 @@
       "aiFlowBrowserLabel": "Modèle local du navigateur",
       "aiFlowBrowserDesc": "Exécuter l'IA localement dans votre navigateur",
       "aiFlowBrowserWarn": "Environ 250 Mo de données seront téléchargés sur votre ordinateur",
-      "aiFlowOllamaCta": "Vous voulez une IA entièrement locale ?",
-      "aiFlowOllamaCtaDesc": "Téléchargez l'application de bureau pour le support Ollama",
-      "aiFlowDownloadDesktop": "Télécharger l'App Bureau →",
       "aiFlowStatusActive": "IA Cloud active",
       "aiFlowStatusCloudAndBrowser": "IA Cloud + Modèle navigateur actifs",
       "aiFlowStatusBrowserOnly": "Modèle navigateur uniquement",
@@ -2161,7 +2096,6 @@
       "mossad_idf": "Mossad/FDI",
       "nato_hq": "QG de l'OTAN",
       "pla_mss_activity": "Activité PLA/MSS",
-      "pentagon_pizza_index": "Index des pizzas du Pentagone",
       "piracy_conflict": "Piratage/conflit",
       "qatar_al_udeid": "Qatar/Al Udeid",
       "saudi_gip_mbs": "GIP/MBS saoudiens",

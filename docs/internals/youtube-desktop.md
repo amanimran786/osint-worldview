@@ -101,7 +101,7 @@ The only way autoplay would work is if YouTube's embed was served from the **sam
 
 ### Why Vercel-hosted embeds worked before
 
-The previous architecture served embeds from `https://worldmonitor.app/api/youtube/embed`. The parent was also `https://worldmonitor.app`. **Same origin** = WKWebView's autoplay policy respected the `.none` setting. When we moved embeds to the local sidecar (`http://localhost:PORT`), the parent became `tauri://localhost` — now cross-origin, breaking autoplay.
+The previous architecture served embeds from `https://osint-worldview-cyan.vercel.app/api/youtube/embed`. The parent was also `https://osint-worldview-cyan.vercel.app`. **Same origin** = WKWebView's autoplay policy respected the `.none` setting. When we moved embeds to the local sidecar (`http://localhost:PORT`), the parent became `tauri://localhost` — now cross-origin, breaking autoplay.
 
 **Trade-off**: Reverting to Vercel-hosted embeds would restore autoplay but adds a cloud dependency for the desktop app (defeats offline/local-first goals) and adds latency.
 

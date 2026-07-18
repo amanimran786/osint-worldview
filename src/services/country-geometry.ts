@@ -13,12 +13,7 @@ interface CountryHit {
 }
 
 const COUNTRY_LOCAL_GEOJSON_URL = '/data/countries.geojson';
-const COUNTRY_REMOTE_GEOJSON_URLS = [
-  'https://maps.worldmonitor.app/countries.geojson',
-];
-
-/** Optional higher-resolution boundary overrides sourced from Natural Earth (served from R2 CDN). */
-const COUNTRY_OVERRIDES_URL = 'https://maps.worldmonitor.app/country-boundary-overrides.geojson';
+const COUNTRY_OVERRIDES_URL = '/data/country-boundary-overrides.geojson';
 const COUNTRY_OVERRIDE_TIMEOUT_MS = 3_000;
 
 const POLITICAL_OVERRIDES: Record<string, string> = { 'CN-TW': 'TW' };
@@ -257,7 +252,7 @@ async function ensureLoaded(): Promise<void> {
     try {
       let data: FeatureCollection<Geometry> | null = null;
       let lastLoadError: unknown = null;
-      const countrySources = [COUNTRY_LOCAL_GEOJSON_URL, ...COUNTRY_REMOTE_GEOJSON_URLS];
+      const countrySources = [COUNTRY_LOCAL_GEOJSON_URL];
 
       for (const sourceUrl of countrySources) {
         try {

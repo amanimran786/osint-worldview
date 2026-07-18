@@ -143,7 +143,6 @@
     "settings": "설정",
     "sources": "소스",
     "copyLink": "링크 복사",
-    "downloadApp": "앱 다운로드",
     "fullscreen": "전체 화면",
     "pinMap": "지도를 상단에 고정",
     "selectRegion": "지역 선택",
@@ -475,17 +474,6 @@
       "dontShowAgain": "다시 표시하지 않기",
       "gotIt": "확인"
     },
-    "downloadBanner": {
-      "title": "데스크톱 앱 이용 가능",
-      "description": "네이티브 성능, 안전한 로컬 키 저장, 오프라인 지도 타일.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "모든 플랫폼 보기",
-      "showLess": "접기",
-      "dismiss": "닫기"
-    },
     "runtimeConfig": {
       "title": "데스크톱 구성",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "일부 기능에 API 키가 필요합니다"
       },
       "openSettings": "설정 열기",
-      "skipSetup": "설정을 건너뛰세요 — 하나의 World Monitor 라이선스로 모든 것을 이용할 수 있습니다. 대기 목록에 등록하여 조기 액세스를 받으세요.",
       "summary": {
         "desktop": "데스크톱 모드",
         "web": "웹 모드 (읽기 전용, 서버 관리 자격 증명)",
@@ -538,32 +525,6 @@
       "noTraffic": "아직 기록된 트래픽이 없습니다.",
       "sidecarUnreachable": "사이드카에 연결할 수 없습니다.",
       "logCleared": "로그가 삭제되었습니다.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "하나의 키. 모든 것이 포함됩니다.",
-        "heroDescription": "하나의 World Monitor 라이선스로 직접 구성해야 하는 모든 API 키와 LLM 프로바이더를 대체합니다. AI 요약, 실시간 정보, 시장 데이터, 분쟁 추적, 화재 감지, 위성 이미지 — 모두 지원되고, 모두 관리되며, 설정이 필요 없습니다.",
-        "apiKey": {
-          "title": "라이선스 키",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "라이선스를 붙여넣으면 모든 데이터 소스와 AI 기능이 즉시 활성화됩니다.",
-          "statusValid": "라이선스 활성",
-          "statusMissing": "라이선스 없음"
-        },
-        "dividerOr": "또는",
-        "register": {
-          "title": "슬롯을 예약하세요",
-          "description": "World Monitor 라이선스 출시를 준비하고 있습니다. 지금 등록하고 가장 먼저 — 초기 회원은 우선 액세스 및 창립 멤버 가격을 받게 됩니다.",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "대기 목록 등록",
-          "submitting": "제출 중...",
-          "success": "목록에 등록되었습니다! 가장 먼저 알려드리겠습니다.",
-          "alreadyRegistered": "이미 대기 목록에 등록되어 있습니다.",
-          "error": "등록에 실패했습니다. 다시 시도해 주세요.",
-          "invalidEmail": "유효한 이메일 주소를 입력하세요."
-        },
-        "byokTitle": "또는 직접 키를 사용하세요",
-        "byokDescription": "완전한 제어를 원하시나요? API 키 및 LLM 탭에서 각 데이터 소스와 AI 프로바이더를 개별적으로 구성하세요."
-      },
       "table": {
         "time": "시간",
         "method": "메서드",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "펜타곤 피자 지수",
-      "defcon": "DEFCON {{level}}",
-      "updated": "{{timeAgo}} 업데이트",
-      "tensionsTitle": "지정학적 긴장",
-      "source": "출처:",
-      "statusClosed": "폐점",
-      "statusSpike": "급증",
-      "statusHigh": "높음",
-      "statusElevated": "경계",
-      "statusNominal": "정상",
-      "statusQuiet": "한산",
-      "justNow": "방금",
-      "minutesAgo": "{{m}}m 전",
-      "hoursAgo": "{{h}}h 전",
-      "defconLabels": {
-        "1": "COCKED PISTOL - 최대 경계 태세",
-        "2": "FAST PACE - 군 전투 준비 완료",
-        "3": "ROUND HOUSE - 전투 준비 태세 강화",
-        "4": "DOUBLE TAKE - 정보 감시 강화",
-        "5": "FADE OUT - 최저 경계 태세"
-      }
     },
     "strategicPosture": {
       "elapsed": "경과: {{elapsed}} s",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "브라우저 로컬 모델",
       "aiFlowBrowserDesc": "브라우저에서 AI를 로컬로 실행",
       "aiFlowBrowserWarn": "약 250MB의 모델 데이터를 브라우저에 다운로드합니다",
-      "aiFlowOllamaCta": "완전한 로컬 AI를 원하시나요?",
-      "aiFlowOllamaCtaDesc": "Ollama 지원을 위해 데스크톱 앱을 다운로드하세요",
-      "aiFlowDownloadDesktop": "데스크톱 앱 다운로드 →",
       "aiFlowStatusActive": "클라우드 AI 활성",
       "aiFlowStatusCloudAndBrowser": "클라우드 AI + 브라우저 모델 활성",
       "aiFlowStatusBrowserOnly": "브라우저 모델만 사용",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "모사드/IDF",
       "nato_hq": "NATO 본부",
       "pla_mss_activity": "PLA/MSS 활동",
-      "pentagon_pizza_index": "펜타곤 피자 지수",
       "piracy_conflict": "해적/분쟁",
       "qatar_al_udeid": "카타르/알우데이드",
       "saudi_gip_mbs": "사우디 GIP/MBS",

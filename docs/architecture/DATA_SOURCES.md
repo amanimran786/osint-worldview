@@ -1,6 +1,6 @@
 # Data Sources
 
-Comprehensive documentation of all data sources, feed tiers, and collection methods used by World Monitor.
+Comprehensive documentation of all data sources, feed tiers, and collection methods used by WorldView.
 
 ---
 
@@ -33,7 +33,7 @@ Comprehensive documentation of all data sources, feed tiers, and collection meth
 - Nuclear facilities & gamma irradiators
 - APT cyber threat actor attribution
 - Spaceports & launch facilities
-- **Orbital surveillance** — ~80–120 intelligence-relevant satellites tracked in real time via CelesTrak TLE data and client-side SGP4 propagation (satellite.js). Country-coded markers at orbital altitude, 15-min orbit trails, ground footprints. Globe-only. [Details →](./ORBITAL_SURVEILLANCE.md)
+- **Orbital surveillance** — selected satellites from CelesTrak TLE data with client-side SGP4 propagation (satellite.js), orbit trails, and ground footprints. Globe-only. [Details](../internals/ORBITAL_SURVEILLANCE.md)
 
 </details>
 
@@ -362,7 +362,6 @@ Feeds also carry a **propaganda risk rating** and **state affiliation flag**. St
 
 ### Data Freshness & Intelligence Gaps
 
-A singleton tracker monitors 31 data sources (GDELT, GDELT Doc, RSS, AIS, OpenSky, Wingbits, USGS, weather, outages, ACLED, ACLED conflict, Polymarket, predictions, PizzINT, economic, oil, spending, NASA FIRMS, cyber threats, UCDP, UCDP events, HAPI, UNHCR, climate, WorldPop, giving, BIS, WTO trade, supply chain, security advisories, GPS jamming) with status categorization: fresh (<15 min), stale (2h), very_stale (6h), no_data, error, disabled. Two sources (GDELT, RSS) are flagged as `requiredForRisk` — their absence directly impacts CII scoring quality. The tracker explicitly reports **intelligence gaps** — what analysts can't see — preventing false confidence when critical data sources are down or degraded.
 
 ---
 

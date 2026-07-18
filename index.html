@@ -1,116 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-build-variant="full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: http://localhost:5173 ws: wss: blob: data:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'sha256-LnMFPWZxTgVOr2VYwIh9mhQ3l/l3+a3SfNOLERnuHfY=' 'sha256-+SFBjfmi2XfnyAT3POBxf6JIKYDcNXtllPclOcaNBI0=' 'sha256-AhZAmdCW6h8iXMyBcvIrqN71FGNk4lwLD+lPxx43hxg=' 'sha256-PnEBZii+iFaNE2EyXaJhRq34g6bdjRJxpLfJALdXYt8=' 'sha256-cVhuR63Moy56DV5yG0caJCEyCugMTbYclkvkK6fSwXY=' 'sha256-903UI9my1I7mqHoiVeZSc56yd50YoRJTB2269QqL76w=' 'wasm-unsafe-eval' https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https: http://127.0.0.1:* http://localhost:*; frame-src 'self' http://127.0.0.1:* http://localhost:* https://worldview.app https://tech.worldview.app https://finance.worldview.app https://happy.worldview.app https://www.youtube.com https://www.youtube-nocookie.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: http://localhost:5173 ws: wss: blob: data:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'wasm-unsafe-eval' https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https: http://127.0.0.1:* http://localhost:*; frame-src 'self' http://127.0.0.1:* http://localhost:* https://www.youtube.com https://www.youtube-nocookie.com;" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <!-- Primary Meta Tags -->
-    <title>WorldView Monitor - Real-Time Global Intelligence Dashboard</title>
-    <meta name="title" content="WorldView Monitor - Real-Time Global Intelligence Dashboard" />
-    <meta name="description" content="AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data. OSINT in one view." />
-    <meta name="keywords" content="AI intelligence, AI-powered dashboard, global intelligence, geopolitical dashboard, world news, market data, military bases, nuclear facilities, undersea cables, conflict zones, real-time monitoring, situation awareness, OSINT, flight tracking, AIS ships, earthquake monitor, protest tracker, power outages, oil prices, government spending, polymarket predictions" />
+    <title>WorldView - Global Intelligence Dashboard</title>
+    <meta name="title" content="WorldView - Global Intelligence Dashboard" />
+    <meta name="description" content="Open-source dashboard for exploring global news, geospatial events, infrastructure, markets, and public safety signals." />
+    <meta name="keywords" content="global intelligence dashboard, world news, geospatial events, infrastructure monitoring, public safety, OSINT" />
     <meta name="author" content="WorldView" />
     <meta name="theme-color" content="#0a0f0a" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://www.worldview.app/" />
-    <link rel="alternate" hreflang="x-default" href="https://www.worldview.app/" />
-    <link rel="alternate" hreflang="en" href="https://www.worldview.app/" />
-    <link rel="alternate" hreflang="ar" href="https://www.worldview.app/?lang=ar" />
-    <link rel="alternate" hreflang="bg" href="https://www.worldview.app/?lang=bg" />
-    <link rel="alternate" hreflang="cs" href="https://www.worldview.app/?lang=cs" />
-    <link rel="alternate" hreflang="de" href="https://www.worldview.app/?lang=de" />
-    <link rel="alternate" hreflang="el" href="https://www.worldview.app/?lang=el" />
-    <link rel="alternate" hreflang="es" href="https://www.worldview.app/?lang=es" />
-    <link rel="alternate" hreflang="fr" href="https://www.worldview.app/?lang=fr" />
-    <link rel="alternate" hreflang="it" href="https://www.worldview.app/?lang=it" />
-    <link rel="alternate" hreflang="ja" href="https://www.worldview.app/?lang=ja" />
-    <link rel="alternate" hreflang="ko" href="https://www.worldview.app/?lang=ko" />
-    <link rel="alternate" hreflang="nl" href="https://www.worldview.app/?lang=nl" />
-    <link rel="alternate" hreflang="pl" href="https://www.worldview.app/?lang=pl" />
-    <link rel="alternate" hreflang="pt" href="https://www.worldview.app/?lang=pt" />
-    <link rel="alternate" hreflang="ro" href="https://www.worldview.app/?lang=ro" />
-    <link rel="alternate" hreflang="ru" href="https://www.worldview.app/?lang=ru" />
-    <link rel="alternate" hreflang="sv" href="https://www.worldview.app/?lang=sv" />
-    <link rel="alternate" hreflang="th" href="https://www.worldview.app/?lang=th" />
-    <link rel="alternate" hreflang="tr" href="https://www.worldview.app/?lang=tr" />
-    <link rel="alternate" hreflang="vi" href="https://www.worldview.app/?lang=vi" />
-    <link rel="alternate" hreflang="zh" href="https://www.worldview.app/?lang=zh" />
+    <link rel="canonical" href="https://osint-worldview-cyan.vercel.app/" />
 
     <!-- Additional Search Discovery -->
-    <meta name="application-name" content="WorldView Monitor" />
-    <meta name="subject" content="AI-Powered Global Intelligence and Situation Awareness" />
-    <meta name="classification" content="AI Intelligence Dashboard, OSINT Tool, News Aggregator" />
+    <meta name="application-name" content="WorldView" />
+    <meta name="subject" content="Global Intelligence and Situation Awareness" />
+    <meta name="classification" content="Intelligence Dashboard, OSINT Tool, News Aggregator" />
     <meta name="coverage" content="Worldwide" />
     <meta name="distribution" content="Global" />
     <meta name="rating" content="General" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.worldview.app/" />
-    <meta property="og:title" content="WorldView Monitor - Real-Time Global Intelligence Dashboard" />
-    <meta property="og:description" content="AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data." />
-    <meta property="og:image" content="https://www.worldview.app/favico/og-image.png" />
+    <meta property="og:url" content="https://osint-worldview-cyan.vercel.app/" />
+    <meta property="og:title" content="WorldView - Global Intelligence Dashboard" />
+    <meta property="og:description" content="Explore global news, geospatial events, infrastructure, markets, and public safety signals." />
+    <meta property="og:image" content="https://osint-worldview-cyan.vercel.app/favico/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="WorldView Monitor — real-time global intelligence dashboard with 3D globe, live markets, geopolitical data, and infrastructure monitoring" />
-    <meta property="og:site_name" content="WorldView Monitor" />
+    <meta property="og:image:alt" content="WorldView global intelligence dashboard" />
+    <meta property="og:site_name" content="WorldView" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://www.worldview.app/" />
-    <meta name="twitter:title" content="WorldView Monitor - Real-Time Global Intelligence Dashboard" />
-    <meta name="twitter:description" content="AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data." />
-    <meta name="twitter:image" content="https://www.worldview.app/favico/og-image.png" />
-    <meta name="twitter:site" content="@worldviewintel" />
-    <meta name="twitter:creator" content="@worldviewintel" />
+    <meta name="twitter:url" content="https://osint-worldview-cyan.vercel.app/" />
+    <meta name="twitter:title" content="WorldView - Global Intelligence Dashboard" />
+    <meta name="twitter:description" content="Explore global news, geospatial events, infrastructure, markets, and public safety signals." />
+    <meta name="twitter:image" content="https://osint-worldview-cyan.vercel.app/favico/og-image.png" />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "WorldView Monitor",
-      "alternateName": "WorldViewMonitor",
-      "url": "https://www.worldview.app/",
-      "description": "Open-source real-time OSINT dashboard for geopolitical monitoring, conflict tracking, military flight tracking, maritime AIS, and global threat intelligence.",
+      "name": "WorldView",
+      "url": "https://osint-worldview-cyan.vercel.app/",
+      "description": "Open-source dashboard for exploring global news and geospatial signals.",
       "applicationCategory": "SecurityApplication",
-      "operatingSystem": "Web, Windows, macOS, Linux",
-      "offers": [
-        { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free", "description": "Full dashboard with 435+ sources, 45 map layers, BYOK AI" }
-      ],
+      "operatingSystem": "Web",
       "author": {
         "@type": "Organization",
         "name": "WorldView",
-        "url": "https://www.worldview.app/"
+        "url": "https://osint-worldview-cyan.vercel.app/"
       },
       "featureList": [
-        "Real-time conflict tracking (ACLED, UCDP)",
-        "Military ADS-B flight monitoring",
-        "Maritime AIS ship tracking and dark vessel detection",
-        "NASA FIRMS satellite fire detection",
-        "Nuclear installation and critical infrastructure mapping",
-        "Submarine cable and internet outage monitoring",
-        "GPS jamming zone detection",
-        "AI-powered intelligence synthesis and briefs",
-        "Country Instability Index (CII) scoring",
-        "Stock market, commodity, and crypto tracking",
-        "Earthquake and natural disaster alerts",
-        "Civil unrest and protest monitoring",
-        "Cyber threat and BGP anomaly detection",
-        "435+ curated RSS news feeds",
-        "21 language support with RTL"
+        "Interactive map and globe views",
+        "Configurable geospatial layers",
+        "Regional news panels",
+        "Dashboard search and settings"
       ],
-      "screenshot": "https://www.worldview.app/favico/og-image.png",
-      "sameAs": [
-        "https://www.worldview.app/",
-        "https://tech.worldview.app/",
-        "https://finance.worldview.app/",
-        "https://commodity.worldview.app/"
-      ],
-      "keywords": "OSINT dashboard, geopolitical monitoring, real-time intelligence, conflict tracker, threat intelligence, ADS-B tracking, AIS ship tracking, global risk monitoring, situational awareness"
+      "screenshot": "https://osint-worldview-cyan.vercel.app/favico/og-image.png",
+      "keywords": "OSINT dashboard, geopolitical monitoring, global signals, situational awareness"
     }
     </script>
 
@@ -122,7 +77,7 @@
 
 
     <!-- Theme: apply stored preference before first paint to prevent FOUC -->
-    <script>(function(){try{var h=location.hostname;var v;if(h.startsWith('happy.'))v='happy';else if(h.startsWith('tech.'))v='tech';else if(h.startsWith('finance.'))v='finance';if(!v&&(h==='localhost'||h==='127.0.0.1'||'__TAURI_INTERNALS__' in window))v=localStorage.getItem('worldview-variant');if(v)document.documentElement.dataset.variant=v;else document.documentElement.removeAttribute('data-variant');var t=localStorage.getItem('worldview-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}else if(v==='happy'){document.documentElement.dataset.theme='light';}}catch(e){}document.documentElement.classList.add('no-transition');})()</script>
+    <script src="/early-theme.js"></script>
 
     <!-- Critical CSS: inline skeleton visible before JS boots -->
     <style>
@@ -187,8 +142,7 @@
       [data-variant="happy"][data-theme="dark"] .skeleton-line{background:linear-gradient(90deg,rgba(139,175,122,.05) 25%,rgba(139,175,122,.10) 50%,rgba(139,175,122,.05) 75%);background-size:200% 100%;animation:skel-shimmer 1.5s infinite}
     </style>
 
-    <!-- Preconnect: map tiles + assets -->
-    <link rel="preconnect" href="https://maps.worldview.app" crossorigin>
+    <!-- Preconnect: map tiles -->
     <link rel="dns-prefetch" href="https://protomaps.github.io">
 
   <!-- Google Fonts (Space Grotesk + JetBrains Mono, Nunito for happy variant, Tajawal for Arabic) -->
@@ -253,30 +207,7 @@
         </ul>
       </div>
     </noscript>
-    <!-- Force-clear stale service worker if module scripts 404 (post-deploy cache mismatch) -->
-    <script>
-    (function(){
-      if(!('serviceWorker' in navigator))return;
-      var key='wm-sw-nuke';
-      if(sessionStorage.getItem(key))return;
-      window.addEventListener('error',function(e){
-        var u=e.target&&(e.target.src||e.target.href)||'';
-        if(u&&/\/assets\//.test(u)){
-          sessionStorage.setItem(key,'1');
-          navigator.serviceWorker.getRegistrations().then(function(regs){
-            var p=regs.map(function(r){return r.unregister()});
-            Promise.all(p).then(function(){
-              if(caches&&caches.keys){
-                caches.keys().then(function(ks){
-                  return Promise.all(ks.map(function(k){return caches.delete(k)}));
-                }).then(function(){location.reload()});
-              }else{location.reload()}
-            });
-          });
-        }
-      },true);
-    })()
-    </script>
+    <script src="/service-worker-recovery.js"></script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

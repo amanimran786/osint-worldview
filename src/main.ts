@@ -5,7 +5,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import * as Sentry from '@sentry/browser';
 import { inject } from '@vercel/analytics';
 import { App } from './App';
-import { installUtmInterceptor } from './utils/utm';
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN?.trim();
 
@@ -13,7 +12,7 @@ const sentryDsn = import.meta.env.VITE_SENTRY_DSN?.trim();
 Sentry.init({
   dsn: sentryDsn || undefined,
   release: `worldview@${__APP_VERSION__}`,
-  environment: location.hostname === 'worldview.app' ? 'production'
+  environment: location.hostname === 'osint-worldview-cyan.vercel.app' ? 'production'
     : location.hostname.includes('vercel.app') ? 'preview'
     : 'development',
   enabled: Boolean(sentryDsn) && !location.hostname.startsWith('localhost') && !('__TAURI_INTERNALS__' in window),
@@ -124,7 +123,6 @@ Sentry.init({
     /__isInQueue__/,
     /^(?:LIDNotify(?:Id)?|onWebViewAppeared|onGetWiFiBSSID) is not defined$/,
     /signal timed out/,
-    /Se requiere plan premium/,
     /hybridExecute is not defined/,
     /reading 'postMessage'/,
     /NotSupportedError/,
@@ -304,7 +302,7 @@ initMetaTags();
 
 // In desktop mode, route /api/* calls to the local Tauri sidecar backend.
 installRuntimeFetchPatch();
-// In web production, route RPC calls through api.worldview.app (Cloudflare edge).
+// In web production, route RPC calls through the configured API origin.
 installWebApiRedirect();
 loadDesktopSecrets().catch(() => {});
 
@@ -349,7 +347,6 @@ if (urlParams.get('settings') === '1') {
     }
   );
 } else {
-  installUtmInterceptor();
   const app = new App('app');
   app
     .init()

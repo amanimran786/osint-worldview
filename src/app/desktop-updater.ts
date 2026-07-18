@@ -68,7 +68,7 @@ export class DesktopUpdater implements AppModule {
 
   private async checkForUpdate(): Promise<void> {
     try {
-      const res = await fetch('https://api.worldview.app/api/version', {
+      const res = await fetch('https://osint-worldview-cyan.vercel.app/api/version', {
         signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) {
@@ -151,7 +151,7 @@ export class DesktopUpdater implements AppModule {
       const platform = this.mapDesktopDownloadPlatform(runtimeInfo.os, runtimeInfo.arch);
       if (platform) {
         const variant = this.getDesktopBuildVariant();
-        return `https://worldview.app/api/download?platform=${platform}&variant=${variant}`;
+        return `https://osint-worldview-cyan.vercel.app/api/download?platform=${platform}&variant=${variant}`;
       }
     } catch {
       // Silent fallback to release page when desktop runtime info is unavailable.

@@ -1,18 +1,18 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Finance Monitor",
+  "productName": "WorldView Markets",
   "mainBinaryName": "finance-monitor",
   "identifier": "app.worldmonitor.finance.desktop",
   "app": {
     "windows": [
       {
-        "title": "Finance Monitor"
+        "title": "WorldView Markets"
       }
     ]
   },
   "bundle": {
-    "shortDescription": "Finance Monitor desktop app",
-    "longDescription": "Finance Monitor desktop app for real-time markets and trading intelligence.",
+    "shortDescription": "WorldView markets dashboard",
+    "longDescription": "WorldView desktop dashboard for global markets and economic intelligence.",
     "targets": [
       "app",
       "dmg",

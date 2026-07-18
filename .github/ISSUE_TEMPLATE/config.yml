@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/amanimran786/osint-worldview/discussions
     about: Ask questions or chat with the community
   - name: 🌐 Live Demo
-    url: https://worldview.app
+    url: https://osint-worldview-cyan.vercel.app
     about: Try WorldView online

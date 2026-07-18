@@ -141,9 +141,9 @@
   /* Tailwind yellow-600 (was #eab308, 1.82:1) */
   --threat-low: #15803d;
   /* Tailwind green-700 (was #22c55e, 2.16:1) */
-  --defcon-3: #d97706;
+  --status-warning: #d97706;
   /* Tailwind amber-600 (was #ffaa00, 1.81:1) */
-  --defcon-4: #0284c7;
+  --status-info: #0284c7;
   /* Tailwind sky-600 (was #00aaff, 2.43:1) */
   --status-live: #16a34a;
   /* Tailwind green-600 (was #44ff88, 1.25:1) */
@@ -3973,7 +3973,7 @@ body.live-news-fullscreen-active .panels-grid > *:not(.live-news-fullscreen) {
 }
 
 .signal-item.convergence {
-  border-left-color: var(--defcon-4);
+  border-left-color: var(--status-info);
 }
 
 .signal-item.triangulation {
@@ -4761,7 +4761,7 @@ body.playback-mode .status-dot {
 }
 
 .pipeline-path.pipeline-gas {
-  filter: drop-shadow(0 0 3px var(--defcon-4));
+  filter: drop-shadow(0 0 3px var(--status-info));
 }
 
 .pipeline-path.pipeline-products {
@@ -4778,7 +4778,7 @@ body.playback-mode .status-dot {
 }
 
 .pipeline-path.pipeline-gas:hover {
-  filter: drop-shadow(0 0 8px var(--defcon-4)) drop-shadow(0 0 15px var(--defcon-4));
+  filter: drop-shadow(0 0 8px var(--status-info)) drop-shadow(0 0 15px var(--status-info));
 }
 
 .pipeline-path.pipeline-products:hover {
@@ -4842,7 +4842,7 @@ body.playback-mode .status-dot {
 }
 
 .popup-header.pipeline.gas {
-  border-bottom-color: var(--defcon-4);
+  border-bottom-color: var(--status-info);
 }
 
 .popup-header.pipeline.products {
@@ -6933,7 +6933,7 @@ a.prediction-link:hover {
 }
 
 .popup-header.ais .popup-title {
-  color: var(--defcon-4);
+  color: var(--status-info);
 }
 
 .popup-title.magnitude {
@@ -7308,19 +7308,19 @@ a.prediction-link:hover {
 }
 
 .ais-disruption-marker.low {
-  --ais-color: var(--defcon-4);
+  --ais-color: var(--status-info);
 }
 
 .ais-disruption-icon {
   font-size: 16px;
-  filter: drop-shadow(0 0 6px var(--ais-color, var(--defcon-4)));
+  filter: drop-shadow(0 0 6px var(--ais-color, var(--status-info)));
 }
 
 .ais-disruption-label {
   font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--ais-color, var(--defcon-4));
+  color: var(--ais-color, var(--status-info));
   text-shadow: 0 0 4px var(--bg), 0 0 8px var(--bg);
   white-space: nowrap;
 }
@@ -7485,7 +7485,7 @@ a.prediction-link:hover {
 /* Signal Pulse on Status Dot */
 .status-dot.signal-pulse {
   animation: signal-dot-pulse 0.5s ease-out 6;
-  background: var(--defcon-4);
+  background: var(--status-info);
 }
 
 @keyframes signal-dot-pulse {
@@ -7839,7 +7839,7 @@ a.prediction-link:hover {
 
 .spaceport-icon {
   font-size: 16px;
-  filter: drop-shadow(0 0 4px var(--defcon-4));
+  filter: drop-shadow(0 0 4px var(--status-info));
 }
 
 .spaceport-marker.active .spaceport-icon {
@@ -7864,7 +7864,7 @@ a.prediction-link:hover {
   transform-origin: top center;
   white-space: nowrap;
   font-size: 7px;
-  color: var(--defcon-4);
+  color: var(--status-info);
   text-shadow: 0 0 4px var(--bg), 0 0 8px var(--bg);
   font-weight: bold;
   text-transform: uppercase;
@@ -8000,7 +8000,7 @@ a.prediction-link:hover {
 }
 
 .startup-hub-marker.major .startup-hub-icon {
-  filter: drop-shadow(0 0 6px var(--defcon-4)) drop-shadow(0 0 12px #00aaff60);
+  filter: drop-shadow(0 0 6px var(--status-info)) drop-shadow(0 0 12px #00aaff60);
 }
 
 .startup-hub-marker.emerging .startup-hub-icon {
@@ -8035,7 +8035,7 @@ a.prediction-link:hover {
 }
 
 .startup-hub-marker.major .startup-hub-label {
-  color: var(--defcon-4);
+  color: var(--status-info);
 }
 
 /* Startup Hub popup header */
@@ -8057,7 +8057,7 @@ a.prediction-link:hover {
 }
 
 .popup-badge.major {
-  background: var(--defcon-4);
+  background: var(--status-info);
   color: var(--bg);
 }
 
@@ -8207,7 +8207,7 @@ a.prediction-link:hover {
 }
 
 .tech-hq-marker.public .tech-hq-icon {
-  filter: drop-shadow(0 0 4px var(--defcon-4));
+  filter: drop-shadow(0 0 4px var(--status-info));
   opacity: 0.9;
 }
 
@@ -8242,7 +8242,7 @@ a.prediction-link:hover {
 }
 
 .tech-hq-marker.public .tech-hq-label {
-  color: var(--defcon-4);
+  color: var(--status-info);
 }
 
 /* Tech HQ popup header */
@@ -8269,7 +8269,7 @@ a.prediction-link:hover {
 }
 
 .popup-badge.public {
-  background: var(--defcon-4);
+  background: var(--status-info);
   color: var(--accent);
 }
 
@@ -8341,7 +8341,7 @@ a.prediction-link:hover {
 }
 
 .cluster-summary .summary-item.public {
-  color: var(--defcon-4);
+  color: var(--status-info);
 }
 
 .cluster-summary .summary-item.soon {
@@ -8373,7 +8373,7 @@ a.prediction-link:hover {
 }
 
 .cluster-list .cluster-item.public {
-  color: var(--defcon-4);
+  color: var(--status-info);
 }
 
 .cluster-list .cluster-item.urgent {
@@ -9621,7 +9621,7 @@ a.prediction-link:hover {
 }
 
 .military-flight-track {
-  stroke: var(--mil-color, var(--defcon-4));
+  stroke: var(--mil-color, var(--status-info));
   stroke-opacity: 0.5;
 }
 
@@ -10128,102 +10128,6 @@ a.prediction-link:hover {
     transform: scale(1.05);
     box-shadow: 0 0 8px 2px var(--overlay-heavy);
   }
-}
-
-/* -- Premium locked panel overlay -- */
-.panel-locked-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 1.2rem 1rem;
-  gap: 8px;
-  background: radial-gradient(ellipse at center, rgba(180, 130, 40, 0.06) 0%, transparent 70%);
-}
-
-.panel-locked-icon {
-  color: #d4a843;
-  filter: drop-shadow(0 0 8px rgba(212, 168, 67, 0.3));
-}
-
-.panel-locked-desc {
-  font-size: 11px;
-  color: var(--text-dim, #888);
-}
-
-.panel-locked-features {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0;
-  font-size: 10px;
-  color: var(--text-dim, #888);
-  text-align: center;
-}
-
-.panel-locked-features li::before {
-  content: "— ";
-  color: #d4a843;
-}
-
-.panel-locked-cta {
-  padding: 6px 18px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: #111;
-  background: linear-gradient(135deg, #d4a843 0%, #b8902e 100%);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: filter 0.15s;
-}
-
-.panel-locked-cta:hover {
-  filter: brightness(1.15);
-}
-
-/* -- PRO badge (panel header) -- */
-.panel-pro-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #d4a843;
-  border: 1px solid rgba(212, 168, 67, 0.4);
-  border-radius: 3px;
-  padding: 1px 4px;
-  margin-left: 6px;
-  vertical-align: middle;
-  line-height: 1;
-}
-
-/* -- PRO badge (layer toggle) -- */
-.layer-pro-badge {
-  display: inline;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #d4a843;
-  border: 1px solid rgba(212, 168, 67, 0.35);
-  border-radius: 2px;
-  padding: 0 3px;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
-/* -- Locked panel: hide count badge + extra chrome -- */
-.panel-is-locked .panel-count,
-.panel-is-locked .panel-data-badge {
-  display: none !important;
-}
-
-/* -- Locked layer toggle -- */
-.layer-toggle-locked {
-  opacity: 0.45;
-  pointer-events: none;
 }
 
 /* Panel header glow when has new items */
@@ -14101,7 +14005,6 @@ a.prediction-link:hover {
   border-color: rgba(68, 255, 136, 0.2);
 }
 
-/* Pro early-access banner */
 /* Layer performance warning dialog */
 .layer-warn-overlay {
   position: fixed;
@@ -15301,39 +15204,6 @@ a.prediction-link:hover {
 .ai-flow-switch input:checked+.ai-flow-slider::before {
   transform: translateX(14px);
   background: #fff;
-}
-
-/* Ollama CTA */
-.ai-flow-cta {
-  border-top: 1px solid #333;
-  margin-top: 8px;
-  padding-top: 10px;
-}
-
-.ai-flow-cta-title {
-  font-size: 11px;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.ai-flow-cta-desc {
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-top: 2px;
-}
-
-.ai-flow-cta-link {
-  display: inline-block;
-  margin-top: 4px;
-  font-size: 11px;
-  color: #60a5fa;
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-.ai-flow-cta-link:hover {
-  color: #93c5fd;
-  text-decoration: underline;
 }
 
 /* Discussion link in settings */

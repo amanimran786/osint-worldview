@@ -1,13 +1,11 @@
-# WorldMonitor - protect API routes from crawlers
+# WorldView crawler policy
 User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /tests/
 
-Sitemap: https://www.worldmonitor.app/sitemap.xml
-Sitemap: https://www.worldmonitor.app/blog/sitemap-index.xml
+Sitemap: https://osint-worldview-cyan.vercel.app/sitemap.xml
 
-# Allow social media bots for OG previews
 User-agent: Twitterbot
 Allow: /api/story
 Allow: /api/og-story

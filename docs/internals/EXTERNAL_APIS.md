@@ -1,6 +1,6 @@
 # External APIs Catalog
 
-> Comprehensive reference for every external API consumed by World Monitor.
+> Comprehensive reference for every external API consumed by WorldView.
 > Last updated: 2026-02-19
 
 ---
@@ -27,7 +27,7 @@
 
 ## 1. Overview
 
-World Monitor integrates **38 distinct external API sources** (plus ~150 RSS feed
+WorldView integrates **38 distinct external API sources** (plus ~150 RSS feed
 domains) to provide a unified real-time intelligence dashboard across geopolitical,
 financial, military, environmental, humanitarian, and technology domains.
 
@@ -46,7 +46,6 @@ financial, military, environmental, humanitarian, and technology domains.
 
 - **API key in header/query** — ACLED, Finnhub, FRED, Wingbits, AbuseIPDB, NASA FIRMS, Groq, OpenRouter, Cloudflare Radar, EIA
 - **Optional API key** — GitHub, HDX HAPI
-- **No authentication** — UCDP, GDELT, NGA MSI, Yahoo Finance, CoinGecko, Polymarket, alternative.me, blockchain.info, OpenSky, Feodo Tracker, URLhaus, C2IntelFeeds, AlienVault OTX, USGS, NOAA, Status Pages, FAA, UNHCR, WorldPop, World Bank, Hacker News, ArXiv, pizzint.watch, RSS feeds, Tech Events
 - **URL-based auth** — Custom AIS Relay
 
 ---
@@ -709,23 +708,6 @@ OpenAI, Anthropic, and others.
 
 ---
 
-#### 36 — pizzint.watch
-
-| Field | Value |
-|---|---|
-| **Base URL** | `https://pizzint.watch/` |
-| **Authentication** | None |
-| **Env Vars** | — |
-| **Rate Limits** | Public |
-| **Data Format** | JSON |
-| **WM Endpoints** | `/api/pizzint/*` (multiple sub-endpoints) |
-| **Frontend Services** | `IntelService` → PizzintPanel |
-| **Degradation** | CDN cache serves stale data |
-| **Tier Needed** | Public |
-| **Quirks** | OSINT aggregation platform. Multiple sub-endpoints proxied through WM edge functions. |
-
----
-
 #### 37 — RSS Feeds (~150 Domains)
 
 | Field | Value |
@@ -909,7 +891,7 @@ graph TD
 
 ## 5. Degradation Matrix
 
-How World Monitor behaves when each external API is unavailable:
+How WorldView behaves when each external API is unavailable:
 
 | # | API | Cache TTL | Behavior When Down | User Impact | Severity |
 |---|---|---|---|---|---|
@@ -948,7 +930,6 @@ How World Monitor behaves when each external API is unavailable:
 | 33 | GitHub | — | HTML scrape fallback / graceful fail | Trending may fail; version check skipped | Low |
 | 34 | ArXiv | CDN | Stale search results | Research papers outdated | Minimal |
 | 35 | EIA | CDN | Stale energy data | Energy metrics delayed | Low |
-| 36 | pizzint.watch | CDN | Stale intel data | OSINT data delayed | Low |
 | 37 | RSS Feeds | 5m CB | Circuit breaker per feed | Individual feeds drop; others continue | Low |
 | 38 | Tech Events | 6h | Stale cached data | Event listings outdated | Minimal |
 
@@ -967,7 +948,6 @@ How World Monitor behaves when each external API is unavailable:
 
 | Category | APIs |
 |---|---|
-| Fully public (no key) | UCDP, GDELT, NGA MSI, Yahoo Finance, CoinGecko, Polymarket, alternative.me, blockchain.info, OpenSky, Feodo Tracker, URLhaus, C2IntelFeeds, AlienVault OTX, USGS, NOAA, Status Pages, FAA, UNHCR, WorldPop, World Bank, Hacker News, ArXiv, pizzint.watch, RSS Feeds, Tech Events |
 | Free key required | ACLED (researcher), Finnhub, FRED, NASA FIRMS, AbuseIPDB, Groq (free tier), EIA |
 | Free key optional | GitHub, HDX HAPI |
 | Free with model limits | OpenRouter (select free models) |

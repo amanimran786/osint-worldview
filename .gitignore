@@ -34,11 +34,9 @@ api/[[][[].*.js
 .claudedocs/
 
 # Large generated data files (reproduced by scripts/)
-scripts/data/pizzint-processed.json
 scripts/data/osm-military-processed.json
 scripts/data/military-bases-final.json
 scripts/data/dedup-dropped-pairs.json
-scripts/data/pizzint-partial.json
 scripts/data/gpsjam-latest.json
 scripts/data/mirta-raw.geojson
 scripts/data/osm-military-raw.json

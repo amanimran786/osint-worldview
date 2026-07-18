@@ -19,7 +19,7 @@ Both files use the same regex patterns:
 
 | Pattern | Matches |
 | --- | --- |
-| `(*.)?worldmonitor.app` | Production + subdomains (`tech.`, `finance.`, etc.) |
+| `(*.)?osint-worldview-cyan.vercel.app` | Production + subdomains (`tech.`, `finance.`, etc.) |
 | `worldmonitor-*-elie-*.vercel.app` | Vercel preview deploys |
 | `localhost:*` / `127.0.0.1:*` | Local development |
 | `tauri.localhost:*` / `*.tauri.localhost:*` | Desktop app (Tauri v2) |
@@ -81,7 +81,7 @@ Both implementations allow these request headers:
 
 - `Content-Type`
 - `Authorization`
-- `X-WorldMonitor-Key` (API key for desktop/third-party access)
+- `X-WorldView-Key` (API key for desktop/third-party access)
 
 To allow additional headers, update `Access-Control-Allow-Headers` in both files.
 

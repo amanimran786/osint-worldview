@@ -9,7 +9,7 @@ import { shouldForceLocalLlm } from '../../../_shared/local-mode';
 import { cachedFetchJson } from '../../../_shared/redis';
 import { CHROME_UA, yahooGate } from '../../../_shared/constants';
 import { UPSTREAM_TIMEOUT_MS, sanitizeSymbol } from './_shared';
-import { storeStockAnalysisSnapshot } from './premium-stock-store';
+import { storeStockAnalysisSnapshot } from './stock-analysis-store';
 import { searchRecentStockHeadlines } from './stock-news-search';
 
 export type Candle = {

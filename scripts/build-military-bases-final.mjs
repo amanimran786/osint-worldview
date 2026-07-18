@@ -3,9 +3,8 @@
  * into a single final dataset for the map layer.
  *
  * Input files (scripts/data/):
- *   - pizzint-processed.json   (79K primary — has wiki + categories)
- *   - osm-military-processed.json (53K secondary)
- *   - mirta-processed.json     (832 tertiary)
+ *   - osm-military-processed.json (primary)
+ *   - mirta-processed.json     (secondary)
  *   - curated-bases.json       (224 extracted from bases-expanded.ts)
  *
  * Output: scripts/data/military-bases-final.json
@@ -24,7 +23,6 @@ const DATA_DIR = path.join(projectRoot, 'scripts', 'data');
 // ---------------------------------------------------------------------------
 // File paths
 // ---------------------------------------------------------------------------
-const PIZZINT_PATH = path.join(DATA_DIR, 'pizzint-processed.json');
 const OSM_PATH = path.join(DATA_DIR, 'osm-military-processed.json');
 const MIRTA_PATH = path.join(DATA_DIR, 'mirta-processed.json');
 const CURATED_PATH = path.join(DATA_DIR, 'curated-bases.json');
@@ -144,28 +142,6 @@ function deriveCategoriesFromKind(kind, name) {
   };
 }
 
-function normalizePizzintEntry(row) {
-  return {
-    id: row.osm_id || '',
-    name: stripHtml(row.name_en || row.name || ''),
-    lat: row.lat,
-    lon: row.lon,
-    kind: row.kind || 'military',
-    countryIso2: (row.country_iso2 || '').toUpperCase(),
-    type: '', // assigned later
-    tier: 0,  // assigned later
-    source: 'pizzint',
-    catAirforce: !!row.cat_airforce,
-    catNaval: !!row.cat_naval,
-    catNuclear: !!row.cat_nuclear,
-    catSpace: !!row.cat_space,
-    catTraining: !!row.cat_training,
-    branch: row.branch || '',
-    status: row.status || row.state || '',
-    _osmId: row.osm_id || '',
-  };
-}
-
 function normalizeOsmEntry(row) {
   const cats = deriveCategoriesFromKind(row.kind, row.name);
   return {
@@ -245,7 +221,6 @@ function main() {
   console.log('');
   console.log('Loading input files...');
 
-  const pizzintRaw = loadJson(PIZZINT_PATH, 'pizzint-processed.json');
   const osmRaw = loadJson(OSM_PATH, 'osm-military-processed.json');
   const mirtaLoaded = loadJson(MIRTA_PATH, 'mirta-processed.json');
   // MIRTA has { metadata, installations } wrapper — unwrap to array
@@ -255,39 +230,24 @@ function main() {
   if (mirtaRaw) console.log(`  MIRTA unwrapped: ${mirtaRaw.length} installations`);
   const curatedRaw = loadJson(CURATED_PATH, 'curated-bases.json');
 
-  if (!pizzintRaw && !osmRaw) {
-    console.error('FATAL: at least one of pizzint-processed.json or osm-military-processed.json is required.');
+  if (!osmRaw) {
+    console.error('FATAL: osm-military-processed.json is required.');
     process.exit(1);
   }
 
   console.log('');
 
   // -------------------------------------------------------------------------
-  // Step 1: Normalize primary dataset (pizzint if available, otherwise OSM)
+  // Step 1: Normalize the OSM dataset
   // -------------------------------------------------------------------------
   const merged = [];
   const osmIdSet = new Set();
 
-  if (pizzintRaw) {
-    console.log('Step 1: Normalize pizzint entries (primary)...');
-    for (const row of pizzintRaw) {
-      if (row.lat == null || row.lon == null) continue;
-      const entry = normalizePizzintEntry(row);
-      merged.push(entry);
-      if (entry._osmId) osmIdSet.add(entry._osmId);
-    }
-    console.log(`  Pizzint base: ${merged.length} entries`);
-  } else {
-    console.log('Step 1: Pizzint data not available — using OSM as primary');
-  }
-
-  // -------------------------------------------------------------------------
-  // Step 2: Merge OSM entries not already in pizzint
   // -------------------------------------------------------------------------
   let osmAdded = 0;
   let osmSkipped = 0;
   if (osmRaw) {
-    console.log('Step 2: Merge OSM entries...');
+    console.log('Step 1: Normalize OSM entries...');
     for (const row of osmRaw) {
       if (row.lat == null || row.lon == null) continue;
       const osmId = row.osm_id || row.id || '';
@@ -300,7 +260,7 @@ function main() {
       if (entry._osmId) osmIdSet.add(entry._osmId);
       osmAdded++;
     }
-    console.log(`  OSM added: ${osmAdded}, skipped (already in pizzint): ${osmSkipped}`);
+    console.log(`  OSM added: ${osmAdded}, skipped duplicates: ${osmSkipped}`);
   } else {
     console.log('Step 2: OSM data not available — skipped');
   }
@@ -556,7 +516,6 @@ function main() {
   }
 
   console.log('\nMerge stats:');
-  if (pizzintRaw) console.log(`  Pizzint base:       ${pizzintRaw.length} loaded`);
   if (osmRaw) console.log(`  OSM added:          ${osmAdded} (${osmSkipped} skipped)`);
   if (mirtaRaw) console.log(`  MIRTA added:        ${mirtaAdded} (${mirtaSkipped} skipped)`);
   if (curatedRaw) console.log(`  Curated enriched:   ${curatedEnriched}, new: ${curatedUnmatched}`);

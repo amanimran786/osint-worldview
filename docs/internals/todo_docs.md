@@ -1,4 +1,4 @@
-# Documentation Roadmap — World Monitor
+# Documentation Roadmap — WorldView
 
 > **Purpose**: Comprehensive task list to bring project documentation to production-grade quality for AI agent-assisted development. Each task is scoped, self-contained, and AI-actionable.
 >
@@ -11,7 +11,7 @@
 ### 1.1 README.md Overhaul
 
 - [x] Update version badge to current release (currently shows outdated version)
-- [x] Add Finance Monitor variant to the variant table with correct subdomain
+- [x] Add WorldView Markets variant to the variant table with correct subdomain
 - [x] Refresh architecture ASCII diagram to include Finance variant data flow
 - [x] Add "Repository Structure" section with annotated directory tree
 - [x] Update Quick Start section with current prerequisites (Node.js version, npm/pnpm)
@@ -110,7 +110,6 @@
   - **Content**: rss-proxy, hackernews, github-trending, tech-events
   - **Prediction**: polymarket
   - **Meta**: version, cache-telemetry, debug-env, download, og-story, story
-  - **Proxy/Passthrough**: eia, pizzint, wingbits, youtube
 - [x] Document shared middleware modules: `_cors.js`, `_cache-telemetry.js`, `_ip-rate-limit.js`, `_upstash-cache.js`
 - [x] Document the RSS domain allowlist and proxy security model
 
@@ -251,7 +250,6 @@
 
 - [ ] Full self-hosting guide (non-Vercel deployment)
 - [ ] Docker setup (if applicable, or document creating one)
-- [ ] Nginx configuration (reference `deploy/nginx-worldmonitor.conf`)
 - [ ] SystemD service setup (reference `deploy/worldmonitor-api.service`)
 - [ ] Environment variable configuration for self-hosted
 - [ ] SSL/TLS setup
@@ -377,7 +375,7 @@
 ### 13.1 Update `docs/DOCUMENTATION.md`
 
 - [ ] Update version badge from v2.1.4 to current version
-- [ ] Add Finance Monitor variant documentation (panels, features, data sources)
+- [ ] Add WorldView Markets variant documentation (panels, features, data sources)
 - [ ] Refresh panel inventory to match current `src/components/` directory
 - [ ] Update entity count (verify 600+ is current)
 - [ ] Update feed count (verify 150+ is current)

@@ -3,9 +3,9 @@ import test from 'node:test';
 import handler from './jarvis-osint.js';
 
 function makeRequest(method = 'POST', body = null) {
-  return new Request('https://worldmonitor.app/api/jarvis-osint', {
+  return new Request('https://osint-worldview-cyan.vercel.app/api/jarvis-osint', {
     method,
-    headers: { 'content-type': 'application/json', origin: 'https://worldmonitor.app' },
+    headers: { 'content-type': 'application/json', origin: 'https://osint-worldview-cyan.vercel.app' },
     body: body == null ? undefined : JSON.stringify(body),
   });
 }

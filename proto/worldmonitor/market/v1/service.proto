@@ -60,22 +60,22 @@ service MarketService {
     option (sebuf.http.config) = {path: "/list-gulf-quotes", method: HTTP_METHOD_GET};
   }
 
-  // AnalyzeStock retrieves a premium stock analysis report with technicals, news, and AI synthesis.
+  // AnalyzeStock retrieves a stock analysis report with technicals, news, and AI synthesis.
   rpc AnalyzeStock(AnalyzeStockRequest) returns (AnalyzeStockResponse) {
     option (sebuf.http.config) = {path: "/analyze-stock", method: HTTP_METHOD_GET};
   }
 
-  // GetStockAnalysisHistory retrieves shared premium stock analysis history from the backend store.
+  // GetStockAnalysisHistory retrieves shared stock analysis history from the backend store.
   rpc GetStockAnalysisHistory(GetStockAnalysisHistoryRequest) returns (GetStockAnalysisHistoryResponse) {
     option (sebuf.http.config) = {path: "/get-stock-analysis-history", method: HTTP_METHOD_GET};
   }
 
-  // BacktestStock replays premium stock-analysis signals over recent price history.
+  // BacktestStock replays stock-analysis signals over recent price history.
   rpc BacktestStock(BacktestStockRequest) returns (BacktestStockResponse) {
     option (sebuf.http.config) = {path: "/backtest-stock", method: HTTP_METHOD_GET};
   }
 
-  // ListStoredStockBacktests retrieves stored premium backtest snapshots from the backend store.
+  // ListStoredStockBacktests retrieves stored backtest snapshots from the backend store.
   rpc ListStoredStockBacktests(ListStoredStockBacktestsRequest) returns (ListStoredStockBacktestsResponse) {
     option (sebuf.http.config) = {path: "/list-stored-stock-backtests", method: HTTP_METHOD_GET};
   }

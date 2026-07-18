@@ -1,6 +1,6 @@
 # Algorithms & Scoring
 
-Detailed documentation of World Monitor's scoring formulas, detection algorithms, and classification pipelines.
+Detailed documentation of WorldView's scoring formulas, detection algorithms, and classification pipelines.
 
 ---
 
@@ -321,21 +321,3 @@ Beyond aggregating signals by geography, the system detects meaningful correlati
 | `military_surge`          | Theater posture assessment detects unusual force concentration                 | Military escalation warning                              |
 
 Each signal carries a severity (low/medium/high), geographic coordinates, a human-readable summary, and the raw data that triggered it. Signals are deduplicated per-type with configurable cooldown windows (30 minutes to 6 hours) to prevent alert fatigue. The correlation output feeds into the AI Insights panel, where the narrative synthesis engine weaves detected correlations into a structured intelligence brief.
-
-### PizzINT Activity Monitor & GDELT Tension Index
-
-The dashboard integrates two complementary geopolitical pulse indicators:
-
-**PizzINT DEFCON scoring** — monitors foot traffic patterns at key military, intelligence, and government locations worldwide via the PizzINT API. Aggregate activity levels across monitored sites are converted into a 5-level DEFCON-style readout:
-
-| Adjusted Activity | DEFCON Level | Label             |
-| ----------------- | ------------ | ----------------- |
-| ≥ 85%             | 1            | Maximum Activity  |
-| 70% – 84%         | 2            | High Activity     |
-| 50% – 69%         | 3            | Elevated Activity |
-| 25% – 49%         | 4            | Above Normal      |
-| < 25%             | 5            | Normal Activity   |
-
-Activity spikes at individual locations boost the aggregate score (+10 per spike, capped at 100). Data freshness is tracked per-location — the system distinguishes between stale readings (location sensor lag) and genuine low activity. Per-location detail includes current popularity percentage, spike magnitude, and open/closed status.
-
-**GDELT bilateral tension pairs** — six strategic country pairs (USA↔Russia, Russia↔Ukraine, USA↔China, China↔Taiwan, USA↔Iran, USA↔Venezuela) are tracked via GDELT's GPR (Goldstein Political Relations) batch API. Each pair shows a current tension score, a percentage change from the previous data point, and a trend direction (rising/stable/falling, with ±5% thresholds). Rising bilateral tension scores that coincide with military signal spikes in the same region feed into the focal point detection algorithm.

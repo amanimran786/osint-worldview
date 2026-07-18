@@ -36,53 +36,6 @@ export interface StrategicRisk {
   trend: TrendDirection;
 }
 
-export interface GetPizzintStatusRequest {
-  includeGdelt: boolean;
-}
-
-export interface GetPizzintStatusResponse {
-  pizzint?: PizzintStatus;
-  tensionPairs: GdeltTensionPair[];
-}
-
-export interface PizzintStatus {
-  defconLevel: number;
-  defconLabel: string;
-  aggregateActivity: number;
-  activeSpikes: number;
-  locationsMonitored: number;
-  locationsOpen: number;
-  updatedAt: number;
-  dataFreshness: DataFreshness;
-  locations: PizzintLocation[];
-}
-
-export interface PizzintLocation {
-  placeId: string;
-  name: string;
-  address: string;
-  currentPopularity: number;
-  percentageOfUsual: number;
-  isSpike: boolean;
-  spikeMagnitude: number;
-  dataSource: string;
-  recordedAt: string;
-  dataFreshness: DataFreshness;
-  isClosedNow: boolean;
-  lat: number;
-  lng: number;
-}
-
-export interface GdeltTensionPair {
-  id: string;
-  countries: string[];
-  label: string;
-  score: number;
-  trend: TrendDirection;
-  changePercent: number;
-  region: string;
-}
-
 export interface ClassifyEventRequest {
   title: string;
   description: string;
@@ -171,8 +124,6 @@ export type SeverityLevel = "SEVERITY_LEVEL_UNSPECIFIED" | "SEVERITY_LEVEL_LOW" 
 
 export type TrendDirection = "TREND_DIRECTION_UNSPECIFIED" | "TREND_DIRECTION_RISING" | "TREND_DIRECTION_STABLE" | "TREND_DIRECTION_FALLING";
 
-export type DataFreshness = "DATA_FRESHNESS_UNSPECIFIED" | "DATA_FRESHNESS_FRESH" | "DATA_FRESHNESS_STALE";
-
 export interface FieldViolation {
   field: string;
   description: string;
@@ -244,31 +195,6 @@ export class IntelligenceServiceClient {
     }
 
     return await resp.json() as GetRiskScoresResponse;
-  }
-
-  async getPizzintStatus(req: GetPizzintStatusRequest, options?: IntelligenceServiceCallOptions): Promise<GetPizzintStatusResponse> {
-    let path = "/api/intelligence/v1/get-pizzint-status";
-    const params = new URLSearchParams();
-    if (req.includeGdelt) params.set("include_gdelt", String(req.includeGdelt));
-    const url = this.baseURL + path + (params.toString() ? "?" + params.toString() : "");
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...this.defaultHeaders,
-      ...options?.headers,
-    };
-
-    const resp = await this.fetchFn(url, {
-      method: "GET",
-      headers,
-      signal: options?.signal,
-    });
-
-    if (!resp.ok) {
-      return this.handleError(resp);
-    }
-
-    return await resp.json() as GetPizzintStatusResponse;
   }
 
   async classifyEvent(req: ClassifyEventRequest, options?: IntelligenceServiceCallOptions): Promise<ClassifyEventResponse> {
@@ -417,4 +343,3 @@ export class IntelligenceServiceClient {
     throw new ApiError(resp.status, `Request failed with status ${resp.status}`, body);
   }
 }
-

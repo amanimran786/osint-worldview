@@ -2,8 +2,8 @@
 
 This guide provides reproducible local packaging steps for both desktop variants:
 
-- **full** → `World Monitor`
-- **tech** → `Tech Monitor`
+- **full** → `WorldView`
+- **tech** → `WorldView Tech`
 
 Variant identity is controlled by Tauri config:
 
@@ -182,13 +182,13 @@ npm run desktop:package:windows:full:sign
 
 ## Variant-aware outputs (names/icons)
 
-- Full variant: `World Monitor` / `world-monitor`
-- Tech variant: `Tech Monitor` / `tech-monitor`
+- Full variant: `WorldView` / `world-monitor`
+- Tech variant: `WorldView Tech` / `tech-monitor`
 
 Distinct names are configured in Tauri:
 
-- `src-tauri/tauri.conf.json` → `World Monitor` / `world-monitor`
-- `src-tauri/tauri.tech.conf.json` → `Tech Monitor` / `tech-monitor`
+- `src-tauri/tauri.conf.json` → `WorldView` / `world-monitor`
+- `src-tauri/tauri.tech.conf.json` → `WorldView Tech` / `tech-monitor`
 
 If you want variant-specific icons, set `bundle.icon` separately in each config and point each variant to dedicated icon assets.
 

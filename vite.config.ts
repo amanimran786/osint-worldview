@@ -46,6 +46,7 @@ function htmlVariantPlugin(): Plugin {
     name: 'html-variant',
     transformIndexHtml(html) {
       let result = html
+        .replace(/data-build-variant="full"/, `data-build-variant="${activeVariant}"`)
         .replace(/<title>.*?<\/title>/, `<title>${activeMeta.title}</title>`)
         .replace(/<meta name="title" content=".*?" \/>/, `<meta name="title" content="${activeMeta.title}" />`)
         .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${activeMeta.description}" />`)
@@ -61,9 +62,6 @@ function htmlVariantPlugin(): Plugin {
         .replace(/<meta name="twitter:url" content=".*?" \/>/, `<meta name="twitter:url" content="${activeMeta.url}" />`)
         .replace(/<meta name="twitter:title" content=".*?" \/>/, `<meta name="twitter:title" content="${activeMeta.title}" />`)
         .replace(/<meta name="twitter:description" content=".*?" \/>/, `<meta name="twitter:description" content="${activeMeta.description}" />`)
-        .replace(/"name": "World Monitor"/, `"name": "${activeMeta.siteName}"`)
-        .replace(/"alternateName": "WorldMonitor"/, `"alternateName": "${activeMeta.siteName.replace(' ', '')}"`)
-        .replace(/"url": "https:\/\/worldmonitor\.app\/"/, `"url": "${activeMeta.url}"`)
         .replace(/"description": "Real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data."/, `"description": "${activeMeta.description}"`)
         .replace(/"featureList": \[[\s\S]*?\]/, `"featureList": ${JSON.stringify(activeMeta.features, null, 8).replace(/\n/g, '\n      ')}`);
 
@@ -72,15 +70,6 @@ function htmlVariantPlugin(): Plugin {
         result = result.replace(
           /<meta name="theme-color" content=".*?" \/>/,
           '<meta name="theme-color" content="#FAFAF5" />'
-        );
-      }
-
-      // Desktop builds: inject build-time variant into the inline script so data-variant is set
-      // before CSS loads. Web builds always use 'full' — runtime hostname detection handles variants.
-      if (activeVariant !== 'full') {
-        result = result.replace(
-          /if\(v\)document\.documentElement\.dataset\.variant=v;/,
-          `v='${activeVariant}';document.documentElement.dataset.variant=v;`
         );
       }
 
@@ -908,17 +897,6 @@ export default defineConfig({
         configure: (proxy) => {
           proxy.on('error', (err) => {
             console.log('Earthquake proxy error:', err.message);
-          });
-        },
-      },
-      // PizzINT - Pentagon Pizza Index
-      '/api/pizzint': {
-        target: 'https://www.pizzint.watch',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/pizzint/, '/api'),
-        configure: (proxy) => {
-          proxy.on('error', (err) => {
-            console.log('PizzINT proxy error:', err.message);
           });
         },
       },

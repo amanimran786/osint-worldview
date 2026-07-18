@@ -160,11 +160,8 @@
   --threat-low: #8BAF7A;
   --threat-info: #8BB5D4;
 
-  --defcon-1: #D4B36A;
-  --defcon-2: #B8C87B;
-  --defcon-3: #8BB5D4;
-  --defcon-4: #8BAF7A;
-  --defcon-5: #9BBF8A;
+  --status-warning: #8BB5D4;
+  --status-info: #8BAF7A;
 
   --status-live: #8BAF7A;
   --status-cached: #D4B36A;

@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Informații globale și monitorizare geopolitică bazată pe AI"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "SETĂRI",
     "sources": "SURSE",
     "copyLink": "Link",
-    "downloadApp": "Descărcați aplicația",
     "fullscreen": "Ecran complet",
     "pinMap": "Fixați harta în partea de sus",
     "selectRegion": "Selectare regiune",
@@ -475,17 +474,6 @@
       "dontShowAgain": "Nu mai afișa",
       "gotIt": "Am înțeles"
     },
-    "downloadBanner": {
-      "title": "Desktop disponibil",
-      "description": "Performanță nativă, stocare locală securizată a cheilor, piese de hartă offline.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "Afișați toate platformele",
-      "showLess": "Arată mai puțin",
-      "dismiss": "Respinge"
-    },
     "runtimeConfig": {
       "title": "Configurare desktop",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Unele funcții necesită chei API"
       },
       "openSettings": "Deschide Setări",
-      "skipSetup": "Omiteți configurarea — o singură licență World Monitor deblochează totul. Alăturați-vă listei de așteptare pentru acces anticipat.",
       "summary": {
         "desktop": "Modul desktop",
         "web": "Mod web (numai citire, acreditări gestionate de server)",
@@ -538,32 +525,6 @@
       "noTraffic": "Nu s-a înregistrat încă trafic.",
       "sidecarUnreachable": "Sidecar nu este accesibil.",
       "logCleared": "Jurnalul a fost șters.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "O singură cheie. Totul inclus.",
-        "heroDescription": "O o singură licență World Monitor înlocuiește toate cheile API. Analize AI, informații în timp real, date de piață, satelit și incendii.",
-        "apiKey": {
-          "title": "Cheie de licență",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Lipiți-vă licența pentru a debloca instantaneu fiecare sursă de date și funcția AI.",
-          "statusValid": "LICENȚAT",
-          "statusMissing": "FĂRĂ LICENȚĂ"
-        },
-        "dividerOr": "SAU",
-        "register": {
-          "title": "Rezervă-ți Locul",
-          "description": "Ne pregătim să lansăm licențe World Monitor. Înscrieți-vă acum și fiți pe primul loc – membrii primii au acces prioritar și prețuri pentru membrii fondatori.",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "Alăturați-vă listei de așteptare",
-          "submitting": "Se trimite...",
-          "success": "Ești pe listă! Vă vom anunța mai întâi.",
-          "alreadyRegistered": "Ești deja pe lista de așteptare.",
-          "error": "Înregistrarea a eșuat. Vă rugăm să încercați din nou.",
-          "invalidEmail": "Vă rugăm să introduceți o adresă de email validă."
-        },
-        "byokTitle": "Sau aduceți-vă propriile chei",
-        "byokDescription": "Preferi controlul total? Accesați filele Chei API și LLM-uri pentru a configura fiecare sursă de date și furnizor de AI individual."
-      },
       "table": {
         "time": "Ora",
         "method": "Metoda",
@@ -845,29 +806,6 @@
       "previous": "Anterior",
       "next": "Următorul",
       "skipToEnd": "Treci la final"
-    },
-    "pizzint": {
-      "title": "Pentagon Pizza Index",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Actualizat {{timeAgo}}",
-      "tensionsTitle": "Tensiuni geopolitice",
-      "source": "Sursa:",
-      "statusClosed": "ÎNCHIS",
-      "statusSpike": "SPIKE",
-      "statusHigh": "MARE",
-      "statusElevated": "RIDICAT",
-      "statusNominal": "NOMINAL",
-      "statusQuiet": "LINIȘTIT",
-      "justNow": "tocmai acum",
-      "minutesAgo": "acum {{m}}m",
-      "hoursAgo": "acum {{h}}h",
-      "defconLabels": {
-        "1": "PISTOL ARMAT — Pregătire maximă",
-        "2": "FAST PACE — Forțele armate gata de luptă",
-        "3": "ROUND HOUSE — Pregătire de forță ridicată",
-        "4": "DOUBLE TAKE — Supraveghere sporită",
-        "5": "FADE OUT — Pregătire minimă"
-      }
     },
     "strategicPosture": {
       "elapsed": "S-a scurs: {{elapsed}} s",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "Model local de browser",
       "aiFlowBrowserDesc": "Rulați AI local în browserul dvs.",
       "aiFlowBrowserWarn": "Descărcă ~250 MB de date model în browserul dvs.",
-      "aiFlowOllamaCta": "Vrei AI complet local?",
-      "aiFlowOllamaCtaDesc": "Descărcați aplicația desktop pentru suport Ollama",
-      "aiFlowDownloadDesktop": "Descărcați aplicația desktop →",
       "aiFlowStatusActive": "Cloud AI activ",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + Model de browser activ",
       "aiFlowStatusBrowserOnly": "Numai modelul de browser",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "HQ NATO",
       "pla_mss_activity": "Activitate PLA/MSS",
-      "pentagon_pizza_index": "Pentagon Pizza Index",
       "piracy_conflict": "Piraterie/Conflict",
       "qatar_al_udeid": "Qatar/Al Udeid",
       "saudi_gip_mbs": "GIP saudiți/MBS",

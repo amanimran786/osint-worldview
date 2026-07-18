@@ -25,7 +25,6 @@ import type { MacroSignalsPanel } from '@/components/MacroSignalsPanel';
 import type { StrategicPosturePanel } from '@/components/StrategicPosturePanel';
 import type { StrategicRiskPanel } from '@/components/StrategicRiskPanel';
 import { isDesktopRuntime, waitForSidecarReady } from '@/services/runtime';
-import { getSecretState } from '@/services/runtime-config';
 import { BETA_MODE } from '@/config/beta';
 import { trackEvent, trackDeeplinkOpened } from '@/services/analytics';
 import { preloadCountryGeometry, getCountryNameByCode } from '@/services/country-geometry';
@@ -604,19 +603,16 @@ export class App {
         'stock-analysis',
         () => this.dataLoader.loadStockAnalysis(),
         15 * 60 * 1000,
-        () => getSecretState('WORLDMONITOR_API_KEY').present,
       );
       this.refreshScheduler.scheduleRefresh(
         'daily-market-brief',
         () => this.dataLoader.loadDailyMarketBrief(),
         60 * 60 * 1000,
-        () => getSecretState('WORLDMONITOR_API_KEY').present,
       );
       this.refreshScheduler.scheduleRefresh(
         'stock-backtest',
         () => this.dataLoader.loadStockBacktest(),
         4 * 60 * 60 * 1000,
-        () => getSecretState('WORLDMONITOR_API_KEY').present,
       );
     }
 

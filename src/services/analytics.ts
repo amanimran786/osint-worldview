@@ -102,14 +102,6 @@ export function trackCriticalBannerAction(_action: string, _theaterId: string): 
   // Intentionally no-op.
 }
 
-export function trackDownloadClicked(_platform: string): void {
-  // Intentionally no-op.
-}
-
-export function trackDownloadBannerDismissed(): void {
-  // Intentionally no-op.
-}
-
 export function trackWebcamSelected(_webcamId: string, _city: string, _viewMode: string): void {
   // Intentionally no-op.
 }

@@ -254,17 +254,6 @@
       "dontShowAgain": "Niet meer laten zien",
       "gotIt": "Ik heb het"
     },
-    "downloadBanner": {
-      "title": "Bureaublad beschikbaar",
-      "description": "Native prestaties, veilige lokale sleutelopslag, offline kaarttegels.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "dismiss": "Afwijzen",
-      "showAllPlatforms": "Toon alle platforms",
-      "showLess": "Laat minder zien"
-    },
     "runtimeConfig": {
       "title": "Desktopconfiguratie",
       "alertTitle": {
@@ -300,8 +289,7 @@
         "NASA_FIRMS_API_KEY": "Brandinformatiesysteem voor Resourcebeheer.",
         "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
         "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
-      },
-      "skipSetup": "Sla de configuratie over — een enkele World Monitor-licentie ontgrendelt alles. Meld u aan voor de wachtlijst voor vroege toegang."
+      }
     },
     "countryIntel": {
       "identifying": "Land identificeren...",
@@ -434,33 +422,7 @@
         "duration": "Duur"
       },
       "sidecarUnreachable": "Zijspan niet bereikbaar.",
-      "logCleared": "Logboek gewist.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Eén sleutel. Alles inbegrepen.",
-        "heroDescription": "Een enkele World Monitor-licentie vervangt elke API-sleutel en LLM-provider die u anders zelf zou moeten configureren. AI-samenvattingen, realtime inlichtingen, marktgegevens, conflictmonitoring, branddetectie, satellietbeelden — alles wordt gevoed, alles wordt beheerd, geen configuratie nodig.",
-        "apiKey": {
-          "title": "Licentiesleutel",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Plak uw licentie om direct elke gegevensbron en AI-functie te ontgrendelen.",
-          "statusValid": "GELICENTIEERD",
-          "statusMissing": "GEEN LICENTIE"
-        },
-        "dividerOr": "OF",
-        "register": {
-          "title": "Reserveer uw plek",
-          "description": "We bereiden de lancering van World Monitor-licenties voor. Meld u nu aan en wees de eerste — vroege leden krijgen voorrang en een oprichterstarief.",
-          "emailPlaceholder": "uw@email.com",
-          "submitBtn": "Aanmelden voor wachtlijst",
-          "submitting": "Verzenden...",
-          "success": "U staat op de lijst! We laten het u als eerste weten.",
-          "alreadyRegistered": "U staat al op de wachtlijst.",
-          "error": "Registratie mislukt. Probeer het opnieuw.",
-          "invalidEmail": "Voer een geldig e-mailadres in."
-        },
-        "byokTitle": "Of breng uw eigen sleutels mee",
-        "byokDescription": "Liever volledige controle? Ga naar de tabbladen API-sleutels en LLM's om elke gegevensbron en AI-provider afzonderlijk te configureren."
-      }
+      "logCleared": "Logboek gewist."
     }
   },
   "components": {
@@ -749,29 +711,6 @@
       "medium": "MID",
       "low": "LAAG",
       "info": "INFO"
-    },
-    "pizzint": {
-      "title": "Pentagon Pizza-index",
-      "tensionsTitle": "Geopolitieke spanningen",
-      "source": "Bron:",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Bijgewerkt {{timeAgo}}",
-      "statusClosed": "GESLOTEN",
-      "statusSpike": "PIEK",
-      "statusHigh": "HOOG",
-      "statusElevated": "VERHOOGD",
-      "statusNominal": "NOMINAAL",
-      "statusQuiet": "RUSTIG",
-      "justNow": "zojuist",
-      "minutesAgo": "{{m}}m geleden",
-      "hoursAgo": "{{h}}u geleden",
-      "defconLabels": {
-        "1": "GEREGISTREERD PISTOOL - MAXIMALE KLAARHEID",
-        "2": "SNEL TEMPO - STRIJDKRACHTEN KLAAR",
-        "3": "ROND HUIS - VERHOOG DE KRACHTBEREIDING",
-        "4": "DUBBEL NEMEN - VERHOOGDE INTELLIGENTIE HORLOGE",
-        "5": "FADE OUT - LAAGSTE KLAARHEID"
-      }
     },
     "stablecoins": {
       "pegHealth": "Peg-gezondheid",
@@ -1172,9 +1111,6 @@
       "aiFlowBrowserLabel": "Lokaal browsermodel",
       "aiFlowBrowserDesc": "AI lokaal in uw browser uitvoeren",
       "aiFlowBrowserWarn": "Er wordt ongeveer 250 MB aan gegevens naar uw computer gedownload",
-      "aiFlowOllamaCta": "Wilt u volledig lokale AI?",
-      "aiFlowOllamaCtaDesc": "Download de desktop-app voor Ollama-ondersteuning",
-      "aiFlowDownloadDesktop": "Desktop-app downloaden →",
       "aiFlowStatusActive": "Cloud AI actief",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + Browsermodel actief",
       "aiFlowStatusBrowserOnly": "Alleen browsermodel",
@@ -1954,7 +1890,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "NAVO-hoofdkwartier",
       "pla_mss_activity": "PLA/MSS-activiteit",
-      "pentagon_pizza_index": "Pentagon Pizza-index",
       "piracy_conflict": "Piraterij/conflict",
       "qatar_al_udeid": "Qatar/Al Udeid",
       "saudi_gip_mbs": "Saoedische GIP/MBS",
@@ -2227,11 +2162,10 @@
     "panelCatDeals": "Deals & Institutioneel",
     "panelCatGulfMena": "Golf & MENA",
     "panelCatTradePolicy": "Handelsbeleid",
-    "downloadApp": "App downloaden",
     "selectRegion": "Regio kiezen"
   },
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Mondiale situatie met AI-inzichten"
   },
   "countryBrief": {

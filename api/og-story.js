@@ -82,9 +82,9 @@ export default function handler(req, res) {
     ${Array.from({length: 16}, (_, i) => `<line x1="0" y1="${i*40}" x2="1200" y2="${i*40}" stroke="#fff" stroke-width="1"/>`).join('\n    ')}
   </g>
 
-  <!-- WORLDMONITOR brand -->
+  <!-- WorldView brand -->
   <text x="60" y="56" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="${levelColor}" letter-spacing="6"
-    >WORLDMONITOR</text>
+    >WORLDVIEW</text>
 
   <!-- Status pill -->
   <rect x="290" y="38" width="${levelLabel.length * 9 + 24}" height="26" rx="13" fill="${levelColor}" opacity="0.15"/>
@@ -206,9 +206,9 @@ export default function handler(req, res) {
     >W</text>
 
   <text x="130" y="538" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#ddd" letter-spacing="3"
-    >WORLDMONITOR</text>
+    >WORLDVIEW</text>
   <text x="130" y="562" font-family="system-ui, sans-serif" font-size="15" fill="#777"
-    >Real-time global intelligence monitoring</text>
+    >Global open-source intelligence monitoring</text>
 
   <!-- CTA -->
   <rect x="920" y="524" width="220" height="42" rx="21" fill="${levelColor}"/>
@@ -217,7 +217,7 @@ export default function handler(req, res) {
 
   <!-- URL + date -->
   <text x="60" y="610" font-family="system-ui, sans-serif" font-size="14" fill="#555"
-    >worldmonitor.app · ${dateStr} · Free &amp; open source</text>
+    >osint-worldview-cyan.vercel.app · ${dateStr}</text>
 </svg>`;
 
   res.setHeader('Content-Type', 'image/svg+xml');

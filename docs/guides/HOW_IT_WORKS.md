@@ -156,7 +156,7 @@ Shows:
 
 **Who uses it:** Journalists, policy makers, military analysts
 
-### 💻 Tech Monitor (Startups & Technology)
+### 💻 WorldView Tech (Startups & Technology)
 Shows:
 - New startups
 - AI/ML developments
@@ -165,7 +165,7 @@ Shows:
 
 **Who uses it:** VCs, tech reporters, security teams
 
-### 📈 Finance Monitor (Trading & Markets)
+### 📈 WorldView Markets (Trading & Markets)
 Shows:
 - Stock markets
 - Crypto prices
@@ -174,7 +174,7 @@ Shows:
 
 **Who uses it:** Traders, investors, financial analysts
 
-### ⚙️ Commodity Monitor (Mining, Energy, Metals)
+### ⚙️ WorldView Commodities (Mining, Energy, Metals)
 Shows:
 - Commodity prices
 - Mining operations
@@ -183,7 +183,7 @@ Shows:
 
 **Who uses it:** Traders, commodity investors, supply chain managers
 
-### 😊 Happy Monitor (Good News)
+### 😊 WorldView Good News (Good News)
 Shows:
 - Scientific breakthroughs
 - Positive social trends
@@ -323,9 +323,9 @@ YOUR COMPUTER (if using Ollama)
 
 ---
 
-## 🚀 Starting WorldView (What Happens Behind the Scenes)
+## Starting WorldView (What Happens Behind the Scenes)
 
-### When you open https://worldview.app:
+### When you open https://osint-worldview-cyan.vercel.app:
 
 1. **Browser downloads the app** (from Vercel)
 2. **App wakes up services** (in the backend)

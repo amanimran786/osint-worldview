@@ -215,7 +215,6 @@ export class RuntimeConfigPanel extends Panel {
           <p>
             ${availableFeatures}/${totalFeatures} ${t('modals.runtimeConfig.summary.available')}${configuredCount > 0 ? ` · ${configuredCount} ${t('modals.runtimeConfig.summary.secrets')}` : ''}.
           </p>
-          <p class="runtime-alert-skip">${t('modals.runtimeConfig.skipSetup')}</p>
           <button type="button" class="runtime-open-settings-btn" data-open-settings>
             ${t('modals.runtimeConfig.openSettings')}
           </button>

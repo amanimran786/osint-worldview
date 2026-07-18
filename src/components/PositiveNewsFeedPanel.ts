@@ -111,6 +111,9 @@ export class PositiveNewsFeedPanel extends Panel {
     }
 
     this.content.innerHTML = items.map((item, idx) => this.renderCard(item, idx)).join('');
+    this.content.querySelectorAll<HTMLImageElement>('.positive-card-image img').forEach((image) => {
+      image.addEventListener('error', () => image.parentElement?.remove());
+    });
 
     // Delegated click handler for share buttons (remove first to avoid stacking)
     this.content.removeEventListener('click', this.handleShareClick);
@@ -147,7 +150,7 @@ export class PositiveNewsFeedPanel extends Panel {
    */
   private renderCard(item: NewsItem, idx: number): string {
     const imageHtml = item.imageUrl
-      ? `<div class="positive-card-image"><img src="${sanitizeUrl(item.imageUrl)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+      ? `<div class="positive-card-image"><img src="${sanitizeUrl(item.imageUrl)}" alt="" loading="lazy"></div>`
       : '';
 
     const categoryLabel = item.happyCategory ? HAPPY_CATEGORY_LABELS[item.happyCategory] : '';

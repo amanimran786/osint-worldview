@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Yapay Zeka Destekli Kuresel Durum Takibi"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "AYARLAR",
     "sources": "KAYNAKLAR",
     "copyLink": "Baglanti Kopyala",
-    "downloadApp": "Uygulamayı İndir",
     "fullscreen": "Tam Ekran",
     "pinMap": "Haritayi uste sabitle",
     "selectRegion": "Bölge Seçin",
@@ -475,17 +474,6 @@
       "dontShowAgain": "Bir daha gosterme",
       "gotIt": "Anladim"
     },
-    "downloadBanner": {
-      "title": "Masaustu Uygulamasi Mevcut",
-      "description": "Yerel performans, guvenli anahtar depolama, cevrimdisi harita deseni.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "Tum platformlari goster",
-      "showLess": "Daha az goster",
-      "dismiss": "Kapat"
-    },
     "runtimeConfig": {
       "title": "Masaustu Yapilandirmasi",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Bazi ozellikler API anahtari gerektiriyor"
       },
       "openSettings": "Ayarlari Ac",
-      "skipSetup": "Kurulumu atlayın — tek bir World Monitor lisansı her şeyi açar. Erken erişim için bekleme listesine katılın.",
       "summary": {
         "desktop": "Masaustu modu",
         "web": "Web modu (salt okunur, sunucu tarafli kimlik bilgileri)",
@@ -538,32 +525,6 @@
       "noTraffic": "Henuz trafik kaydedilmedi.",
       "sidecarUnreachable": "Sidecar'a ulasilamiyor.",
       "logCleared": "Log temizlendi.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Tek anahtar. Her şey dahil.",
-        "heroDescription": "Tek bir World Monitor lisansı, kendiniz yapılandıracağınız tüm API anahtarlarını ve LLM sağlayıcılarını değiştirir. AI özetleri, gerçek zamanlı istihbarat, piyasa verileri, çatışma takibi, yangın tespiti, uydu görüntüleri — hepsi aktif, hepsi yönetilen, sıfır kurulum.",
-        "apiKey": {
-          "title": "Lisans Anahtarı",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Tüm veri kaynaklarını ve AI özelliklerini anında açmak için lisansınızı yapıştırın.",
-          "statusValid": "LİSANSLI",
-          "statusMissing": "LİSANS YOK"
-        },
-        "dividerOr": "VEYA",
-        "register": {
-          "title": "Yerinizi Ayırtın",
-          "description": "World Monitor lisanslarını başlatmaya hazırlanıyoruz. Şimdi kaydolun ve ilk sıraya girin — erken üyeler öncelikli erişim ve kurucu üye fiyatlandırması alır.",
-          "emailPlaceholder": "your@email.com",
-          "submitBtn": "Bekleme Listesine Katıl",
-          "submitting": "Gönderiliyor...",
-          "success": "Listedesiniz! Sizi ilk olarak bilgilendireceğiz.",
-          "alreadyRegistered": "Zaten bekleme listesinde kayıtlısınız.",
-          "error": "Kayıt başarısız. Lütfen tekrar deneyin.",
-          "invalidEmail": "Lütfen geçerli bir e-posta adresi girin."
-        },
-        "byokTitle": "Veya kendi anahtarlarınızı kullanın",
-        "byokDescription": "Tam kontrol mü istiyorsunuz? Her veri kaynağını ve AI sağlayıcısını ayrı ayrı yapılandırmak için API Anahtarları ve LLM sekmelerine gidin."
-      },
       "table": {
         "time": "Zaman",
         "method": "Metod",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "Pentagon Pizza Endeksi",
-      "defcon": "DEFCON {{level}}",
-      "updated": "{{timeAgo}} guncellendi",
-      "tensionsTitle": "Jeopolitik Gerilimler",
-      "source": "Kaynak:",
-      "statusClosed": "KAPALI",
-      "statusSpike": "ANI ARTIS",
-      "statusHigh": "YUKSEK",
-      "statusElevated": "ARTMIS",
-      "statusNominal": "NORMAL",
-      "statusQuiet": "SAKIN",
-      "justNow": "az once",
-      "minutesAgo": "{{m}}dk once",
-      "hoursAgo": "{{h}}sa once",
-      "defconLabels": {
-        "1": "KURBALI TABANCA - MAKSIMUM HAZIRLIK",
-        "2": "HIZLI TEMPO - SILAHLI KUVVETLER HAZIR",
-        "3": "YUVARLAK EV - KUVVET HAZIRLIGINI ARTIR",
-        "4": "CIFT KONTROL - ARTIRILMIS ISTIHBARAT GOZETIMI",
-        "5": "SOLMA - EN DUSUK HAZIRLIK"
-      }
     },
     "strategicPosture": {
       "elapsed": "Gecen sure: {{elapsed}} sn",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "Tarayici Yerel Modeli",
       "aiFlowBrowserDesc": "AI'yi tarayicinizda yerel olarak calistirin",
       "aiFlowBrowserWarn": "Bilgisayariniza yaklasik 250 MB veri indirilecektir",
-      "aiFlowOllamaCta": "Tamamen yerel AI mi istiyorsunuz?",
-      "aiFlowOllamaCtaDesc": "Ollama destegi icin masaustu uygulamasini indirin",
-      "aiFlowDownloadDesktop": "Masaustu Uygulamasini Indir →",
       "aiFlowStatusActive": "Bulut AI aktif",
       "aiFlowStatusCloudAndBrowser": "Bulut AI + Tarayici modeli aktif",
       "aiFlowStatusBrowserOnly": "Yalnizca tarayici modeli",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "NATO Karargahi",
       "pla_mss_activity": "PLA/MSS Faaliyeti",
-      "pentagon_pizza_index": "Pentagon Pizza Endeksi",
       "piracy_conflict": "Korsanlik/Catisma",
       "qatar_al_udeid": "Katar/El Udeid",
       "saudi_gip_mbs": "Suudi GIP/MBS",

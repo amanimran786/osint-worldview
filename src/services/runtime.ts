@@ -136,7 +136,7 @@ export function getRemoteApiBaseUrl(): string {
   if (fromHosts) return fromHosts;
 
   // Desktop builds may not set VITE_WS_API_URL; default to production.
-  if (isDesktopRuntime()) return 'https://worldview.app';
+  if (isDesktopRuntime()) return 'https://osint-worldview-cyan.vercel.app';
   return '';
 }
 
@@ -163,13 +163,9 @@ function extractHostnames(...urls: (string | undefined)[]): string[] {
 }
 
 const APP_HOSTS = new Set([
-  'worldview.app',
-  'www.worldview.app',
-  'tech.worldview.app',
-  'finance.worldview.app',
-  'commodity.worldview.app',
-  'happy.worldview.app',
-  'api.worldview.app',
+  'osint-worldview-cyan.vercel.app',
+  'osint-worldview-aman-imrans-projects.vercel.app',
+  'osint-worldview-git-main-aman-imrans-projects.vercel.app',
   'localhost',
   '127.0.0.1',
   ...extractHostnames(WS_API_URL, import.meta.env.VITE_WS_RELAY_URL),
@@ -179,7 +175,7 @@ function isAppOriginUrl(urlStr: string): boolean {
   try {
     const u = new URL(urlStr);
     const host = u.hostname;
-    return APP_HOSTS.has(host) || host.endsWith('.worldview.app');
+    return APP_HOSTS.has(host) || /^osint-worldview(?:-[a-z0-9-]+)*\.vercel\.app$/.test(host);
   } catch {
     return false;
   }
@@ -489,10 +485,6 @@ function isLocalOnlyApiTarget(target: string): boolean {
   return target.startsWith('/api/local-');
 }
 
-function isKeyFreeApiTarget(target: string): boolean {
-  return target.startsWith('/api/register-interest') || target.startsWith('/api/version');
-}
-
 async function fetchLocalWithStartupRetry(
   nativeFetch: typeof window.fetch,
   localUrl: string,
@@ -595,7 +587,7 @@ export function installRuntimeFetchPatch(): void {
     if (debug) console.log(`[fetch] intercept → ${target}`);
     let allowCloudFallback = !isLocalOnlyApiTarget(target);
 
-    if (allowCloudFallback && !isKeyFreeApiTarget(target)) {
+    if (allowCloudFallback && !target.startsWith('/api/version')) {
       try {
         const { getSecretState, secretsReady } = await import('@/services/runtime-config');
         await Promise.race([secretsReady, new Promise<void>(r => setTimeout(r, 2000))]);
@@ -619,7 +611,7 @@ export function installRuntimeFetchPatch(): void {
         const { getRuntimeConfigSnapshot } = await import('@/services/runtime-config');
         const wmKeyValue = getRuntimeConfigSnapshot().secrets['WORLDMONITOR_API_KEY']?.value;
         if (wmKeyValue) {
-          cloudHeaders.set('X-WorldMonitor-Key', wmKeyValue);
+          cloudHeaders.set('X-WorldView-Key', wmKeyValue);
         }
       }
       return nativeFetch(cloudUrl, { ...init, headers: cloudHeaders });
@@ -677,7 +669,7 @@ export function installRuntimeFetchPatch(): void {
   (window as unknown as Record<string, unknown>).__wmFetchPatched = true;
 }
 
-const ALLOWED_REDIRECT_HOSTS = /^https:\/\/([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*worldview\.app(:\d+)?$/;
+const ALLOWED_REDIRECT_HOSTS = /^https:\/\/osint-worldview(?:-[a-z0-9-]+)*\.vercel\.app$/;
 
 function isAllowedRedirectTarget(url: string): boolean {
   try {

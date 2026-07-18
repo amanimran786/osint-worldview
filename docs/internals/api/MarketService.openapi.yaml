@@ -258,7 +258,7 @@ paths:
             tags:
                 - MarketService
             summary: AnalyzeStock
-            description: AnalyzeStock retrieves a premium stock analysis report with technicals, news, and AI synthesis.
+            description: AnalyzeStock retrieves a stock analysis report with technicals, news, and AI synthesis.
             operationId: AnalyzeStock
             parameters:
                 - name: symbol
@@ -300,7 +300,7 @@ paths:
             tags:
                 - MarketService
             summary: GetStockAnalysisHistory
-            description: GetStockAnalysisHistory retrieves shared premium stock analysis history from the backend store.
+            description: GetStockAnalysisHistory retrieves shared stock analysis history from the backend store.
             operationId: GetStockAnalysisHistory
             parameters:
                 - name: symbols
@@ -343,7 +343,7 @@ paths:
             tags:
                 - MarketService
             summary: BacktestStock
-            description: BacktestStock replays premium stock-analysis signals over recent price history.
+            description: BacktestStock replays stock-analysis signals over recent price history.
             operationId: BacktestStock
             parameters:
                 - name: symbol
@@ -386,7 +386,7 @@ paths:
             tags:
                 - MarketService
             summary: ListStoredStockBacktests
-            description: ListStoredStockBacktests retrieves stored premium backtest snapshots from the backend store.
+            description: ListStoredStockBacktests retrieves stored backtest snapshots from the backend store.
             operationId: ListStoredStockBacktests
             parameters:
                 - name: symbols

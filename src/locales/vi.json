@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Tình hình Toàn cầu với Phân tích AI"
   },
   "countryBrief": {
@@ -143,7 +143,6 @@
     "settings": "CÀI ĐẶT",
     "sources": "NGUỒN",
     "copyLink": "Sao chép Liên kết",
-    "downloadApp": "Tải ứng dụng",
     "fullscreen": "Toàn màn hình",
     "pinMap": "Ghim bản đồ lên đầu",
     "selectRegion": "Chọn khu vực",
@@ -475,17 +474,6 @@
       "dontShowAgain": "Không hiển thị lại",
       "gotIt": "Đã hiểu"
     },
-    "downloadBanner": {
-      "title": "Phiên bản Desktop",
-      "description": "Hiệu suất gốc, lưu trữ khóa cục bộ an toàn, bản đồ ngoại tuyến.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "showAllPlatforms": "Hiện tất cả nền tảng",
-      "showLess": "Thu gọn",
-      "dismiss": "Bỏ qua"
-    },
     "runtimeConfig": {
       "title": "Cấu hình Desktop",
       "alertTitle": {
@@ -494,7 +482,6 @@
         "some": "Một số tính năng cần khóa API"
       },
       "openSettings": "Mở Cài đặt",
-      "skipSetup": "Bỏ qua cài đặt — một giấy phép World Monitor mở khóa tất cả. Tham gia danh sách chờ để truy cập sớm.",
       "summary": {
         "desktop": "Chế độ desktop",
         "web": "Chế độ web (chỉ đọc, thông tin xác thực do máy chủ quản lý)",
@@ -538,32 +525,6 @@
       "noTraffic": "Chưa ghi nhận lưu lượng.",
       "sidecarUnreachable": "Không thể kết nối sidecar.",
       "logCleared": "Đã xóa log.",
-      "worldMonitor": {
-        "tabLabel": "World Monitor",
-        "heroTitle": "Một khóa. Bao gồm tất cả.",
-        "heroDescription": "Một giấy phép World Monitor thay thế mọi khóa API và nhà cung cấp LLM mà bạn phải tự cấu hình. Tóm tắt AI, tình báo thời gian thực, dữ liệu thị trường, theo dõi xung đột, phát hiện cháy, ảnh vệ tinh — tất cả được vận hành, quản lý, không cần cài đặt.",
-        "apiKey": {
-          "title": "Khóa Giấy phép",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "description": "Dán giấy phép của bạn để mở khóa mọi nguồn dữ liệu và tính năng AI ngay lập tức.",
-          "statusValid": "ĐÃ CẤP PHÉP",
-          "statusMissing": "CHƯA CÓ GIẤY PHÉP"
-        },
-        "dividerOr": "HOẶC",
-        "register": {
-          "title": "Đặt chỗ của bạn",
-          "description": "Chúng tôi đang chuẩn bị ra mắt giấy phép World Monitor. Đăng ký ngay để được ưu tiên — thành viên sớm được quyền truy cập trước và giá ưu đãi.",
-          "emailPlaceholder": "email@cuaban.com",
-          "submitBtn": "Tham gia Danh sách Chờ",
-          "submitting": "Đang gửi...",
-          "success": "Bạn đã vào danh sách! Chúng tôi sẽ thông báo cho bạn đầu tiên.",
-          "alreadyRegistered": "Bạn đã có trong danh sách chờ.",
-          "error": "Đăng ký thất bại. Vui lòng thử lại.",
-          "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ."
-        },
-        "byokTitle": "Hoặc sử dụng khóa của riêng bạn",
-        "byokDescription": "Muốn kiểm soát hoàn toàn? Đến tab Khóa API và LLM để cấu hình từng nguồn dữ liệu và nhà cung cấp AI riêng lẻ."
-      },
       "table": {
         "time": "Thời gian",
         "method": "Phương thức",
@@ -845,29 +806,6 @@
       "previous": "Previous",
       "next": "Next",
       "skipToEnd": "Skip to end"
-    },
-    "pizzint": {
-      "title": "Chỉ số Pizza Lầu Năm Góc",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Cập nhật {{timeAgo}}",
-      "tensionsTitle": "Căng thẳng Địa chính trị",
-      "source": "Nguồn:",
-      "statusClosed": "ĐÓNG CỬA",
-      "statusSpike": "ĐỘT BIẾN",
-      "statusHigh": "CAO",
-      "statusElevated": "NÂNG CAO",
-      "statusNominal": "BÌNH THƯỜNG",
-      "statusQuiet": "YÊN TĨNH",
-      "justNow": "vừa xong",
-      "minutesAgo": "{{m}}ph trước",
-      "hoursAgo": "{{h}}g trước",
-      "defconLabels": {
-        "1": "COCKED PISTOL - SẴN SÀNG TỐI ĐA",
-        "2": "FAST PACE - LỰC LƯỢNG VŨ TRANG SẴN SÀNG",
-        "3": "ROUND HOUSE - TĂNG MỨC SẴN SÀNG",
-        "4": "DOUBLE TAKE - TĂNG CƯỜNG GIÁM SÁT TÌNH BÁO",
-        "5": "FADE OUT - MỨC SẴN SÀNG THẤP NHẤT"
-      }
     },
     "strategicPosture": {
       "elapsed": "Đã trôi qua: {{elapsed}} giây",
@@ -1199,9 +1137,6 @@
       "aiFlowBrowserLabel": "Mô hình cục bộ trên trình duyệt",
       "aiFlowBrowserDesc": "Chạy AI cục bộ trong trình duyệt của bạn",
       "aiFlowBrowserWarn": "Sẽ tải xuống khoảng 250MB dữ liệu vào máy tính của bạn",
-      "aiFlowOllamaCta": "Muốn AI hoàn toàn cục bộ?",
-      "aiFlowOllamaCtaDesc": "Tải ứng dụng desktop để hỗ trợ Ollama",
-      "aiFlowDownloadDesktop": "Tải Desktop App →",
       "aiFlowStatusActive": "Cloud AI đang hoạt động",
       "aiFlowStatusCloudAndBrowser": "Cloud AI + Mô hình trình duyệt đang hoạt động",
       "aiFlowStatusBrowserOnly": "Chỉ mô hình trình duyệt",
@@ -2169,7 +2104,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "Trụ sở NATO",
       "pla_mss_activity": "Hoạt động PLA/MSS",
-      "pentagon_pizza_index": "Chỉ số Pizza Lầu Năm Góc",
       "piracy_conflict": "Cướp biển/Xung đột",
       "qatar_al_udeid": "Qatar/Al Udeid",
       "saudi_gip_mbs": "Saudi GIP/MBS",

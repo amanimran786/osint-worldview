@@ -254,17 +254,6 @@
       "dontShowAgain": "Visa inte igen",
       "gotIt": "Jag förstår"
     },
-    "downloadBanner": {
-      "title": "Desktop tillgänglig",
-      "description": "Inbyggd prestanda, säker lokal nyckellagring, offline kartplattor.",
-      "macSilicon": "macOS (Apple Silicon)",
-      "macIntel": "macOS (Intel)",
-      "windows": "Windows (.exe)",
-      "linux": "Linux (.AppImage)",
-      "dismiss": "Avfärda",
-      "showAllPlatforms": "Visa alla plattformar",
-      "showLess": "Visa mindre"
-    },
     "runtimeConfig": {
       "title": "Skrivbordskonfiguration",
       "alertTitle": {
@@ -300,8 +289,7 @@
         "NASA_FIRMS_API_KEY": "Brandinformationssystem för resurshantering.",
         "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
         "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
-      },
-      "skipSetup": "Hoppa över installationen — en enda World Monitor-licens låser upp allt. Gå med i väntelistan för tidig tillgång."
+      }
     },
     "countryIntel": {
       "identifying": "Identifierar land...",
@@ -434,33 +422,7 @@
         "duration": "Varaktighet"
       },
       "sidecarUnreachable": "Sidovagn går inte att nå.",
-      "logCleared": "Loggen rensad.",
-      "worldMonitor": {
-        "apiKey": {
-          "description": "Klistra in din licens för att omedelbart låsa upp alla datakällor och AI-funktioner.",
-          "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
-          "statusMissing": "INGEN LICENS",
-          "statusValid": "LICENSIERAD",
-          "title": "Licensnyckel"
-        },
-        "byokDescription": "Föredrar du full kontroll? Gå till flikarna API-nycklar och LLM:er för att konfigurera varje datakälla och AI-leverantör individuellt.",
-        "byokTitle": "Eller ta med egna nycklar",
-        "dividerOr": "ELLER",
-        "heroDescription": "En enda World Monitor-licens ersätter alla API-nycklar och LLM-leverantörer du annars måste konfigurera själv. AI-sammanfattningar, realtidsunderrättelser, marknadsdata, konfliktspårning, branddetektering, satellitbilder — allt inkluderat, allt hanterat, noll installation.",
-        "heroTitle": "En nyckel. Allt inkluderat.",
-        "register": {
-          "alreadyRegistered": "Du finns redan på väntelistan.",
-          "description": "Vi förbereder lanseringen av World Monitor-licenser. Registrera dig nu och bli först i kön — tidiga medlemmar får prioriterad tillgång och grundarpriser.",
-          "emailPlaceholder": "din@epost.se",
-          "error": "Registreringen misslyckades. Försök igen.",
-          "invalidEmail": "Ange en giltig e-postadress.",
-          "submitBtn": "Gå med i väntelistan",
-          "submitting": "Skickar...",
-          "success": "Du är på listan! Vi meddelar dig först.",
-          "title": "Reservera din plats"
-        },
-        "tabLabel": "World Monitor"
-      }
+      "logCleared": "Loggen rensad."
     }
   },
   "components": {
@@ -749,29 +711,6 @@
       "medium": "MED",
       "low": "LÅG",
       "info": "INFO"
-    },
-    "pizzint": {
-      "title": "Pentagon Pizza Index",
-      "tensionsTitle": "Geopolitiska spänningar",
-      "source": "Källa:",
-      "defcon": "DEFCON {{level}}",
-      "updated": "Uppdaterad {{timeAgo}}",
-      "statusClosed": "STÄNGD",
-      "statusSpike": "TOPP",
-      "statusHigh": "HÖG",
-      "statusElevated": "FÖRHÖJD",
-      "statusNominal": "NORMAL",
-      "statusQuiet": "LUGN",
-      "justNow": "just nu",
-      "minutesAgo": "{{m}}m sedan",
-      "hoursAgo": "{{h}}h sedan",
-      "defconLabels": {
-        "1": "SPÄND PISTOL - MAXIMAL BEREDSKAP",
-        "2": "SNABBT FAST - FÖRVARARNA KLART",
-        "3": "RUNDT HUS - ÖKA KRAFTBEREDDIGHETEN",
-        "4": "DUBBEL TAKE - ÖKAD INTELLIGENSKLOCK",
-        "5": "FADE OUT - LÄGSTA BEREDSKAP"
-      }
     },
     "stablecoins": {
       "pegHealth": "Peg-hälsa",
@@ -1172,9 +1111,6 @@
       "aiFlowBrowserLabel": "Lokal webbläsarmodell",
       "aiFlowBrowserDesc": "Kör AI lokalt i din webbläsare",
       "aiFlowBrowserWarn": "Cirka 250 MB data kommer att laddas ner till din dator",
-      "aiFlowOllamaCta": "Vill du ha helt lokal AI?",
-      "aiFlowOllamaCtaDesc": "Ladda ner skrivbordsappen för Ollama-stöd",
-      "aiFlowDownloadDesktop": "Ladda ner skrivbordsapp →",
       "aiFlowStatusActive": "Moln-AI aktiv",
       "aiFlowStatusCloudAndBrowser": "Moln-AI + Webbläsarmodell aktiva",
       "aiFlowStatusBrowserOnly": "Endast webbläsarmodell",
@@ -1954,7 +1890,6 @@
       "mossad_idf": "Mossad/IDF",
       "nato_hq": "Natos högkvarter",
       "pla_mss_activity": "PLA/MSS-aktivitet",
-      "pentagon_pizza_index": "Pentagon Pizza Index",
       "piracy_conflict": "Piratkopiering/konflikt",
       "qatar_al_udeid": "Qatar/Al Udeid",
       "saudi_gip_mbs": "Saudi GIP/MBS",
@@ -2227,11 +2162,10 @@
     "panelCatDeals": "Affärer & Institutionellt",
     "panelCatGulfMena": "Gulfen & MENA",
     "panelCatTradePolicy": "Handelspolitik",
-    "downloadApp": "Ladda ner appen",
     "selectRegion": "Välj region"
   },
   "app": {
-    "title": "World Monitor",
+    "title": "WorldView",
     "description": "Global situation med AI-insikter"
   },
   "countryBrief": {

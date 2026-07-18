@@ -74,7 +74,7 @@ export async function renderStoryToCanvas(data: StoryData): Promise<HTMLCanvasEl
   ctx.fillStyle = '#666';
   ctx.font = '700 30px Inter, system-ui, sans-serif';
   ctx.letterSpacing = '6px';
-  ctx.fillText('WORLDVIEW.APP', textX, y + 26);
+  ctx.fillText('WORLDVIEW', textX, y + 26);
   ctx.letterSpacing = '0px';
   const dateStr = new Date().toLocaleDateString(getLocale(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   ctx.font = '400 24px Inter, system-ui, sans-serif';
@@ -437,10 +437,10 @@ export async function renderStoryToCanvas(data: StoryData): Promise<HTMLCanvasEl
   ctx.fillStyle = '#444';
   ctx.font = '600 24px Inter, system-ui, sans-serif';
   ctx.letterSpacing = '2px';
-  ctx.fillText('WORLDVIEW.APP', footerTextX, H - 55);
+  ctx.fillText('WORLDVIEW', footerTextX, H - 55);
   ctx.letterSpacing = '0px';
   ctx.font = '400 20px Inter, system-ui, sans-serif';
-  ctx.fillText('Real-time global intelligence monitoring', footerTextX, H - 30);
+  ctx.fillText('Global intelligence dashboard', footerTextX, H - 30);
 
   ctx.font = '400 22px Inter, system-ui, sans-serif';
   ctx.fillStyle = '#555';

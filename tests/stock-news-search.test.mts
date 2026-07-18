@@ -18,7 +18,7 @@ afterEach(() => {
 });
 
 describe('stock news search query', () => {
-  it('builds the same stock-news style query used by the source project', () => {
+  it('builds a focused stock-news query', () => {
     assert.equal(buildStockNewsSearchQuery('aapl', 'Apple'), 'Apple AAPL stock latest news');
     assert.equal(buildStockNewsSearchQuery(' msft ', ''), 'MSFT stock latest news');
   });

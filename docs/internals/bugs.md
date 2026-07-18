@@ -1,4 +1,4 @@
-# World Monitor — Bug Registry
+# WorldView — Bug Registry
 
 Bugs are prefixed with `BUG-` and a three-digit number.
 Each entry includes severity, description, affected files, and dependencies on other items.
@@ -121,7 +121,7 @@ Extract `layerToSource` to a shared constant (e.g., in `src/config/panels.ts`), 
 | **Depends on** | — |
 
 **Description**
-The Polymarket dev proxy targets `https://worldmonitor.app` (the live production site).
+The Polymarket dev proxy targets `https://osint-worldview-cyan.vercel.app` (the live production site).
 This creates a circular dependency in dev → prod, means dev can break when prod is deploying, and masks local proxy bugs until they hit production.
 
 **AI instructions**
@@ -226,7 +226,6 @@ Unify idle timeouts via a shared constant in config, or document the intentional
 | **Depends on** | BUG-005 |
 
 **Description**
-`layerToSource` maps layers to freshness source IDs, but several API-backed data sources (GDELT Doc intelligence feed, FRED, EIA oil, USASpending, PizzINT, Polymarket, Predictions) are not tracked in the freshness system.
 The Status Panel cannot report staleness for these feeds.
 
 **AI instructions**

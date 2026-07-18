@@ -92,7 +92,6 @@
     "@vercel/analytics": "^1.6.1",
     "@xenova/transformers": "^2.0.1",
     "canvas-confetti": "^1.9.4",
-    "convex": "^1.32.0",
     "d3": "^7.9.0",
     "deck.gl": "^9.2.6",
     "dompurify": "^3.1.7",

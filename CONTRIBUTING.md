@@ -1,6 +1,6 @@
-# Contributing to World Monitor
+# Contributing to WorldView
 
-Thank you for your interest in contributing to World Monitor! This project thrives on community contributions — whether it's code, data sources, documentation, or bug reports.
+Thank you for your interest in contributing to WorldView. This project welcomes code, data source, documentation, and bug-report contributions.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ Thank you for your interest in contributing to World Monitor! This project thriv
 
 ## Architecture Overview
 
-World Monitor is a real-time OSINT dashboard built with **Vanilla TypeScript** (no UI framework), **MapLibre GL + deck.gl** for map rendering, and a custom Proto-first RPC framework called **Sebuf** for all API communication.
+WorldView is an OSINT dashboard built with **Vanilla TypeScript** (no UI framework), **MapLibre GL + deck.gl** for map rendering, and a Proto-first RPC framework called **Sebuf** for typed API communication.
 
 ### Key Technologies
 
@@ -35,7 +35,6 @@ World Monitor is a real-time OSINT dashboard built with **Vanilla TypeScript** (
 | **d3** | Charts, sparklines, and data visualization |
 | **Vercel Edge Functions** | Serverless API gateway |
 | **Tauri v2** | Desktop app (Windows, macOS, Linux) |
-| **Convex** | Minimal backend (beta interest registration only) |
 | **Playwright** | End-to-end and visual regression testing |
 
 ### Variant System
@@ -75,8 +74,8 @@ Variants share all code but differ in default panels, map layers, and RSS feeds.
 1. **Fork** the repository on GitHub
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/worldmonitor.git
-   cd worldmonitor
+   git clone https://github.com/<your-username>/osint-worldview.git
+   cd osint-worldview
    ```
 3. **Create a branch** for your work:
    ```bash
@@ -128,7 +127,7 @@ See [API Dependencies](docs/DOCUMENTATION.md#api-dependencies) for the full list
 - **Performance optimizations** — faster loading, better caching
 - **Documentation** — improve docs, add examples, fix typos
 - **Accessibility** — make the dashboard usable by everyone
-- **Internationalization** — help make World Monitor available in more languages
+- **Internationalization** — help make WorldView available in more languages
 - **Tests** — add unit or integration tests
 
 ### What We're Especially Looking For
@@ -288,7 +287,7 @@ When filing a bug report, please include:
 - **Browser/OS** — your environment details
 - **Console errors** — any relevant browser console output
 
-Use the [Bug Report issue template](https://github.com/koala73/worldmonitor/issues/new/choose) when available.
+Use the [Bug Report issue template](https://github.com/amanimran786/osint-worldview/issues/new/choose) when available.
 
 ## Feature Requests
 
@@ -299,7 +298,7 @@ We welcome feature ideas! When suggesting a feature:
 - **Consider alternatives** you've thought about
 - **Provide context** — who would benefit from this feature?
 
-Use the [Feature Request issue template](https://github.com/koala73/worldmonitor/issues/new/choose) when available.
+Use the [Feature Request issue template](https://github.com/amanimran786/osint-worldview/issues/new/choose) when available.
 
 ## Code of Conduct
 
@@ -307,4 +306,4 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ---
 
-Thank you for helping make World Monitor better! 🌍
+Thank you for helping make WorldView better.
