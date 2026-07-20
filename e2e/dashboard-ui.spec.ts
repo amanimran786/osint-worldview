@@ -37,6 +37,39 @@ test.describe('WorldView dashboard controls', () => {
     await expect(signalsTab).toHaveClass(/active/);
     await expect(page.locator('#panelsGrid')).toBeAttached();
 
+    const primaryNav = page.locator('.side-nav-items');
+    const dashboardNav = primaryNav.getByRole('button', { name: 'Dashboard', exact: true });
+    const signalsNav = primaryNav.getByRole('button', { name: 'Signals', exact: true });
+    const worldViewNav = primaryNav.getByRole('button', { name: 'World View', exact: true });
+    const settingsNav = primaryNav.getByRole('button', { name: 'Settings', exact: true });
+
+    await signalsNav.click();
+    await expect(signalsNav).toHaveClass(/active/);
+    await expect(signalsNav).toHaveAttribute('aria-current', 'page');
+    await expect(signalsTab).toHaveClass(/active/);
+    await expect.poll(() => page.locator('.main-content').evaluate((el) => el.scrollTop)).toBeGreaterThan(100);
+
+    await worldViewNav.click();
+    await expect(worldViewNav).toHaveClass(/active/);
+    await expect(mapTab).toHaveClass(/active/);
+
+    await dashboardNav.click();
+    await expect(dashboardNav).toHaveClass(/active/);
+    await expect(page.locator('.command-tab[data-target="commandDashboard"]')).toHaveClass(/active/);
+    await expect.poll(() => page.locator('.main-content').evaluate((el) => el.scrollTop)).toBeLessThanOrEqual(1);
+
+    const dashboardUrl = page.url();
+    await settingsNav.click();
+    await expect(page.locator('#unifiedSettingsModal')).toHaveClass(/active/);
+    await expect(page).toHaveURL(dashboardUrl);
+    await page.locator('.unified-settings-close').click();
+
+    const quickLinks = page.locator('.side-nav-quick');
+    await quickLinks.getByRole('button', { name: 'Map', exact: true }).click();
+    await expect(worldViewNav).toHaveClass(/active/);
+    await quickLinks.getByRole('button', { name: 'Panels', exact: true }).click();
+    await expect(signalsNav).toHaveClass(/active/);
+
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
   });

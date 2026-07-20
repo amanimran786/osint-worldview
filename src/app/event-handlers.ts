@@ -243,22 +243,36 @@ export class EventHandlerManager implements AppModule {
       }
     });
 
-    this.ctx.container.querySelectorAll<HTMLButtonElement>('.command-tab[data-target]').forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const targetId = tab.dataset.target;
-        const target = targetId === 'commandDashboard'
-          ? this.ctx.container.querySelector('.command-dashboard')
-          : document.getElementById(targetId ?? '');
-        if (!target) return;
+    const navigateToDashboardSection = (targetId: string) => {
+      const target = targetId === 'commandDashboard'
+        ? this.ctx.container.querySelector('.command-dashboard')
+        : document.getElementById(targetId);
+      if (!target) return;
 
-        this.ctx.container.querySelectorAll('.command-tab').forEach((candidate) => {
-          const active = candidate === tab;
-          candidate.classList.toggle('active', active);
-          if (active) candidate.setAttribute('aria-current', 'page');
-          else candidate.removeAttribute('aria-current');
-        });
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      this.ctx.container.querySelectorAll<HTMLElement>('.command-tab[data-dashboard-target]').forEach((tab) => {
+        const active = tab.dataset.dashboardTarget === targetId;
+        tab.classList.toggle('active', active);
+        if (active) tab.setAttribute('aria-current', 'page');
+        else tab.removeAttribute('aria-current');
       });
+      this.ctx.container.querySelectorAll<HTMLElement>('.side-nav-item[data-dashboard-target]').forEach((item) => {
+        const active = item.dataset.dashboardTarget === targetId;
+        item.classList.toggle('active', active);
+        if (active) item.setAttribute('aria-current', 'page');
+        else item.removeAttribute('aria-current');
+      });
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    this.ctx.container.querySelectorAll<HTMLElement>('[data-dashboard-target]').forEach((control) => {
+      control.addEventListener('click', () => {
+        const targetId = control.dataset.dashboardTarget;
+        if (targetId) navigateToDashboardSection(targetId);
+      });
+    });
+
+    this.ctx.container.querySelectorAll<HTMLElement>('[data-open-settings]').forEach((control) => {
+      control.addEventListener('click', () => this.ctx.unifiedSettings?.open());
     });
 
     document.getElementById('copyLinkBtn')?.addEventListener('click', async () => {

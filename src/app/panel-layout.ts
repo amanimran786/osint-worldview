@@ -122,17 +122,17 @@ export class PanelLayoutManager implements AppModule {
             <span class="side-nav-sub">OSINT PLATFORM</span>
           </div>
           <div class="side-nav-section">GLOBAL INTELLIGENCE</div>
-          <nav class="side-nav-items">
-            <a class="side-nav-item active" href="/">Dashboard</a>
-            <a class="side-nav-item" href="/#panelsGrid">Signals</a>
-            <a class="side-nav-item" href="/#mapSection">World View</a>
-            <a class="side-nav-item" href="/?settings=1">Settings</a>
+          <nav class="side-nav-items" aria-label="Primary navigation">
+            <button type="button" class="side-nav-item active" data-dashboard-target="commandDashboard" aria-current="page">Dashboard</button>
+            <button type="button" class="side-nav-item" data-dashboard-target="panelsGrid">Signals</button>
+            <button type="button" class="side-nav-item" data-dashboard-target="mapSection">World View</button>
+            <button type="button" class="side-nav-item" data-open-settings>Settings</button>
           </nav>
           <div class="side-nav-quick">
             <span class="side-nav-quick-title">QUICK LINKS</span>
-            <a class="side-nav-quick-link" href="/#mapSection">Map</a>
-            <a class="side-nav-quick-link" href="/#panelsGrid">Panels</a>
-            <a class="side-nav-quick-link" href="/?settings=1">Settings</a>
+            <button type="button" class="side-nav-quick-link" data-dashboard-target="mapSection">Map</button>
+            <button type="button" class="side-nav-quick-link" data-dashboard-target="panelsGrid">Panels</button>
+            <button type="button" class="side-nav-quick-link" data-open-settings>Settings</button>
           </div>
           <div class="side-nav-footer">
             <span class="side-nav-status">WORLDVIEW</span>
@@ -305,9 +305,9 @@ export class PanelLayoutManager implements AppModule {
       <div class="main-content">
         <section class="command-dashboard">
           <div class="command-tabs" role="navigation" aria-label="Dashboard sections">
-            <button class="command-tab active" data-target="commandDashboard" aria-current="page">Overview</button>
-            <button class="command-tab" data-target="mapSection">Threat Map</button>
-            <button class="command-tab" data-target="panelsGrid">Signals</button>
+            <button class="command-tab active" data-target="commandDashboard" data-dashboard-target="commandDashboard" aria-current="page">Overview</button>
+            <button class="command-tab" data-target="mapSection" data-dashboard-target="mapSection">Threat Map</button>
+            <button class="command-tab" data-target="panelsGrid" data-dashboard-target="panelsGrid">Signals</button>
           </div>
         </section>
         <div class="map-section" id="mapSection">
@@ -349,10 +349,10 @@ export class PanelLayoutManager implements AppModule {
           </div>
         </div>
         <nav aria-label="WorldView quick links">
-          <a href="/">Dashboard</a>
-          <a href="/?settings=1">Settings</a>
-          <a href="/#mapSection">Map</a>
-          <a href="/#panelsGrid">Panels</a>
+          <button type="button" data-dashboard-target="commandDashboard">Dashboard</button>
+          <button type="button" data-open-settings>Settings</button>
+          <button type="button" data-dashboard-target="mapSection">Map</button>
+          <button type="button" data-dashboard-target="panelsGrid">Panels</button>
         </nav>
         <span class="site-footer-copy">&copy; ${new Date().getFullYear()} WorldView</span>
       </footer>

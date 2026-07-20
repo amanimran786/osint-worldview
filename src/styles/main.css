@@ -351,12 +351,16 @@ canvas,
 }
 
 .side-nav-quick-link {
+  width: 100%;
+  background: transparent;
   color: rgba(244, 242, 255, 0.7);
-  text-decoration: none;
+  font-family: var(--font-body);
   font-size: 11px;
+  text-align: left;
   padding: 6px 8px;
   border-radius: 6px;
   border: 1px solid transparent;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
@@ -366,6 +370,7 @@ canvas,
 }
 
 .side-nav-item {
+  width: 100%;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -1529,13 +1534,20 @@ canvas,
   display: flex;
   gap: 16px;
 }
-.site-footer a {
+.site-footer a,
+.site-footer button {
+  padding: 0;
+  background: transparent;
+  border: 0;
   color: rgba(255, 255, 255, 0.6);
   font-family: var(--font-body);
+  font-size: inherit;
   text-decoration: none;
+  cursor: pointer;
   transition: color 0.15s;
 }
-.site-footer a:hover {
+.site-footer a:hover,
+.site-footer button:hover {
   color: #ffffff;
 }
 .site-footer-copy {
