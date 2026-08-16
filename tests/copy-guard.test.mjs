@@ -5,12 +5,14 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const prohibited = /DEFCON|PizzINT|Pentagon Pizza|TOP SECRET|NOFORN|ASTRAL INTEL|WorldView Monitor|AI-powered real-time|435\+|45 map layers|Realtime intelligence platform|Upgrade to WorldView|join.*waitlist/i;
+const prohibited = /DEFCON|PizzINT|Pentagon Pizza|TOP SECRET|NOFORN|ASTRAL INTEL|WorldView Monitor|AI-powered real-time|435\+|45 map layers|45 layers|Realtime intelligence platform|Upgrade to WorldView|join.*waitlist/i;
 
 for (const relativePath of [
   'index.html',
   'src/app/panel-layout.ts',
   'src/config/variant-meta.ts',
+  '.github/GITHUB_ORGANIZATION.md',
+  'docs/guides/HOW_IT_WORKS.md',
 ]) {
   test(`${relativePath} contains no prohibited promotional or off-purpose copy`, () => {
     const source = readFileSync(join(root, relativePath), 'utf8');

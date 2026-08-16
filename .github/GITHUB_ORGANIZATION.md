@@ -55,7 +55,7 @@ worldview/
 ├── docs/                       ← Developer documentation
 │   ├── DOCUMENTATION.md        ← Main docs entry point
 │   ├── ARCHITECTURE.md         ← System design & diagrams
-│   ├── DATA_SOURCES.md         ← All 45 layers + APIs
+│   ├── DATA_SOURCES.md         ← Layer and API catalog
 │   ├── MAP_ENGINE.md           ← Dual-map tech details
 │   ├── AI_INTELLIGENCE.md      ← AI fallback chain
 │   ├── DESKTOP_APP.md          ← Tauri setup
@@ -158,7 +158,7 @@ worldview/
 
 ### "I want to add a data source"
 
-1. **docs/DATA_SOURCES.md** (all 45 layers + how to add more)
+1. **docs/DATA_SOURCES.md** (layer catalog + how to add more)
 2. **src/services/news-aggregator.ts** (implementation)
 
 ### "I want to customize the UI"
@@ -207,20 +207,17 @@ worldview/
 
 ---
 
-## 📌 README Best Practices (Implemented)
+## 📌 README Checklist
 
-✅ **Clear headline** — "WorldView: AI-Powered Intelligence Dashboard"  
-✅ **Live demo links** — [WorldView production](https://osint-worldview-cyan.vercel.app)
-✅ **Problem statement** — "News scattered, no context, overload"  
-✅ **Solution highlight** — "435+ sources, 45 layers, free AI"  
-✅ **Feature showcase** — Visual comparisons vs. competitors  
-✅ **Getting started** — 4 quick-start options  
-✅ **Documentation links** — How to find answers  
-✅ **Badges** — GitHub stars, license, tech stack  
-✅ **Visual diagrams** — ASCII art + screenshots  
-✅ **Usage examples** — Copy-paste commands  
-✅ **Contributing guide** — How to help  
-✅ **License clarity** — AGPL-3.0  
+- **Project scope** — Public-source intelligence dashboard
+- **Live deployment** — [WorldView production](https://osint-worldview-cyan.vercel.app)
+- **Operational status** — Current limitations and dependency health
+- **Data methodology** — Source provenance and freshness expectations
+- **Getting started** — Supported setup paths
+- **Documentation links** — How to find answers
+- **Usage examples** — Copy-paste commands
+- **Contributing guide** — How to help
+- **License clarity** — AGPL-3.0
 
 ---
 

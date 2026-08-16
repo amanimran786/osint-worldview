@@ -67,7 +67,7 @@ You can **turn layers on/off** like a light switch:
 - Want to see only conflicts? Tap it on.
 - Want to hide markets? Tap it off.
 
-**All 45 layers work on BOTH maps simultaneously.**
+**Configured layers work on both maps.**
 
 ---
 
