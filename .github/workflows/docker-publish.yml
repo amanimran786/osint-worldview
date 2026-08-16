@@ -13,7 +13,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: docker/setup-qemu-action@v3
 
@@ -44,4 +44,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
