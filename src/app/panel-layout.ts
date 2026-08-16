@@ -70,6 +70,8 @@ export class PanelLayoutManager implements AppModule {
   private bottomSetMemory: Set<string> = new Set();
   private criticalBannerEl: HTMLElement | null = null;
   private aviationCommandBar: AviationCommandBar | null = null;
+  private operationalStatusTimer: ReturnType<typeof setInterval> | null = null;
+  private operationalStatusController: AbortController | null = null;
   private readonly applyTimeRangeFilterDebounced: (() => void) & { cancel(): void };
 
   constructor(ctx: AppContext, callbacks: PanelLayoutCallbacks) {
@@ -82,9 +84,14 @@ export class PanelLayoutManager implements AppModule {
 
   init(): void {
     this.renderLayout();
+    this.startOperationalStatusMonitor();
   }
 
   destroy(): void {
+    if (this.operationalStatusTimer) clearInterval(this.operationalStatusTimer);
+    this.operationalStatusTimer = null;
+    this.operationalStatusController?.abort();
+    this.operationalStatusController = null;
     clearAllPendingCalls();
     this.applyTimeRangeFilterDebounced.cancel();
     this.panelDragCleanupHandlers.forEach((cleanup) => cleanup());
@@ -110,6 +117,64 @@ export class PanelLayoutManager implements AppModule {
     this.ctx.panels['airline-intel']?.destroy();
 
     window.removeEventListener('resize', this.ensureCorrectZones);
+  }
+
+  private startOperationalStatusMonitor(): void {
+    const refresh = async (): Promise<void> => {
+      this.operationalStatusController?.abort();
+      const controller = new AbortController();
+      this.operationalStatusController = controller;
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const response = await fetch('/api/health?compact=1', {
+          headers: { Accept: 'application/json' },
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        const payload = await response.json().catch(() => null) as { status?: unknown } | null;
+        const healthStatus = typeof payload?.status === 'string' ? payload.status.toUpperCase() : '';
+
+        if (response.ok && healthStatus === 'HEALTHY') {
+          this.applyOperationalStatus('live', 'All required production services are healthy');
+        } else if (
+          healthStatus === 'WARNING' ||
+          healthStatus === 'DEGRADED' ||
+          healthStatus === 'UNHEALTHY' ||
+          healthStatus === 'REDIS_DOWN'
+        ) {
+          this.applyOperationalStatus('degraded', 'One or more required data services are unavailable');
+        } else {
+          this.applyOperationalStatus('offline', 'Production health check is unavailable');
+        }
+      } catch {
+        if (!controller.signal.aborted || !this.ctx.isDestroyed) {
+          this.applyOperationalStatus('offline', 'Production health check is unavailable');
+        }
+      } finally {
+        clearTimeout(timeout);
+        if (this.operationalStatusController === controller) {
+          this.operationalStatusController = null;
+        }
+      }
+    };
+
+    void refresh();
+    this.operationalStatusTimer = setInterval(() => void refresh(), 60_000);
+  }
+
+  private applyOperationalStatus(
+    status: 'checking' | 'live' | 'degraded' | 'offline',
+    detail: string,
+  ): void {
+    const label = status === 'live' ? 'LIVE' : status === 'degraded' ? 'DEGRADED' : status === 'offline' ? 'OFFLINE' : 'CHECKING';
+    this.ctx.container.querySelectorAll<HTMLElement>('[data-operational-status]').forEach((element) => {
+      element.dataset.operationalStatus = status;
+      element.title = detail;
+    });
+    this.ctx.container.querySelectorAll<HTMLElement>('[data-operational-label]').forEach((element) => {
+      element.textContent = label;
+    });
   }
 
   renderLayout(): void {
@@ -197,9 +262,9 @@ export class PanelLayoutManager implements AppModule {
           <button class="mobile-settings-btn" id="mobileSettingsBtn" title="${t('header.settings')}">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </button>
-          <div class="status-indicator">
+          <div class="status-indicator" data-operational-status="checking" role="status" aria-live="polite">
             <span class="status-dot"></span>
-            <span>${t('header.live')}</span>
+            <span data-operational-label>CHECKING</span>
           </div>
           <div class="region-selector">
             <select id="regionSelect" class="region-select">
@@ -225,7 +290,7 @@ export class PanelLayoutManager implements AppModule {
       <div class="command-bar">
         <div class="command-bar-left">
           <span class="command-title">COMMAND DASHBOARD</span>
-          <span class="command-status">LIVE</span>
+          <span class="command-status" data-operational-status="checking" data-operational-label>CHECKING</span>
         </div>
         <div class="command-bar-center">
           <span class="command-tag">OPEN-SOURCE INTELLIGENCE</span>
@@ -314,7 +379,7 @@ export class PanelLayoutManager implements AppModule {
           <div class="map-hud">
             <div class="map-hud-left">
               <span class="map-hud-title">${SITE_VARIANT === 'tech' ? t('panels.techMap') : SITE_VARIANT === 'happy' ? 'Good News Map' : t('panels.map')}</span>
-              <span class="map-hud-sub">GLOBAL SIGNAL MAP · LIVE DATA</span>
+              <span class="map-hud-sub">GLOBAL SIGNAL MAP · <span data-operational-status="checking" data-operational-label>CHECKING</span></span>
             </div>
             <div class="map-hud-right">
               <div class="map-hud-actions" id="mapDimensionToggle">
@@ -345,7 +410,7 @@ export class PanelLayoutManager implements AppModule {
           <img src="/favico/favicon-32x32.png" alt="" width="28" height="28" class="site-footer-icon" />
           <div class="site-footer-brand-text">
             <span class="site-footer-name">WORLDVIEW</span>
-            <span class="site-footer-sub">Realtime intelligence platform</span>
+            <span class="site-footer-sub">Public-source intelligence dashboard</span>
           </div>
         </div>
         <nav aria-label="WorldView quick links">

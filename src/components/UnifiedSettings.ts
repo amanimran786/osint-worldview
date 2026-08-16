@@ -36,6 +36,9 @@ export class UnifiedSettings {
   private draftPanelSettings: Record<string, PanelConfig> = {};
   private panelsJustSaved = false;
   private savedTimeout: ReturnType<typeof setTimeout> | null = null;
+  private previouslyFocusedElement: HTMLElement | null = null;
+  private backgroundElement: HTMLElement | null = null;
+  private backgroundWasInert = false;
 
   constructor(config: UnifiedSettingsConfig) {
     this.config = config;
@@ -44,12 +47,18 @@ export class UnifiedSettings {
     this.overlay.className = 'modal-overlay';
     this.overlay.id = 'unifiedSettingsModal';
     this.overlay.setAttribute('role', 'dialog');
-    this.overlay.setAttribute('aria-label', t('header.settings'));
+    this.overlay.setAttribute('aria-modal', 'true');
+    this.overlay.setAttribute('aria-labelledby', 'unifiedSettingsTitle');
 
     this.resetPanelDraft();
 
     this.escapeHandler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') this.close();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.close();
+      } else if (e.key === 'Tab') {
+        this.trapFocus(e);
+      }
     };
 
     this.overlay.addEventListener('click', (e) => {
@@ -152,12 +161,18 @@ export class UnifiedSettings {
   }
 
   public open(): void {
+    if (this.overlay.classList.contains('active')) return;
+    this.previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    this.backgroundElement = document.getElementById('app');
+    this.backgroundWasInert = this.backgroundElement?.hasAttribute('inert') ?? false;
+    this.backgroundElement?.setAttribute('inert', '');
     this.activeTab = 'panels';
     this.resetPanelDraft();
     this.render();
     this.overlay.classList.add('active');
     localStorage.setItem('wm-settings-open', '1');
     document.addEventListener('keydown', this.escapeHandler);
+    requestAnimationFrame(() => this.overlay.querySelector<HTMLButtonElement>('.unified-settings-close')?.focus());
   }
 
   public close(): void {
@@ -166,6 +181,7 @@ export class UnifiedSettings {
     this.resetPanelDraft();
     localStorage.removeItem('wm-settings-open');
     document.removeEventListener('keydown', this.escapeHandler);
+    this.releaseModalFocus();
   }
 
   public refreshPanelToggles(): void {
@@ -188,7 +204,41 @@ export class UnifiedSettings {
     this.prefsCleanup?.();
     this.prefsCleanup = null;
     document.removeEventListener('keydown', this.escapeHandler);
+    this.releaseModalFocus();
     this.overlay.remove();
+  }
+
+  private trapFocus(event: KeyboardEvent): void {
+    if (!this.overlay.classList.contains('active')) return;
+    const focusable = Array.from(this.overlay.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+    )).filter((element) => !element.hasAttribute('hidden') && element.offsetParent !== null);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const first = focusable[0]!;
+    const last = focusable[focusable.length - 1]!;
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || !this.overlay.contains(active))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (active === last || !this.overlay.contains(active))) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  private releaseModalFocus(): void {
+    if (this.backgroundElement && !this.backgroundWasInert) {
+      this.backgroundElement.removeAttribute('inert');
+    }
+    this.backgroundElement = null;
+    this.backgroundWasInert = false;
+    const previous = this.previouslyFocusedElement;
+    this.previouslyFocusedElement = null;
+    if (previous?.isConnected) requestAnimationFrame(() => previous.focus());
   }
 
   private render(): void {
@@ -198,7 +248,7 @@ export class UnifiedSettings {
     this.overlay.innerHTML = `
       <div class="modal unified-settings-modal">
         <div class="modal-header">
-          <span class="modal-title">${t('header.settings')}</span>
+          <span class="modal-title" id="unifiedSettingsTitle">${t('header.settings')}</span>
           <button class="modal-close unified-settings-close" aria-label="Close">\u00d7</button>
         </div>
         <div class="unified-settings-tab-panel active" data-panel-id="panels" id="us-tab-panel-panels" role="tabpanel" aria-labelledby="us-tab-panels">
@@ -303,10 +353,10 @@ export class UnifiedSettings {
     container.innerHTML = entries.map(([key, panel]) => {
       const changed = savedSettings[key]?.enabled !== panel.enabled;
       return `
-        <div class="panel-toggle-item ${panel.enabled ? 'active' : ''}${changed ? ' changed' : ''}" data-panel="${escapeHtml(key)}" aria-pressed="${panel.enabled}">
+        <button type="button" class="panel-toggle-item ${panel.enabled ? 'active' : ''}${changed ? ' changed' : ''}" data-panel="${escapeHtml(key)}" aria-pressed="${panel.enabled}">
           <div class="panel-toggle-checkbox">${panel.enabled ? '\u2713' : ''}</div>
           <span class="panel-toggle-label">${escapeHtml(this.config.getLocalizedPanelName(key, panel.name))}</span>
-        </div>
+        </button>
       `;
     }).join('');
 
@@ -449,10 +499,10 @@ export class UnifiedSettings {
       const isEnabled = !disabled.has(source);
       const escaped = escapeHtml(source);
       return `
-        <div class="source-toggle-item ${isEnabled ? 'active' : ''}" data-source="${escaped}">
+        <button type="button" class="source-toggle-item ${isEnabled ? 'active' : ''}" data-source="${escaped}" aria-pressed="${isEnabled}">
           <div class="source-toggle-checkbox">${isEnabled ? '\u2713' : ''}</div>
           <span class="source-toggle-label">${escaped}</span>
-        </div>
+        </button>
       `;
     }).join('');
   }

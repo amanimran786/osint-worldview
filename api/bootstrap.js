@@ -25,8 +25,8 @@ const BOOTSTRAP_CACHE_KEYS = {
   techReadiness:    'economic:worldbank-techreadiness:v1',
   progressData:     'economic:worldbank-progress:v1',
   renewableEnergy:  'economic:worldbank-renewable:v1',
-  positiveGeoEvents: 'positive_events:geo-bootstrap:v1',
-  theaterPosture: 'theater_posture:sebuf:stale:v1',
+  positiveGeoEvents: 'positive-events:geo-bootstrap:v1',
+  theaterPosture: 'theater-posture:sebuf:stale:v1',
   riskScores: 'risk:scores:sebuf:stale:v1',
   naturalEvents: 'natural:events:v1',
   flightDelays: 'aviation:delays-bootstrap:v1',
@@ -66,6 +66,9 @@ const TIER_CDN_CACHE = {
 };
 
 const NEG_SENTINEL = '__WM_NEG__';
+const FALLBACK_CACHE_KEYS = {
+  weatherAlerts: 'weather:alerts:stale:v1',
+};
 
 async function getCachedJsonBatch(keys) {
   const result = new Map();
@@ -73,7 +76,7 @@ async function getCachedJsonBatch(keys) {
 
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return result;
+  if (!url || !token) throw new Error('cache_not_configured');
 
   // Always read unprefixed keys — bootstrap is a read-only consumer of
   // production cache data. Preview/branch deploys don't run handlers that
@@ -85,9 +88,12 @@ async function getCachedJsonBatch(keys) {
     body: JSON.stringify(pipeline),
     signal: AbortSignal.timeout(3000),
   });
-  if (!resp.ok) return result;
+  if (!resp.ok) throw new Error('cache_unavailable');
 
   const data = await resp.json();
+  if (!Array.isArray(data) || data.length !== keys.length) {
+    throw new Error('cache_invalid_response');
+  }
   for (let i = 0; i < keys.length; i++) {
     const raw = data[i]?.result;
     if (raw) {
@@ -134,18 +140,52 @@ export default async function handler(req) {
   try {
     cached = await getCachedJsonBatch(keys);
   } catch {
-    return new Response(JSON.stringify({ data: {}, missing: names }), {
-      status: 200,
-      headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+    return new Response(JSON.stringify({
+      error: 'bootstrap_cache_unavailable',
+      data: {},
+      missing: names,
+    }), {
+      status: 503,
+      headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    });
+  }
+
+  const missingFallbackNames = names.filter((name, index) =>
+    !cached.has(keys[index]) && FALLBACK_CACHE_KEYS[name]
+  );
+  const fallbackKeys = missingFallbackNames.map((name) => FALLBACK_CACHE_KEYS[name]);
+  let fallbacks = new Map();
+  try {
+    if (fallbackKeys.length > 0) fallbacks = await getCachedJsonBatch(fallbackKeys);
+  } catch {
+    return new Response(JSON.stringify({
+      error: 'bootstrap_cache_unavailable',
+      data: {},
+      missing: names,
+    }), {
+      status: 503,
+      headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
   }
 
   const data = {};
   const missing = [];
   for (let i = 0; i < names.length; i++) {
-    const val = cached.get(keys[i]);
+    const fallbackKey = FALLBACK_CACHE_KEYS[names[i]];
+    const val = cached.get(keys[i]) ?? (fallbackKey ? fallbacks.get(fallbackKey) : undefined);
     if (val !== undefined) data[names[i]] = val;
     else missing.push(names[i]);
+  }
+
+  if (missing.length === names.length) {
+    return new Response(JSON.stringify({
+      error: 'bootstrap_not_seeded',
+      data: {},
+      missing,
+    }), {
+      status: 503,
+      headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    });
   }
 
   const cacheControl = (tier && TIER_CACHE[tier]) || 'public, s-maxage=600, stale-while-revalidate=120, stale-if-error=900';

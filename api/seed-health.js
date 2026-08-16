@@ -124,7 +124,7 @@ export default async function handler(req) {
   const overall = missingCount > 0 ? 'degraded' : staleCount > 0 ? 'warning' : 'healthy';
 
   return new Response(JSON.stringify({ overall, seeds, checkedAt: now }), {
-    status: 200,
+    status: overall === 'degraded' ? 503 : 200,
     headers: {
       ...cors,
       'Content-Type': 'application/json',

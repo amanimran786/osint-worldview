@@ -16,6 +16,8 @@ WorldView is an open-source dashboard for exploring global news, geospatial even
 
 Availability and freshness depend on each upstream public data source. The interface reports unavailable data instead of fabricating results.
 
+The hosted site is a public-source research dashboard. It is not a case-management system and does not provide team identity, RBAC, evidence storage, or investigator audit trails.
+
 ## Local Development
 
 Requirements: Node.js and npm.
@@ -36,6 +38,7 @@ npm run test:sidecar
 npm run test:e2e:runtime
 npx playwright test e2e/dashboard-ui.spec.ts
 npm run build
+npm run smoke:production
 ```
 
 The browser regression suite covers desktop and mobile navigation, search, settings, map controls, responsive overflow, and prohibited promotional copy.
@@ -49,6 +52,8 @@ https://osint-worldview-cyan.vercel.app
 ```
 
 The `worldview.app` domain is not currently connected to this Vercel project and should not be used as the application URL.
+
+Production requires Redis, seed jobs, and the Railway relay to pass the checks in [docs/PRODUCTION_RUNBOOK.md](./docs/PRODUCTION_RUNBOOK.md). A successful static deployment alone is not a production-readiness result.
 
 ## Data And Attribution
 

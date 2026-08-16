@@ -7,6 +7,7 @@
 ## 🌍 The Basic Idea
 
 Imagine you're watching the entire world at once through thousands of windows. Each window shows something happening:
+
 - A conflict in Ukraine
 - An earthquake in Japan
 - A stock market moving in NY
@@ -22,6 +23,7 @@ WorldView gathers all these windows, puts them on a map, and **asks an AI: "What
 WorldView has **two ways to see the world**:
 
 ### View 1: The Globe (3D, like Earth)
+
 ```
        🌍 (spinning)
       /   \
@@ -31,6 +33,7 @@ WorldView has **two ways to see the world**:
 You can rotate it, zoom in on a country, see things in 3D.
 
 ### View 2: The Flat Map (2D, like a poster)
+
 ```
 ┌─────────────────────────┐
 │    [flat map view]      │  (like a poster on a wall)
@@ -60,6 +63,7 @@ Layer 1: Conflicts             ←─ Where are wars/protests happening?
 ```
 
 You can **turn layers on/off** like a light switch:
+
 - Want to see only conflicts? Tap it on.
 - Want to hide markets? Tap it off.
 
@@ -70,7 +74,8 @@ You can **turn layers on/off** like a light switch:
 ## 📰 Where Does The Data Come From?
 
 ### The Idea
-We subscribe to **435+ news feeds** (like following 435 people on Twitter, but automated).
+
+WorldView polls a configured catalog of public news feeds.
 
 ```
 New York Times
@@ -93,7 +98,9 @@ Earthquake Alerts
 ```
 
 ### What Happens
+
 Every feed is constantly checked for updates:
+
 1. **New story appears** → "There's a protest in Paris"
 2. **We extract location** → "Paris, France (48.8°N, 2.3°E)"
 3. **We mark on map** → 🔴 Red dot appears on Paris
@@ -105,6 +112,7 @@ Every feed is constantly checked for updates:
 ## 🧠 The AI Brain (Free Intelligence)
 
 ### The Problem
+
 You can see 100 things happening on the map. That's overwhelming. So we ask an AI:
 
 **"Summarize what's important in 1 paragraph"**
@@ -148,7 +156,9 @@ Option 4: Use Browser AI (Built into your browser)
 WorldView can focus on **different types of problems** depending on what you care about:
 
 ### 🌍 WorldView (Geopolitics)
+
 Shows:
+
 - Military conflicts
 - Bases and weapons
 - Political events
@@ -157,7 +167,9 @@ Shows:
 **Who uses it:** Journalists, policy makers, military analysts
 
 ### 💻 WorldView Tech (Startups & Technology)
+
 Shows:
+
 - New startups
 - AI/ML developments
 - Cybersecurity threats
@@ -166,7 +178,9 @@ Shows:
 **Who uses it:** VCs, tech reporters, security teams
 
 ### 📈 WorldView Markets (Trading & Markets)
+
 Shows:
+
 - Stock markets
 - Crypto prices
 - Central bank decisions
@@ -175,7 +189,9 @@ Shows:
 **Who uses it:** Traders, investors, financial analysts
 
 ### ⚙️ WorldView Commodities (Mining, Energy, Metals)
+
 Shows:
+
 - Commodity prices
 - Mining operations
 - Energy production
@@ -184,7 +200,9 @@ Shows:
 **Who uses it:** Traders, commodity investors, supply chain managers
 
 ### 😊 WorldView Good News (Good News)
+
 Shows:
+
 - Scientific breakthroughs
 - Positive social trends
 - Business successes
@@ -199,27 +217,33 @@ Shows:
 ## 💾 How It Works Offline
 
 ### The Idea
+
 Most apps require internet. WorldView can work without it.
 
 ### How?
+
 You have 3 "caches" (places that store info on your device):
 
 **1. Browser Cache**
+
 - Stores recent maps
 - Stores recent news
 - Stores recent data
 
 **2. IndexedDB (Your Personal Database)**
+
 - Stores all headlines you've seen
 - Stores all locations on the map
 - Stores your settings
 
 **3. Service Worker (Background Helper)**
+
 - Runs even when app is closed
 - Keeps updating data in background
 - Syncs when internet returns
 
 So if internet goes down:
+
 - You can still SEE the maps
 - You can still SEARCH old news
 - You can still RUN AI (with Ollama)
@@ -262,7 +286,7 @@ WorldView isn't one program. It's **22 services working together**:
 
 | Service | Job |
 |---------|-----|
-| News Aggregator | Reads 435+ feeds |
+| News Aggregator | Reads configured public feeds |
 | Geocoder | Finds locations |
 | Classifier | Marks threats (red/orange/yellow/green) |
 | Map Renderer | Draws both maps |
@@ -275,6 +299,7 @@ WorldView isn't one program. It's **22 services working together**:
 **The magic:** Each service does ONE job really well, and they talk to each other.
 
 It's like an **assembly line in a factory**:
+
 - Station 1: Collect raw materials (news feeds)
 - Station 2: Clean them (geocode, classify)
 - Station 3: Assemble (put on map)
@@ -296,7 +321,7 @@ YOUR BROWSER
       ↕ (talks to)
 
 BACKEND SERVER (22 services)
-├─ News Aggregator (reads 435+ feeds)
+├─ News Aggregator (reads configured feeds)
 ├─ Geocoder (finds locations)
 ├─ Classifier (marks threats)
 ├─ Cache Manager (stores data)
@@ -329,7 +354,7 @@ YOUR COMPUTER (if using Ollama)
 
 1. **Browser downloads the app** (from Vercel)
 2. **App wakes up services** (in the backend)
-3. **Services start fetching news** (from 435+ feeds)
+3. **Services start fetching news** (from configured feeds)
 4. **News is classified** (red/orange/yellow/green)
 5. **News is located** (lat/lon coordinates)
 6. **Map layers are drawn** (both 3D and flat)
@@ -343,21 +368,27 @@ YOUR COMPUTER (if using Ollama)
 ## 💡 Why This Design?
 
 ### Problem 1: Information Overload
+
 **Solution:** AI summarizes thousands of events into important briefs
 
 ### Problem 2: Hard to See Context
+
 **Solution:** Map layer shows WHERE things are happening
 
 ### Problem 3: No Offline Mode
+
 **Solution:** Cache everything, works without internet
 
 ### Problem 4: Too Slow
+
 **Solution:** Real-time WebSocket updates, no refreshing
 
 ### Problem 5: Expensive
+
 **Solution:** Free AI (Ollama), free hosting option, no paywalls
 
 ### Problem 6: Can't Customize
+
 **Solution:** Open-source code, run your own version
 
 ---
@@ -367,6 +398,7 @@ YOUR COMPUTER (if using Ollama)
 WorldView solves one problem: **"What's happening RIGHT NOW around the world, and should I care?"**
 
 By combining:
+
 - **Maps** (WHERE it's happening)
 - **AI** (WHAT it means)
 - **Real-time** (WHEN it happened)

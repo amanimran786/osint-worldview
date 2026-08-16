@@ -1,41 +1,54 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-let ratelimit = null;
+const ratelimiters = new Map();
 
-function getRatelimit() {
-  if (ratelimit) return ratelimit;
-
+function getRatelimit({ prefix = 'global', limit = 600, window = '60 s' } = {}) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
 
-  ratelimit = new Ratelimit({
+  const cacheKey = `${prefix}:${limit}:${window}`;
+  const cached = ratelimiters.get(cacheKey);
+  if (cached) return cached;
+
+  const ratelimit = new Ratelimit({
     redis: new Redis({ url, token }),
-    limiter: Ratelimit.slidingWindow(600, '60 s'),
-    prefix: 'rl',
+    limiter: Ratelimit.slidingWindow(limit, window),
+    prefix: `rl:${prefix}`,
     analytics: false,
   });
-
+  ratelimiters.set(cacheKey, ratelimit);
   return ratelimit;
 }
 
 function getClientIp(request) {
   return (
     request.headers.get('x-real-ip') ||
-    request.headers.get('cf-connecting-ip') ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    '0.0.0.0'
+    request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+    'unknown'
   );
 }
 
-export async function checkRateLimit(request, corsHeaders) {
-  const rl = getRatelimit();
-  if (!rl) return null;
+function unavailableResponse(corsHeaders) {
+  return new Response(JSON.stringify({ error: 'Rate limit service unavailable' }), {
+    status: 503,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      ...corsHeaders,
+    },
+  });
+}
+
+export async function checkRateLimit(request, corsHeaders = {}, options = {}) {
+  const { failClosed = false, prefix = 'global' } = options;
+  const rl = getRatelimit(options);
+  if (!rl) return failClosed ? unavailableResponse(corsHeaders) : null;
 
   const ip = getClientIp(request);
   try {
-    const { success, limit, reset } = await rl.limit(ip);
+    const { success, limit, reset } = await rl.limit(`${prefix}:${ip}`);
 
     if (!success) {
       return new Response(JSON.stringify({ error: 'Too many requests' }), {
@@ -53,6 +66,6 @@ export async function checkRateLimit(request, corsHeaders) {
 
     return null;
   } catch {
-    return null;
+    return failClosed ? unavailableResponse(corsHeaders) : null;
   }
 }

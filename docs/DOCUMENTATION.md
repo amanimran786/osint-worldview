@@ -1,6 +1,6 @@
 # WorldView — Full Documentation
 
-AI-powered real-time global intelligence dashboard aggregating news, markets, geopolitical data, and infrastructure monitoring into a unified situation awareness interface.
+Public-source research dashboard aggregating news, markets, geopolitical data, and infrastructure monitoring into a unified situational-awareness interface.
 
 [Live Demo: osint-worldview-cyan.vercel.app](https://osint-worldview-cyan.vercel.app) | [Tech Variant: osint-worldview-cyan.vercel.app/?variant=tech](https://osint-worldview-cyan.vercel.app/?variant=tech) | [Finance Variant: osint-worldview-cyan.vercel.app/?variant=finance](https://osint-worldview-cyan.vercel.app/?variant=finance) | [Happy Variant: osint-worldview-cyan.vercel.app/?variant=happy](https://osint-worldview-cyan.vercel.app/?variant=happy)
 

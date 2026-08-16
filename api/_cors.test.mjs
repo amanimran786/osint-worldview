@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
-import { validateApiKey } from './_api-key.js';
+import { validateApiKey, validateRequiredApiKey } from './_api-key.js';
 
 function makeRequest(origin) {
   const headers = new Headers();
@@ -67,4 +67,23 @@ test('allows keyless API access only from the exact production browser origin', 
     required: true,
     error: 'API key required',
   });
+});
+
+test('required-key routes do not trust a production Origin header', () => {
+  const previous = process.env.WORLDMONITOR_VALID_KEYS;
+  process.env.WORLDMONITOR_VALID_KEYS = 'wm_test_key_1234567890abcdef';
+  try {
+    const spoofed = makeRequest('https://osint-worldview-cyan.vercel.app');
+    assert.deepEqual(validateRequiredApiKey(spoofed), {
+      valid: false,
+      required: true,
+      error: 'API key required',
+    });
+
+    spoofed.headers.set('x-worldview-key', 'wm_test_key_1234567890abcdef');
+    assert.deepEqual(validateRequiredApiKey(spoofed), { valid: true, required: true });
+  } finally {
+    if (previous == null) delete process.env.WORLDMONITOR_VALID_KEYS;
+    else process.env.WORLDMONITOR_VALID_KEYS = previous;
+  }
 });

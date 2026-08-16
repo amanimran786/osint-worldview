@@ -61,7 +61,7 @@ export function createRelayHandler(cfg) {
     }
 
     if (cfg.requireRateLimit) {
-      const rateLimitResponse = await checkRateLimit(req, corsHeaders);
+      const rateLimitResponse = await checkRateLimit(req, corsHeaders, cfg.rateLimitOptions);
       if (rateLimitResponse) return rateLimitResponse;
     }
 

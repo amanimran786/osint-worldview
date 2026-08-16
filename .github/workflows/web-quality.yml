@@ -1,0 +1,31 @@
+name: Web Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: web-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run lint:md
+      - run: npm run typecheck:all
+      - run: npm run test:data
+      - run: npm run test:sidecar
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test e2e/dashboard-ui.spec.ts

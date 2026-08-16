@@ -996,6 +996,45 @@ canvas,
   animation: pulse-dot 2s infinite;
 }
 
+.status-indicator[data-operational-status="checking"],
+.command-status[data-operational-status="checking"],
+[data-operational-status="checking"].map-hud-sub,
+.map-hud-sub [data-operational-status="checking"] {
+  color: var(--text-dim);
+}
+
+.status-indicator[data-operational-status="degraded"],
+.command-status[data-operational-status="degraded"],
+.map-hud-sub [data-operational-status="degraded"] {
+  color: var(--yellow);
+}
+
+.status-indicator[data-operational-status="offline"],
+.command-status[data-operational-status="offline"],
+.map-hud-sub [data-operational-status="offline"] {
+  color: var(--red);
+}
+
+.status-indicator[data-operational-status="checking"] .status-dot {
+  background: var(--text-dim);
+  box-shadow: none;
+}
+
+.status-indicator[data-operational-status="degraded"] .status-dot {
+  background: var(--yellow);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--yellow) 60%, transparent);
+}
+
+.status-indicator[data-operational-status="offline"] .status-dot {
+  background: var(--red);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--red) 60%, transparent);
+}
+
+.command-status[data-operational-status="degraded"],
+.command-status[data-operational-status="offline"] {
+  border-color: currentColor;
+}
+
 @keyframes pulse-dot {
 
   0%,
@@ -6701,11 +6740,20 @@ a.prediction-link:hover {
   background: var(--bg);
   border: 1px solid var(--border);
   cursor: pointer;
+  width: 100%;
+  color: var(--text);
+  font-family: inherit;
   font-size: 10px;
+  text-align: left;
 }
 
 .source-toggle-item:hover {
   border-color: var(--text-dim);
+}
+
+.source-toggle-item:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
 }
 
 .source-toggle-item.active {

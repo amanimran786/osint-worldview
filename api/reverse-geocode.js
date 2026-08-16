@@ -1,4 +1,5 @@
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
+import { checkRateLimit } from './_rate-limit.js';
 
 export const config = { runtime: 'edge' };
 
@@ -12,6 +13,19 @@ export default async function handler(req) {
   const cors = getCorsHeaders(req);
   if (req.method === 'OPTIONS')
     return new Response(null, { status: 204, headers: cors });
+  if (req.method !== 'GET')
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...cors, 'Content-Type': 'application/json', Allow: 'GET, OPTIONS' },
+    });
+
+  const rateLimitResponse = await checkRateLimit(req, cors, {
+    prefix: 'reverse-geocode',
+    limit: 60,
+    window: '60 s',
+    failClosed: process.env.VERCEL_ENV === 'production',
+  });
+  if (rateLimitResponse) return rateLimitResponse;
 
   const url = new URL(req.url);
   const lat = url.searchParams.get('lat');

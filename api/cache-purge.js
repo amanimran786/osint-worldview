@@ -1,4 +1,5 @@
 import { getCorsHeaders } from './_cors.js';
+import { checkRateLimit } from './_rate-limit.js';
 
 export const config = { runtime: 'edge' };
 
@@ -108,10 +109,18 @@ export default async function handler(req) {
   }
 
   const auth = req.headers.get('authorization') || '';
-  const secret = process.env.RELAY_SHARED_SECRET;
+  const secret = process.env.CACHE_PURGE_SECRET;
   if (!secret || !(await timingSafeEqual(auth, `Bearer ${secret}`))) {
     return json({ error: 'Unauthorized' }, 401, corsHeaders);
   }
+
+  const rateLimitResponse = await checkRateLimit(req, corsHeaders, {
+    prefix: 'cache-purge',
+    limit: 10,
+    window: '60 s',
+    failClosed: process.env.VERCEL_ENV === 'production',
+  });
+  if (rateLimitResponse) return rateLimitResponse;
 
   let body;
   try {
@@ -152,6 +161,7 @@ export default async function handler(req) {
     for (const k of explicitKeys) {
       if (typeof k !== 'string' || !k) continue;
       if (isBlocklisted(k)) continue;
+      if (isDurableData(k)) continue;
       allKeys.add(k);
     }
   }

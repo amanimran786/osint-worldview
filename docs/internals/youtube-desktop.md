@@ -54,6 +54,7 @@ Three nested origins. The YouTube player sits inside a sidecar-served HTML page,
 ### 7. `player.playVideo()` from various timing contexts
 
 **What**: Called `playVideo()` from:
+
 - `onReady` callback (immediate)
 - `setTimeout` at 500ms, 1500ms, 2000ms
 - After `player.mute()`

@@ -6,7 +6,9 @@ loadEnvFile(import.meta.url);
 
 const NWS_API = 'https://api.weather.gov/alerts/active';
 const CANONICAL_KEY = 'weather:alerts:v1';
-const CACHE_TTL = 900; // 15 min
+const STALE_KEY = 'weather:alerts:stale:v1';
+const CACHE_TTL = 3600; // Retain through several missed 15-minute runs.
+const STALE_TTL = 86400;
 
 function extractCoordinates(geometry) {
   if (!geometry) return [];
@@ -67,6 +69,7 @@ function validate(data) {
 runSeed('weather', 'alerts', CANONICAL_KEY, fetchAlerts, {
   validateFn: validate,
   ttlSeconds: CACHE_TTL,
+  extraKeys: [{ key: STALE_KEY, ttl: STALE_TTL }],
   sourceVersion: 'nws-active',
 }).catch((err) => {
   console.error('FATAL:', err.message || err);

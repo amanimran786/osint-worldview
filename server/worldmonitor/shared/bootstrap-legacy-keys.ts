@@ -9,8 +9,8 @@ export const BOOTSTRAP_LEGACY_CACHE_KEYS = {
   techReadiness: 'economic:worldbank-techreadiness:v1',
   progressData: 'economic:worldbank-progress:v1',
   renewableEnergy: 'economic:worldbank-renewable:v1',
-  positiveGeoEvents: 'positive_events:geo-bootstrap:v1',
+  positiveGeoEvents: 'positive-events:geo-bootstrap:v1',
   weatherAlerts: 'weather:alerts:v1',
   spending: 'economic:spending:v1',
-  theaterPosture: 'theater_posture:sebuf:stale:v1',
+  theaterPosture: 'theater-posture:sebuf:stale:v1',
 } as const;

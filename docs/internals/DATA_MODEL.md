@@ -1,6 +1,6 @@
 # Data Model Reference
 
-Comprehensive data model documentation for **WorldView** — an AI-powered real-time global intelligence dashboard. This reference covers all TypeScript interfaces, data structures, and their relationships across the system.
+Comprehensive data model documentation for **WorldView**, a public-source research dashboard. This reference covers its TypeScript interfaces, data structures, and relationships.
 
 > **Source of truth:** [`src/types/index.ts`](../src/types/index.ts) (1,297 lines, 60+ interfaces)
 

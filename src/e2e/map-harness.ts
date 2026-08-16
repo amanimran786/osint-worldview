@@ -271,6 +271,7 @@ const DETERMINISTIC_BODY_CLASS = 'e2e-deterministic';
 const internals = map as unknown as {
   buildLayers?: () => Array<{ id: string; props?: { data?: unknown } }>;
   maplibreMap?: MapLibreMap;
+  countriesGeoJsonData?: GeoJSON.FeatureCollection | null;
   getTooltip?: (info: { object?: unknown; layer?: { id?: string } }) => { html?: string } | null;
   newsLocationFirstSeen?: Map<string, number>;
   newsPulseIntervalId?: ReturnType<typeof setInterval> | null;
@@ -1145,6 +1146,9 @@ const ensureDeterministicStyles = (): void => {
     body.${DETERMINISTIC_BODY_CLASS} .deckgl-layer-toggles,
     body.${DETERMINISTIC_BODY_CLASS} .deckgl-legend,
     body.${DETERMINISTIC_BODY_CLASS} .deckgl-timestamp,
+    body.${DETERMINISTIC_BODY_CLASS} .deck-tooltip,
+    body.${DETERMINISTIC_BODY_CLASS} .layer-warn-overlay,
+    body.${DETERMINISTIC_BODY_CLASS} .map-attribution,
     body.${DETERMINISTIC_BODY_CLASS} .maplibregl-ctrl-bottom-right,
     body.${DETERMINISTIC_BODY_CLASS} .maplibregl-ctrl-bottom-left {
       display: none !important;
@@ -1153,13 +1157,13 @@ const ensureDeterministicStyles = (): void => {
   document.head.appendChild(style);
 };
 
-const hideRasterBasemap = (): void => {
+const hideBasemapLayers = (): void => {
   const maplibreMap = internals.maplibreMap;
   if (!maplibreMap) return;
 
   try {
-    if (maplibreMap.getLayer('carto-dark-layer')) {
-      maplibreMap.setPaintProperty('carto-dark-layer', 'raster-opacity', 0);
+    for (const layer of maplibreMap.getStyle().layers ?? []) {
+      maplibreMap.setLayoutProperty(layer.id, 'visibility', 'none');
     }
   } catch {
     // No-op for harness stability.
@@ -1169,7 +1173,7 @@ const hideRasterBasemap = (): void => {
 const enableDeterministicVisualMode = (): void => {
   document.body.classList.add(DETERMINISTIC_BODY_CLASS);
   ensureDeterministicStyles();
-  hideRasterBasemap();
+  hideBasemapLayers();
   makeNewsLocationsNonRecent();
   map.render();
   deterministicVisualModeEnabled = true;
@@ -1238,12 +1242,13 @@ const pollReady = (): void => {
   const hasCanvas = Boolean(document.querySelector('#deckgl-basemap canvas'));
   const maplibreMap = internals.maplibreMap;
   const styleLoaded = Boolean(maplibreMap?.isStyleLoaded());
+  const countryBoundariesLoaded = Boolean(internals.countriesGeoJsonData);
   const allowStyleFallback =
     hasCanvas &&
     Boolean(maplibreMap) &&
     Date.now() - readyStartedAt >= STYLE_READY_FALLBACK_MS;
 
-  if ((hasCanvas && styleLoaded) || allowStyleFallback) {
+  if ((hasCanvas && styleLoaded && countryBoundariesLoaded) || allowStyleFallback) {
     if (!deterministicVisualModeEnabled) {
       enableDeterministicVisualMode();
     }

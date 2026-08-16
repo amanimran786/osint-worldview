@@ -128,7 +128,7 @@ const defaultToggles: Record<RuntimeFeatureId, boolean> = {
   aiOllama: true,
   wtoTrade: true,
   supplyChain: true,
-  newsPerFeedFallback: false,
+  newsPerFeedFallback: true,
   aviationStack: true,
   icaoNotams: true,
 };
@@ -302,7 +302,7 @@ export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
     name: 'News per-feed fallback',
     description: 'If digest aggregation is unavailable, use stale headlines first and optionally fetch a limited feed subset.',
     requiredSecrets: [],
-    fallback: 'Stale headlines remain available; limited per-feed fallback is disabled.',
+    fallback: 'Stale headlines remain available before a limited per-feed recovery attempt.',
   },
   {
     id: 'aviationStack',

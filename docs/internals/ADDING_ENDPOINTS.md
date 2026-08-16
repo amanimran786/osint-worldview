@@ -4,7 +4,6 @@ All JSON API endpoints in WorldView **must** use sebuf. Do not create standalone
 
 This guide walks through adding a new RPC to an existing service and adding an entirely new service.
 
-
 ## Prerequisites
 
 You need **Go 1.21+** and **Node.js 18+** installed. Everything else is installed automatically:

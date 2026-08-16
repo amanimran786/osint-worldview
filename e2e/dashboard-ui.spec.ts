@@ -1,6 +1,6 @@
 import { expect, test, type Route } from '@playwright/test';
 
-const OFF_PURPOSE_COPY = /DEFCON|PizzINT|Pentagon Pizza|TOP SECRET|NOFORN|ASTRAL INTEL|2M\+ people|Upgrade to WorldView|join.*waitlist/i;
+const OFF_PURPOSE_COPY = /DEFCON|PizzINT|Pentagon Pizza|TOP SECRET|NOFORN|ASTRAL INTEL|WorldView Monitor|AI-powered real-time|435\+|45 map layers|Realtime intelligence platform|2M\+ people|Upgrade to WorldView|join.*waitlist/i;
 
 test.describe('WorldView dashboard controls', () => {
   test.beforeEach(async ({ page }) => {
@@ -15,6 +15,8 @@ test.describe('WorldView dashboard controls', () => {
     await expect(page.locator('.app-shell')).toBeVisible();
 
     await expect(page.locator('body')).not.toContainText(OFF_PURPOSE_COPY);
+    await expect(page.locator('.status-indicator [data-operational-label]')).toHaveText('OFFLINE');
+    await expect(page.locator('.command-status')).toHaveText('OFFLINE');
     await expect(page.locator('#commandSearchInput')).toHaveAttribute('readonly', '');
 
     await page.locator('#commandSearchInput').click();
@@ -24,8 +26,13 @@ test.describe('WorldView dashboard controls', () => {
 
     await page.locator('#unifiedSettingsBtn').click();
     await expect(page.locator('#unifiedSettingsModal')).toHaveClass(/active/);
+    await expect(page.locator('#unifiedSettingsModal')).toHaveAttribute('aria-modal', 'true');
+    await expect(page.locator('#app')).toHaveAttribute('inert', '');
+    await expect(page.locator('.unified-settings-close')).toBeFocused();
     await page.locator('.unified-settings-close').click();
     await expect(page.locator('#unifiedSettingsModal')).not.toHaveClass(/active/);
+    await expect(page.locator('#app')).not.toHaveAttribute('inert', '');
+    await expect(page.locator('#unifiedSettingsBtn')).toBeFocused();
 
     const mapTab = page.locator('.command-tab[data-target="mapSection"]');
     await mapTab.click();

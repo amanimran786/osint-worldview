@@ -108,7 +108,6 @@ Status:  · 🔄 Partial · ❌ Not started
 - Several components build HTML strings and assign to `innerHTML`. For complex panels, pre-build a `DocumentFragment` off-DOM and append once.
 - **Expected gain:** Single reflow per panel update instead of multiple.
 
-
 ### PERF-012 — Remove Inline `<style>` Tags from Panel Renders
 
 - **Impact:** 🟡 Medium | **Effort:** ~1 day

@@ -210,7 +210,7 @@ export class DataLoaderManager implements AppModule {
   private cachedSatRecs: SatRecEntry[] | null = null;
 
   private digestBreaker = { state: 'closed' as 'closed' | 'open' | 'half-open', failures: 0, cooldownUntil: 0 };
-  private readonly digestRequestTimeoutMs = 8000;
+  private readonly digestRequestTimeoutMs = 20000;
   private readonly digestBreakerCooldownMs = 5 * 60 * 1000;
   private readonly persistedDigestMaxAgeMs = 6 * 60 * 60 * 1000;
   private readonly perFeedFallbackCategoryFeedLimit = 3;

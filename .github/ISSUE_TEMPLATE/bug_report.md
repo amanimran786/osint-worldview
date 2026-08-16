@@ -11,6 +11,7 @@ assignees: ''
 <!-- Clear and concise description of the bug -->
 
 ## 🔄 Steps to Reproduce
+
 1. Go to '...'
 2. Click on '...'
 3. See error '...'
@@ -25,6 +26,7 @@ assignees: ''
 <!-- If applicable, add screenshots -->
 
 ## 💻 Environment
+
 - **OS**: [Windows/macOS/Linux]
 - **Browser**: [Chrome/Firefox/Safari/Edge]
 - **App Version**: [e.g., 1.0.0]
