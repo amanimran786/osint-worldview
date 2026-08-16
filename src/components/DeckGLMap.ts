@@ -48,8 +48,8 @@ import type { Earthquake } from '@/services/earthquakes';
 import type { ClimateAnomaly } from '@/services/climate';
 import { ArcLayer } from '@deck.gl/layers';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
-import { H3HexagonLayer } from '@deck.gl/geo-layers';
 import { PathStyleExtension } from '@deck.gl/extensions';
+import { cellToBoundary } from 'h3-js';
 import type { WeatherAlert } from '@/services/weather';
 import { escapeHtml } from '@/utils/sanitize';
 import { tokenizeForMatch, matchKeyword, matchesAnyKeyword, findMatchingKeywords } from '@/utils/keyword-match';
@@ -1629,12 +1629,8 @@ export class DeckGLMap {
   }
 
   private createConflictZonesLayer(): GeoJsonLayer {
-    const cacheKey = this.countriesGeoJsonData
-      ? 'conflict-zones-layer-country-geometry'
-      : 'conflict-zones-layer';
-
     const layer = new GeoJsonLayer({
-      id: cacheKey,
+      id: 'conflict-zones-layer',
       data: this.buildConflictZoneGeoJson(),
       filled: true,
       stroked: true,
@@ -2179,16 +2175,15 @@ export class DeckGLMap {
     });
   }
 
-  private createGpsJammingLayer(): H3HexagonLayer {
-    return new H3HexagonLayer({
+  private createGpsJammingLayer(): PolygonLayer<GpsJamHex> {
+    return new PolygonLayer<GpsJamHex>({
       id: 'gps-jamming-layer',
       data: this.gpsJammingHexes,
-      getHexagon: (d: GpsJamHex) => d.h3,
+      getPolygon: (d: GpsJamHex) => cellToBoundary(d.h3, true),
       getFillColor: (d: GpsJamHex) => {
         if (d.level === 'high') return [255, 80, 80, 180] as [number, number, number, number];
         return [255, 180, 50, 140] as [number, number, number, number];
       },
-      getElevation: 0,
       extruded: false,
       filled: true,
       stroked: true,
@@ -4627,6 +4622,13 @@ export class DeckGLMap {
     const ne = bounds.getNorthEast();
     fetchMilitaryBases(sw.lat, sw.lng, ne.lat, ne.lng, zoom).then((result) => {
       if (!result) return;
+      if (result.bases.length === 0 && result.clusters.length === 0) {
+        this.serverBases = [];
+        this.serverBaseClusters = [];
+        this.serverBasesLoaded = false;
+        this.render();
+        return;
+      }
       this.serverBases = result.bases;
       this.serverBaseClusters = result.clusters;
       this.serverBasesLoaded = true;

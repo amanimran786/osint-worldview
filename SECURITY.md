@@ -42,6 +42,8 @@ If you discover a security vulnerability in WorldView, please report it responsi
 
 WorldView is a client-side intelligence dashboard that aggregates publicly available data. Here are the key security areas:
 
+The public web application does not provide user accounts, RBAC, case storage, or investigator audit trails. Use deployment-level identity protection before restricting an instance to a team, and do not treat CORS or Origin checks as authentication.
+
 ### API Keys & Secrets
 
 - **Web deployment**: API keys are stored server-side in Vercel Edge Functions
@@ -52,10 +54,10 @@ WorldView is a client-side intelligence dashboard that aggregates publicly avail
 
 ### Edge Functions & Sebuf Handlers
 
-- All 17 domain APIs are served through Sebuf (a Proto-first RPC framework) via Vercel Edge Functions
+- Domain APIs are served through Sebuf (a Proto-first RPC framework) and focused Vercel Edge Functions
 - Edge functions and handlers should validate/sanitize all input
 - CORS headers are configured per-function
-- Rate limiting and circuit breakers protect against abuse
+- Rate limiting depends on configured Redis; privileged routes fail closed when that protection is required
 
 ### Client-Side Security
 

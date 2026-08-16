@@ -188,7 +188,7 @@ The sidecar defaults to port 46123 but handles `EADDRINUSE` gracefully — if th
 
 ### Local RSS Proxy
 
-The sidecar includes a built-in RSS proxy handler that fetches news feeds directly from source domains, bypassing the cloud RSS proxy entirely. This means the desktop app can load all 435+ RSS feeds without any cloud dependency — the same domain allowlist used by the Vercel edge proxy is enforced locally. Combined with the local API handlers, this enables the desktop app to operate as a fully self-contained intelligence aggregation platform.
+The sidecar includes an RSS proxy handler that fetches configured news feeds directly from allowlisted source domains without using the cloud RSS proxy. Other feeds and enrichment features can still require provider credentials, relays, or hosted services.
 
 ### Sidecar Resilience
 

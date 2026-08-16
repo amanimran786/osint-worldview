@@ -160,7 +160,12 @@ export default async function handler(req) {
     return new Response('Forbidden', { status: 403, headers: cors });
   }
 
-  const rateLimitResult = await checkRateLimit(req, 'signals', 20, '60s');
+  const rateLimitResult = await checkRateLimit(req, cors, {
+    prefix: 'enrichment-signals',
+    limit: 20,
+    window: '60 s',
+    failClosed: process.env.VERCEL_ENV === 'production',
+  });
   if (rateLimitResult) return rateLimitResult;
 
   const url = new URL(req.url);

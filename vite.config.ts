@@ -85,6 +85,10 @@ function htmlVariantPlugin(): Plugin {
             /frame-src 'self'/,
             "frame-src 'self' http://127.0.0.1:*"
           );
+      } else if (process.env.NODE_ENV === 'production') {
+        // Vercel supplies the production CSP header. Avoid enforcing a second,
+        // broader meta policy with development-only localhost allowances.
+        result = result.replace(/\s*<meta http-equiv="Content-Security-Policy"[^>]*\/>/, '');
       }
 
       // Desktop builds: replace favicon paths with variant-specific subdirectory.

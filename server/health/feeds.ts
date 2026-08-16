@@ -3,7 +3,12 @@
  * Returns status of critical data feeds for monitoring/debugging.
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+
+interface JsonResponse extends ServerResponse {
+  status(statusCode: number): JsonResponse;
+  json(body: unknown): void;
+}
 
 interface FeedStatus {
   name: string;
@@ -12,7 +17,7 @@ interface FeedStatus {
   required?: boolean;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: IncomingMessage, res: JsonResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -20,8 +25,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const checks: FeedStatus[] = [
     {
       name: 'OpenSky ADS-B (Military Aircraft)',
-      status: 'ok',
-      message: 'Public API - always available',
+      status: 'warning',
+      message: 'Public endpoint configured; live availability is not verified here',
       required: true,
     },
     {

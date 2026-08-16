@@ -2857,7 +2857,9 @@ function startCiiWarmPingLoop() {
 // ─────────────────────────────────────────────────────────────
 const WEATHER_SEED_INTERVAL_MS = 15 * 60 * 1000; // 15 min
 const WEATHER_REDIS_KEY = 'weather:alerts:v1';
-const WEATHER_CACHE_TTL = 900;
+const WEATHER_STALE_REDIS_KEY = 'weather:alerts:stale:v1';
+const WEATHER_CACHE_TTL = 3600;
+const WEATHER_STALE_CACHE_TTL = 86400;
 let weatherSeedInFlight = false;
 
 async function seedWeatherAlerts() {
@@ -2902,8 +2904,9 @@ async function seedWeatherAlerts() {
     }
     const payload = { alerts };
     const ok1 = await upstashSet(WEATHER_REDIS_KEY, payload, WEATHER_CACHE_TTL);
-    const ok2 = await upstashSet('seed-meta:weather:alerts', { fetchedAt: Date.now(), recordCount: alerts.length }, 604800);
-    console.log(`[Weather] Seeded ${alerts.length} alerts (redis: ${ok1 && ok2 ? 'OK' : 'PARTIAL'}) in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+    const ok2 = await upstashSet(WEATHER_STALE_REDIS_KEY, payload, WEATHER_STALE_CACHE_TTL);
+    const ok3 = await upstashSet('seed-meta:weather:alerts', { fetchedAt: Date.now(), recordCount: alerts.length }, 604800);
+    console.log(`[Weather] Seeded ${alerts.length} alerts (redis: ${ok1 && ok2 && ok3 ? 'OK' : 'PARTIAL'}) in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   } catch (e) {
     console.warn('[Weather] Seed error:', e?.message || e);
   } finally {

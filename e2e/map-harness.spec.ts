@@ -129,7 +129,7 @@ const EXPECTED_FINANCE_DECK_LAYERS = [
 const waitForHarnessReady = async (
   page: import('@playwright/test').Page
 ): Promise<void> => {
-  await page.goto('/tests/map-harness.html');
+  await page.goto('/tests/map-harness.html?alert=false');
   await expect(page.locator('.deckgl-map-wrapper')).toBeVisible();
   await expect
     .poll(async () => {
@@ -245,9 +245,9 @@ test.describe('DeckGL map harness', () => {
         const nonEmptyIds = new Set(
           snapshot.filter((layer) => layer.dataCount > 0).map((layer) => layer.id)
         );
-        return expectedDeckLayers.filter((id) => !nonEmptyIds.has(id)).length;
+        return expectedDeckLayers.filter((id) => !nonEmptyIds.has(id));
       }, { timeout: 40000 })
-      .toBe(0);
+      .toEqual([]);
 
     await expect
       .poll(async () => {

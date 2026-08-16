@@ -1,9 +1,18 @@
 export const config = { runtime: 'edge' };
 
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
+import { validateRequiredApiKey } from './_api-key.js';
+import { checkRateLimit } from './_rate-limit.js';
 
 const USERNAME_RE = /^[A-Za-z0-9._-]{1,64}$/;
 const DOMAIN_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
+const TARGET_RE = /^[^\s\x00-\x1f]{1,253}$/;
+
+function boundedNumber(value, fallback, min, max) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(numeric)));
+}
 
 function resolveJarvisChatUrl(rawBaseUrl) {
   const raw = String(rawBaseUrl || '').trim();
@@ -92,6 +101,29 @@ export default async function handler(req) {
     return new Response(null, { status: 204, headers: cors });
   }
 
+  if (process.env.JARVIS_OSINT_API_ENABLED !== 'true') {
+    return new Response(JSON.stringify({ ok: false, error: 'jarvis_osint_disabled' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...cors },
+    });
+  }
+
+  const apiKeyResult = validateRequiredApiKey(req);
+  if (!apiKeyResult.valid) {
+    return new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+      status: apiKeyResult.error === 'API key access is not configured' ? 503 : 401,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...cors },
+    });
+  }
+
+  const rateLimitResponse = await checkRateLimit(req, cors, {
+    prefix: 'jarvis-osint',
+    limit: 10,
+    window: '60 s',
+    failClosed: process.env.VERCEL_ENV === 'production',
+  });
+  if (rateLimitResponse) return rateLimitResponse;
+
   const chatUrl = resolveJarvisChatUrl(process.env.JARVIS_API_URL);
   if (!chatUrl) {
     return new Response(
@@ -143,9 +175,9 @@ export default async function handler(req) {
     const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/username');
     const payload = {
       username,
-      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 45,
-      top_sites: Number.isFinite(Number(body?.topSites)) ? Number(body.topSites) : 200,
-      max_results: Number.isFinite(Number(body?.maxResults)) ? Number(body.maxResults) : 25,
+      timeout_seconds: boundedNumber(body?.timeoutSeconds, 45, 5, 60),
+      top_sites: boundedNumber(body?.topSites, 200, 1, 250),
+      max_results: boundedNumber(body?.maxResults, 25, 1, 50),
     };
     const result = await callJarvis(endpoint, token, payload, 'POST', 90_000);
     return new Response(JSON.stringify(result), {
@@ -165,8 +197,8 @@ export default async function handler(req) {
     const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/domain-typos');
     const payload = {
       domain,
-      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 60,
-      max_results: Number.isFinite(Number(body?.maxResults)) ? Number(body.maxResults) : 25,
+      timeout_seconds: boundedNumber(body?.timeoutSeconds, 60, 5, 90),
+      max_results: boundedNumber(body?.maxResults, 25, 1, 50),
       registered_only: body?.registeredOnly !== false,
     };
     const result = await callJarvis(endpoint, token, payload, 'POST', 90_000);
@@ -187,8 +219,8 @@ export default async function handler(req) {
     const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/subdomains');
     const payload = {
       domain,
-      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 60,
-      max_results: Number.isFinite(Number(body?.maxResults)) ? Number(body.maxResults) : 100,
+      timeout_seconds: boundedNumber(body?.timeoutSeconds, 60, 5, 90),
+      max_results: boundedNumber(body?.maxResults, 100, 1, 200),
       passive_only: body?.passiveOnly !== false,
     };
     const result = await callJarvis(endpoint, token, payload, 'POST', 120_000);
@@ -209,7 +241,7 @@ export default async function handler(req) {
     const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/whois');
     const payload = {
       domain,
-      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 15,
+      timeout_seconds: boundedNumber(body?.timeoutSeconds, 15, 5, 30),
     };
     const result = await callJarvis(endpoint, token, payload, 'POST', 30_000);
     return new Response(JSON.stringify(result), {
@@ -220,8 +252,8 @@ export default async function handler(req) {
 
   if (action === 'worldview') {
     const target = String(body?.target || '').trim();
-    if (!target) {
-      return new Response(JSON.stringify({ ok: false, error: 'missing_target' }), {
+    if (!TARGET_RE.test(target)) {
+      return new Response(JSON.stringify({ ok: false, error: target ? 'invalid_target' : 'missing_target' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...cors },
       });
@@ -229,8 +261,8 @@ export default async function handler(req) {
     const endpoint = resolveJarvisEndpoint(chatUrl, '/osint/worldview');
     const payload = {
       target,
-      timeout_seconds: Number.isFinite(Number(body?.timeoutSeconds)) ? Number(body.timeoutSeconds) : 90,
-      max_results_per_tool: Number.isFinite(Number(body?.maxResultsPerTool)) ? Number(body.maxResultsPerTool) : 25,
+      timeout_seconds: boundedNumber(body?.timeoutSeconds, 90, 10, 120),
+      max_results_per_tool: boundedNumber(body?.maxResultsPerTool, 25, 1, 50),
       include_typos: body?.includeTypos === true,
     };
     const result = await callJarvis(endpoint, token, payload, 'POST', 150_000);

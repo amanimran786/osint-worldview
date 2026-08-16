@@ -30,6 +30,29 @@ function extractOriginFromReferer(referer) {
   }
 }
 
+function getConfiguredKeys() {
+  return (process.env.WORLDMONITOR_VALID_KEYS || '')
+    .split(',')
+    .map((key) => key.trim())
+    .filter(Boolean);
+}
+
+export function validateRequiredApiKey(req) {
+  const key = req.headers.get('X-WorldView-Key') || req.headers.get('X-WorldMonitor-Key');
+  const validKeys = getConfiguredKeys();
+
+  if (validKeys.length === 0) {
+    return { valid: false, required: true, error: 'API key access is not configured' };
+  }
+  if (!key) {
+    return { valid: false, required: true, error: 'API key required' };
+  }
+  if (!validKeys.includes(key)) {
+    return { valid: false, required: true, error: 'Invalid API key' };
+  }
+  return { valid: true, required: true };
+}
+
 export function validateApiKey(req) {
   const key = req.headers.get('X-WorldView-Key') || req.headers.get('X-WorldMonitor-Key');
   // Same-origin browser requests don't send Origin (per CORS spec).
@@ -39,7 +62,7 @@ export function validateApiKey(req) {
   // Desktop app — always require API key
   if (isDesktopOrigin(origin)) {
     if (!key) return { valid: false, required: true, error: 'API key required for desktop access' };
-    const validKeys = (process.env.WORLDMONITOR_VALID_KEYS || '').split(',').filter(Boolean);
+    const validKeys = getConfiguredKeys();
     if (!validKeys.includes(key)) return { valid: false, required: true, error: 'Invalid API key' };
     return { valid: true, required: true };
   }
@@ -47,7 +70,7 @@ export function validateApiKey(req) {
   // The exact production browser origin and localhost development need no key.
   if (isTrustedBrowserOrigin(origin)) {
     if (key) {
-      const validKeys = (process.env.WORLDMONITOR_VALID_KEYS || '').split(',').filter(Boolean);
+      const validKeys = getConfiguredKeys();
       if (!validKeys.includes(key)) return { valid: false, required: true, error: 'Invalid API key' };
     }
     return { valid: true, required: false };
@@ -55,7 +78,7 @@ export function validateApiKey(req) {
 
   // Explicit key provided from unknown origin — validate it
   if (key) {
-    const validKeys = (process.env.WORLDMONITOR_VALID_KEYS || '').split(',').filter(Boolean);
+    const validKeys = getConfiguredKeys();
     if (!validKeys.includes(key)) return { valid: false, required: true, error: 'Invalid API key' };
     return { valid: true, required: true };
   }

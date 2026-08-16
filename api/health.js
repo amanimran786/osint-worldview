@@ -1,3 +1,6 @@
+import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
+import { validateRequiredApiKey } from './_api-key.js';
+
 export const config = { runtime: 'edge' };
 
 const BOOTSTRAP_KEYS = {
@@ -125,6 +128,48 @@ const CASCADE_GROUPS = {
 
 const NEG_SENTINEL = '__WM_NEG__';
 
+function getRelayBaseUrl() {
+  const raw = String(process.env.WS_RELAY_URL || '').trim();
+  if (!raw) return '';
+  return raw.replace(/^wss:/, 'https:').replace(/^ws:/, 'http:').replace(/\/+$/, '');
+}
+
+async function checkRelay(now) {
+  const relayBaseUrl = getRelayBaseUrl();
+  if (!relayBaseUrl) return { status: 'UNCONFIGURED' };
+
+  try {
+    const response = await fetch(`${relayBaseUrl}/health`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (!response.ok) return { status: 'UNREACHABLE' };
+
+    const payload = await response.json();
+    const telegram = payload?.telegram;
+    if (payload?.status !== 'ok') return { status: 'UNHEALTHY' };
+    if (!telegram?.enabled) return { status: 'TELEGRAM_DISABLED' };
+    if (telegram.hasError) return { status: 'TELEGRAM_ERROR' };
+    if (!telegram.lastPollAt) return { status: 'TELEGRAM_NOT_READY' };
+
+    const lastPollMs = Date.parse(telegram.lastPollAt);
+    const ageMin = Number.isFinite(lastPollMs) ? Math.round((now - lastPollMs) / 60_000) : null;
+    if (ageMin === null || ageMin > 15) {
+      return { status: 'TELEGRAM_STALE', lastPollAt: telegram.lastPollAt, ageMin };
+    }
+
+    return {
+      status: 'OK',
+      connected: payload.connected === true,
+      telegramItems: Number(telegram.items) || 0,
+      lastPollAt: telegram.lastPollAt,
+      ageMin,
+    };
+  } catch {
+    return { status: 'UNREACHABLE' };
+  }
+}
+
 async function redisPipeline(commands) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -164,14 +209,34 @@ function dataSize(parsed) {
 }
 
 export default async function handler(req) {
+  if (isDisallowedOrigin(req)) {
+    return new Response(JSON.stringify({ status: 'FORBIDDEN' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const cors = getCorsHeaders(req, 'GET, OPTIONS');
   const headers = {
     'Content-Type': 'application/json',
     'Cache-Control': 'no-cache, no-store',
-    'Access-Control-Allow-Origin': '*',
+    ...cors,
   };
 
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers });
+  }
+
+  const url = new URL(req.url);
+  const compact = url.searchParams.get('compact') === '1';
+  if (!compact) {
+    const auth = validateRequiredApiKey(req);
+    if (!auth.valid) {
+      return new Response(JSON.stringify({ status: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers,
+      });
+    }
   }
 
   const now = Date.now();
@@ -187,10 +252,10 @@ export default async function handler(req) {
   try {
     const commands = allKeys.map(k => ['GET', k]);
     results = await redisPipeline(commands);
-  } catch (err) {
+  } catch {
     return new Response(JSON.stringify({
       status: 'REDIS_DOWN',
-      error: err.message,
+      summary: { total: 1, ok: 0, warn: 0, crit: 1 },
       checkedAt: new Date(now).toISOString(),
     }), { status: 503, headers });
   }
@@ -324,6 +389,12 @@ export default async function handler(req) {
     checks[name] = entry;
   }
 
+  const relayCheck = await checkRelay(now);
+  checks.relay = relayCheck;
+  totalChecks++;
+  if (relayCheck.status === 'OK') okCount++;
+  else critCount++;
+
   let overall;
   if (critCount === 0 && warnCount === 0) overall = 'HEALTHY';
   else if (critCount === 0) overall = 'WARNING';
@@ -331,9 +402,6 @@ export default async function handler(req) {
   else overall = 'UNHEALTHY';
 
   const httpStatus = overall === 'HEALTHY' || overall === 'WARNING' ? 200 : 503;
-
-  const url = new URL(req.url);
-  const compact = url.searchParams.get('compact') === '1';
 
   const body = {
     status: overall,

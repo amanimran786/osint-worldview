@@ -2,13 +2,46 @@ import { strict as assert } from 'node:assert';
 import test from 'node:test';
 import handler from './jarvis-osint.js';
 
-function makeRequest(method = 'POST', body = null) {
+const TEST_API_KEY = 'wm_test_key_1234567890abcdef';
+
+function makeRequest(method = 'POST', body = null, apiKey = TEST_API_KEY) {
+  const headers = {
+    'content-type': 'application/json',
+    origin: 'https://osint-worldview-cyan.vercel.app',
+  };
+  if (apiKey) headers['x-worldview-key'] = apiKey;
   return new Request('https://osint-worldview-cyan.vercel.app/api/jarvis-osint', {
     method,
-    headers: { 'content-type': 'application/json', origin: 'https://osint-worldview-cyan.vercel.app' },
+    headers,
     body: body == null ? undefined : JSON.stringify(body),
   });
 }
+
+test.beforeEach(() => {
+  process.env.JARVIS_OSINT_API_ENABLED = 'true';
+  process.env.WORLDMONITOR_VALID_KEYS = TEST_API_KEY;
+  delete process.env.VERCEL_ENV;
+});
+
+test.afterEach(() => {
+  delete process.env.JARVIS_OSINT_API_ENABLED;
+  delete process.env.WORLDMONITOR_VALID_KEYS;
+  delete process.env.JARVIS_API_URL;
+  delete process.env.JARVIS_API_TOKEN;
+});
+
+test('is disabled unless explicitly enabled', async () => {
+  delete process.env.JARVIS_OSINT_API_ENABLED;
+  const response = await handler(makeRequest('GET'));
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, 'jarvis_osint_disabled');
+});
+
+test('requires an explicit API key even for the production browser origin', async () => {
+  const response = await handler(makeRequest('GET', null, ''));
+  assert.equal(response.status, 401);
+  assert.equal((await response.json()).error, 'unauthorized');
+});
 
 test('rejects invalid username payloads', async () => {
   process.env.JARVIS_API_URL = 'http://127.0.0.1:8765';

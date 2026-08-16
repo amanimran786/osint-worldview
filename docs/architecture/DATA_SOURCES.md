@@ -362,7 +362,6 @@ Feeds also carry a **propaganda risk rating** and **state affiliation flag**. St
 
 ### Data Freshness & Intelligence Gaps
 
-
 ---
 
 ## Prediction Markets

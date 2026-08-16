@@ -2,11 +2,13 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Deduct Situation Panel Options', () => {
     test('It successfully requests deduction from the intelligence API', async ({ page }) => {
-        await page.goto('/?view=global');
-
-        // MOCK the backend deduct-situation RPC response UNLESS testing real LLM flows
         if (!process.env.TEST_REAL_LLM) {
-            await page.route('**/api/intelligence/v1/deduct-situation', async (route) => {
+            await page.route('**/api/**', async (route) => {
+                if (!route.request().url().includes('/api/intelligence/v1/deduct-situation')) {
+                    await route.fulfill({ status: 503, json: { error: 'test offline' } });
+                    return;
+                }
+                await new Promise((resolve) => setTimeout(resolve, 250));
                 const json = {
                     analysis: '### Mocked AI Analysis\n- This is a simulated response.\n- Situation is stable.',
                     model: 'mocked-e2e-model',
@@ -16,14 +18,15 @@ test.describe('Deduct Situation Panel Options', () => {
             });
         }
 
-        // Open CMD palette and search for deduction panel
-        await page.keyboard.press('ControlOrMeta+k');
-        await page.waitForSelector('.command-palette');
-        await page.fill('.command-palette input', 'deduct');
-        await page.click('text="Jump to Deduct Situation"');
+        await page.goto('/tests/runtime-harness.html');
+        await page.evaluate(async () => {
+            const { DeductionPanel } = await import('/src/components/DeductionPanel.ts');
+            const panel = new DeductionPanel();
+            document.body.appendChild(panel.getElement());
+        });
 
         // Ensure the panel is visible and ready
-        const panel = page.locator('.wm-panel', { hasText: 'DEDUCT SITUATION' });
+        const panel = page.locator('.panel[data-panel="deduction"]');
         await expect(panel).toBeVisible();
 
         // Fill in the text area query

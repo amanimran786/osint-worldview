@@ -19,15 +19,24 @@ function getRatelimit(): Ratelimit | null {
 }
 
 function getClientIp(request: Request): string {
-  // With Cloudflare proxy → Vercel, x-real-ip is the CF edge IP (shared across users).
-  // cf-connecting-ip is the actual client IP set by Cloudflare — prefer it.
-  // x-forwarded-for is client-settable and MUST NOT be trusted for rate limiting.
+  // Only use headers supplied by the hosting edge. Client-controlled forwarding
+  // headers must not create independent rate-limit buckets.
   return (
-    request.headers.get('cf-connecting-ip') ||
     request.headers.get('x-real-ip') ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    '0.0.0.0'
+    request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+    'unknown'
   );
+}
+
+function unavailableResponse(corsHeaders: Record<string, string>): Response {
+  return new Response(JSON.stringify({ error: 'Rate limit service unavailable' }), {
+    status: 503,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      ...corsHeaders,
+    },
+  });
 }
 
 export async function checkRateLimit(
@@ -107,7 +116,8 @@ export async function checkEndpointRateLimit(
   corsHeaders: Record<string, string>,
 ): Promise<Response | null> {
   const rl = getEndpointRatelimit(pathname);
-  if (!rl) return null;
+  const failClosed = process.env.VERCEL_ENV === 'production';
+  if (!rl) return failClosed ? unavailableResponse(corsHeaders) : null;
 
   const ip = getClientIp(request);
 
@@ -130,6 +140,6 @@ export async function checkEndpointRateLimit(
 
     return null;
   } catch {
-    return null;
+    return failClosed ? unavailableResponse(corsHeaders) : null;
   }
 }

@@ -7,6 +7,7 @@
 ## 📋 Root Directory Files
 
 ### 📖 Documentation Files
+
 ```
 README.md                 ← START HERE (portfolio-focused)
 CONTRIBUTING.md          ← How to contribute
@@ -17,6 +18,7 @@ LICENSE                  ← AGPL-3.0 (open-source)
 ```
 
 ### 🔧 Configuration Files
+
 ```
 package.json             ← Node.js dependencies
 tsconfig.json            ← TypeScript config
@@ -27,6 +29,7 @@ vite.config.ts           ← Vite bundler config
 ```
 
 ### 📦 Build & Deploy
+
 ```
 Makefile                 ← Common commands (make build, make test)
 docker-compose.yml       ← Local Docker setup
@@ -132,28 +135,34 @@ worldview/
 ## 🎯 How to Navigate
 
 ### "I want to understand the project"
+
 1. Start: **README.md** (overview)
 2. Next: **docs/HOW_IT_WORKS.md** (simple explanation)
 3. Deep dive: **docs/ARCHITECTURE.md** (system design)
 
 ### "I want to use it"
+
 1. **README.md** → Quick Start section
 2. **docs/DOCUMENTATION.md** → Setup guides
 
 ### "I want to contribute"
+
 1. **CONTRIBUTING.md** (guidelines)
 2. **docs/ARCHITECTURE.md** (understand the code)
 3. Pick an issue: **GitHub Issues** (filtered by `good-first-issue`)
 
 ### "I want to deploy it"
+
 1. **docs/DOCUMENTATION.md** → Deployment section
 2. **deploy/** folder (Docker, Vercel, K8s configs)
 
 ### "I want to add a data source"
+
 1. **docs/DATA_SOURCES.md** (all 45 layers + how to add more)
 2. **src/services/news-aggregator.ts** (implementation)
 
 ### "I want to customize the UI"
+
 1. **src/styles/main.css** (main stylesheet)
 2. **src/components/** (component library)
 
@@ -164,6 +173,7 @@ worldview/
 **Use these labels for organization:**
 
 ### By Type
+
 - 🐛 **bug** — Something is broken
 - ✨ **feature** — New capability
 - 📚 **documentation** — Docs improvement
@@ -173,17 +183,20 @@ worldview/
 - 🎨 **design** — UI/UX improvement
 
 ### By Difficulty
+
 - 🟢 **good-first-issue** — Easy, for newcomers
 - 🟡 **intermediate** — Medium difficulty
 - 🔴 **hard** — Complex, experienced devs
 
 ### By Priority
+
 - 🔥 **critical** — Block deployment
 - ⚠️ **high** — Should fix soon
 - 📋 **medium** — Nice to have
 - 💭 **low** — Future consideration
 
 ### By Category
+
 - 🗺️ **maps** — Map engine, layers
 - 🧠 **ai** — AI service, LLM integration
 - 📰 **data** — News feeds, data sources
@@ -214,19 +227,23 @@ worldview/
 ## 📊 GitHub Profile Optimization
 
 ### Profile Settings
+
 - ✅ Profile picture (professional headshot)
 - ✅ Bio: "OSINT Dashboard Creator | Full-stack engineer | Open-source"
 - ✅ Website: https://osint-worldview-cyan.vercel.app
 - ✅ Location: [Your city]
 
 ### Pinned Repositories
+
 **Pin these 4 repositories:**
+
 1. **osint-worldview** (this one) ← Most impressive
 2. **[Your second-best project]**
 3. **[Your third-best project]**
 4. **[Your most-starred project]**
 
 ### GitHub Activity
+
 - ✅ Consistent commits (not all at once)
 - ✅ Meaningful commit messages
 - ✅ Regular documentation updates
@@ -257,6 +274,7 @@ WorldView uses GitHub Actions for automation:
 ## 📝 Issue Templates
 
 ### Bug Report
+
 ```markdown
 ### Description
 [What's broken?]
@@ -279,6 +297,7 @@ WorldView uses GitHub Actions for automation:
 ```
 
 ### Feature Request
+
 ```markdown
 ### Problem Statement
 [What problem does this solve?]
@@ -298,6 +317,7 @@ WorldView uses GitHub Actions for automation:
 ## 🔐 Security Policy
 
 See **SECURITY.md** for:
+
 - How to report vulnerabilities (securely)
 - Our response timeline
 - Supported versions
@@ -308,6 +328,7 @@ See **SECURITY.md** for:
 ## Examples of Well-Documented GitHub Repositories
 
 **Reference these for inspiration:**
+
 - **kubernetes/kubernetes** — Clear docs, great organization
 - **facebook/react** — Beautiful README, issue templates
 - **torvalds/linux** — Massive project, still clear

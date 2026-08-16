@@ -139,11 +139,17 @@ test.describe('circuit breaker persistent cache', () => {
           return { value: 222 };
         }, { value: 0 });
 
-        // Wait for fire-and-forget write
-        await new Promise((r) => setTimeout(r, 200));
+        // Stale persistent data is returned immediately while refresh runs in the background.
+        const deadline = Date.now() + 2_000;
+        while (breaker.getDataState().mode !== 'live' && Date.now() < deadline) {
+          await new Promise((r) => setTimeout(r, 25));
+        }
+
+        const refreshed = breaker.getCachedOrDefault({ value: 0 });
 
         return {
-          result: result.value,
+          initialResult: result.value,
+          result: refreshed.value,
           fetchCalled,
           dataState: breaker.getDataState().mode,
         };
@@ -153,6 +159,7 @@ test.describe('circuit breaker persistent cache', () => {
     });
 
     // Persistent entry was expired, so fetch MUST have been called
+    expect(result.initialResult).toBe(111);
     expect(result.fetchCalled).toBe(true);
     expect(result.result).toBe(222);
     expect(result.dataState).toBe('live');
@@ -354,7 +361,7 @@ test.describe('circuit breaker persistent cache', () => {
 
     // Stale persistent data (777) is better than default (0)
     expect(result.result).toBe(777);
-    expect(result.dataState).toBe('unavailable');
+    expect(result.dataState).toBe('cached');
   });
 
   test('concurrent execute() calls with stale cache spawn exactly one background refresh', async ({ page }) => {

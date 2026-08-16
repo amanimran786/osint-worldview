@@ -1,6 +1,6 @@
 # State Management
 
-WorldView is an AI-powered real-time global intelligence dashboard built with **vanilla TypeScript** — no framework, no reactive stores. All state is managed manually through class properties, `localStorage`, `IndexedDB`, and URL query parameters.
+WorldView is a public-source research dashboard built with **vanilla TypeScript**, without a UI framework or reactive store. State is managed through class properties, `localStorage`, `IndexedDB`, and URL query parameters.
 
 This document is the canonical reference for how state is stored, updated, and persisted across the application.
 

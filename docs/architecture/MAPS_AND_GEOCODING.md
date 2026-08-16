@@ -96,7 +96,6 @@ Common alternate names are mapped in `NAME_ALIASES`:
 
 ## Country Boundary Overrides
 
-
 ### How It Works
 
 1. After loading base `countries.geojson`, the app fetches `country-boundary-overrides.geojson` from R2 CDN with a 3-second timeout

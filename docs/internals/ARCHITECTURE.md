@@ -1,6 +1,6 @@
 # Architecture
 
-WorldView is an AI-powered real-time global intelligence dashboard built as a TypeScript single-page application. It aggregates 30+ external data sources — covering geopolitics, military activity, financial markets, cyber threats, climate events, and more — into a unified operational picture rendered through an interactive 3D globe and a grid of specialised panels.
+WorldView is a TypeScript public-source research dashboard. It combines configured sources covering geopolitics, military activity, financial markets, cyber threats, and climate events in interactive map and panel views.
 
 This document covers the full system architecture: deployment topology, variant configuration, data pipelines, signal intelligence, map rendering, caching, desktop packaging, machine-learning inference, and error handling.
 

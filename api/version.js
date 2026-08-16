@@ -2,6 +2,26 @@
 export const config = { runtime: 'edge' };
 
 const RELEASES_URL = 'https://api.github.com/repos/amanimran786/osint-worldview/releases/latest';
+const REPOSITORY_URL = 'https://github.com/amanimran786/osint-worldview';
+const CURRENT_VERSION = '2.6.1';
+
+function buildFallbackResponse() {
+  return new Response(JSON.stringify({
+    version: CURRENT_VERSION,
+    tag: '',
+    url: REPOSITORY_URL,
+    prerelease: false,
+    releaseAvailable: false,
+    source: 'build',
+  }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=60, stale-if-error=3600',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}
 
 export default async function handler() {
   try {
@@ -13,10 +33,7 @@ export default async function handler() {
     });
 
     if (!res.ok) {
-      return new Response(JSON.stringify({ error: 'upstream' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return buildFallbackResponse();
     }
 
     const release = await res.json();
@@ -28,6 +45,8 @@ export default async function handler() {
       tag,
       url: release.html_url,
       prerelease: release.prerelease ?? false,
+      releaseAvailable: true,
+      source: 'github-release',
     }), {
       status: 200,
       headers: {
@@ -37,9 +56,6 @@ export default async function handler() {
       },
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'fetch_failed' }), {
-      status: 502,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return buildFallbackResponse();
   }
 }

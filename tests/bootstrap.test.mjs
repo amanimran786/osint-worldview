@@ -23,7 +23,7 @@ describe('Bootstrap cache key registry', () => {
     const extractKeys = (src) => {
       const block = src.match(/BOOTSTRAP_CACHE_KEYS[^=]*=\s*\{([^}]+)\}/);
       if (!block) return {};
-      const re = /(\w+):\s+'([a-z_]+(?::[a-z_-]+)+:v\d+)'/g;
+      const re = /(\w+):\s+'([a-z_-]+(?::[a-z_-]+)+:v\d+)'/g;
       const keys = {};
       let m;
       while ((m = re.exec(block[1])) !== null) keys[m[1]] = m[2];
@@ -48,7 +48,7 @@ describe('Bootstrap cache key registry', () => {
       keys.push(m[1]);
     }
     for (const key of keys) {
-      assert.match(key, /^[a-z_]+(?::[a-z_-]+)+:v\d+$/, `Cache key "${key}" does not match expected pattern`);
+      assert.match(key, /^[a-z_-]+(?::[a-z_-]+)+:v\d+$/, `Cache key "${key}" does not match expected pattern`);
     }
   });
 
@@ -102,6 +102,19 @@ describe('Bootstrap cache key registry', () => {
         allHandlerCode.includes(key),
         `Cache key "${key}" not found in any handler file`,
       );
+    }
+  });
+
+  it('bootstrap, health, and seed producers agree on hyphenated shared keys', () => {
+    const healthSrc = readFileSync(join(root, 'api', 'health.js'), 'utf-8');
+    const relaySrc = readFileSync(join(root, 'scripts', 'ais-relay.cjs'), 'utf-8');
+    const militarySeedSrc = readFileSync(join(root, 'scripts', 'seed-military-flights.mjs'), 'utf-8');
+    for (const key of ['positive-events:geo-bootstrap:v1', 'theater-posture:sebuf:stale:v1']) {
+      assert.ok(cacheKeysSrc.includes(key), `canonical registry missing ${key}`);
+      assert.ok(bootstrapSrc.includes(key), `bootstrap endpoint missing ${key}`);
+      assert.ok(healthSrc.includes(key), `health endpoint missing ${key}`);
+      const producerSource = key.startsWith('positive-events') ? relaySrc : `${relaySrc}\n${militarySeedSrc}`;
+      assert.ok(producerSource.includes(key), `seed producer missing ${key}`);
     }
   });
 });
