@@ -69,7 +69,7 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/military/v1/get-theater-posture': 'slow',
   '/api/infrastructure/v1/get-temporal-baseline': 'slow',
   '/api/infrastructure/v1/list-temporal-anomalies': 'slow',
-  '/api/aviation/v1/list-airport-delays': 'static',
+  '/api/aviation/v1/list-airport-delays': 'medium',
   '/api/aviation/v1/get-airport-ops-summary': 'static',
   '/api/aviation/v1/list-airport-flights': 'static',
   '/api/aviation/v1/get-carrier-ops': 'slow',
@@ -108,7 +108,7 @@ const RPC_CACHE_TIER: Record<string, CacheTier> = {
   '/api/economic/v1/get-energy-capacity': 'static',
   '/api/supply-chain/v1/get-critical-minerals': 'daily',
   '/api/military/v1/get-aircraft-details': 'static',
-  '/api/military/v1/get-wingbits-status': 'static',
+  '/api/military/v1/get-wingbits-status': 'fast',
 
   '/api/military/v1/list-military-flights': 'slow',
   '/api/market/v1/list-etf-flows': 'slow',
@@ -158,7 +158,14 @@ export function createDomainGateway(
     try {
       corsHeaders = getCorsHeaders(request);
     } catch {
-      corsHeaders = { 'Access-Control-Allow-Origin': '*' };
+      console.error('[gateway] CORS policy generation failed');
+      return new Response(JSON.stringify({ error: 'Origin policy unavailable' }), {
+        status: 503,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store',
+        },
+      });
     }
 
     // OPTIONS preflight

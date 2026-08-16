@@ -152,40 +152,11 @@ export async function listAirportDelays(
     }
   }
 
-  // 4. Fill in ALL monitored airports with no alerts as "normal operations"
-  //    so they always appear on the map (gray dots)
-  const alertedIatas = new Set(allAlerts.map(a => a.iata));
-  let normalCount = 0;
-  for (const airport of MONITORED_AIRPORTS) {
-    if (!alertedIatas.has(airport.iata)) {
-      normalCount++;
-      allAlerts.push({
-        id: `status-${airport.iata}`,
-        iata: airport.iata,
-        icao: airport.icao,
-        name: airport.name,
-        city: airport.city,
-        country: airport.country,
-        location: { latitude: airport.lat, longitude: airport.lon },
-        region: toProtoRegion(airport.region),
-        delayType: toProtoDelayType('general'),
-        severity: toProtoSeverity('normal'),
-        avgDelayMinutes: 0,
-        delayedFlightsPct: 0,
-        cancelledFlights: 0,
-        totalFlights: 0,
-        reason: 'Normal operations',
-        source: toProtoSource('computed'),
-        updatedAt: Date.now(),
-      });
-    }
-  }
-
-  // Write bootstrap key for initial page load hydration
+  // Only evidence-backed alerts are returned. Missing telemetry is unknown, not normal.
+  // Write bootstrap key for initial page load hydration.
   try {
     await setCachedJson('aviation:delays-bootstrap:v1', { alerts: allAlerts }, 1800);
   } catch { /* non-critical */ }
 
   return { alerts: allAlerts };
 }
-
