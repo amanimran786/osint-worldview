@@ -341,6 +341,7 @@ export class MapComponent {
   public setTimeRange(range: TimeRange): void {
     this.state.timeRange = range;
     this.onTimeRangeChange?.(range);
+    this.onStateChange?.(this.getState());
     this.updateTimeSliderButtons();
     this.render();
   }

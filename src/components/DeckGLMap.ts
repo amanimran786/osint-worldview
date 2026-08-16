@@ -4301,6 +4301,7 @@ export class DeckGLMap {
     this.state.timeRange = range;
     this.rebuildProtestSupercluster();
     this.onTimeRangeChange?.(range);
+    this.onStateChange?.(this.getState());
     this.updateTimeSliderButtons();
     this.render(); // Debounced
   }

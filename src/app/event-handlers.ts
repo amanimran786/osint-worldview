@@ -261,7 +261,17 @@ export class EventHandlerManager implements AppModule {
         if (active) item.setAttribute('aria-current', 'page');
         else item.removeAttribute('aria-current');
       });
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const mainContent = this.ctx.container.querySelector<HTMLElement>('.main-content');
+      if (mainContent && target instanceof HTMLElement) {
+        const targetBounds = target.getBoundingClientRect();
+        const contentBounds = mainContent.getBoundingClientRect();
+        mainContent.scrollTo({
+          top: Math.max(0, mainContent.scrollTop + targetBounds.top - contentBounds.top),
+          behavior: 'smooth',
+        });
+      } else {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     };
 
     this.ctx.container.querySelectorAll<HTMLElement>('[data-dashboard-target]').forEach((control) => {

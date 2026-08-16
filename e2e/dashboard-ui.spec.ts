@@ -60,6 +60,37 @@ test.describe('WorldView dashboard controls', () => {
     await expect(worldViewNav).toHaveClass(/active/);
     await expect(mapTab).toHaveClass(/active/);
 
+    const range24h = page.locator('.deckgl-time-slider .time-btn[data-range="24h"]');
+    const range7d = page.locator('.deckgl-time-slider .time-btn[data-range="7d"]');
+    await expect(range24h).toBeVisible();
+    await expect.poll(() => range24h.evaluate((button) => button.getBoundingClientRect().top))
+      .toBeGreaterThanOrEqual(0);
+    const range24hHitTarget = await range24h.evaluate((button) => {
+      const bounds = button.getBoundingClientRect();
+      const target = document.elementFromPoint(
+        bounds.left + bounds.width / 2,
+        bounds.top + bounds.height / 2,
+      );
+      return {
+        same: target === button,
+        buttonClass: button.className,
+        buttonBounds: { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height },
+        targetClass: target?.className || '',
+        targetTag: target?.tagName || '',
+        targetText: target?.textContent?.trim() || '',
+      };
+    });
+    expect(
+      range24hHitTarget,
+      `24h time control is obscured: ${JSON.stringify(range24hHitTarget)}`,
+    ).toMatchObject({ same: true });
+    await range24h.click();
+    await expect(range24h).toHaveClass(/active/);
+    await expect.poll(() => new URL(page.url()).searchParams.get('timeRange')).toBe('24h');
+    await range7d.click();
+    await expect(range7d).toHaveClass(/active/);
+    await expect.poll(() => new URL(page.url()).searchParams.get('timeRange')).toBe('7d');
+
     await dashboardNav.click();
     await expect(dashboardNav).toHaveClass(/active/);
     await expect(page.locator('.command-tab[data-target="commandDashboard"]')).toHaveClass(/active/);
