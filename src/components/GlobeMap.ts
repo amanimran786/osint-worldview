@@ -4,7 +4,7 @@
  * Matches the flat map's MapContainer API so it can be used as a drop-in
  * replacement within MapContainer when the user enables globe mode.
  *
- * Architecture mirrors Sentinel (sentinel.axonia.us):
+ * Globe implementation:
  *  - globe.gl v2 (new Globe(element, config))
  *  - Earth texture: /textures/earth-topo-bathy.jpg
  *  - Night sky background: /textures/night-sky.png
