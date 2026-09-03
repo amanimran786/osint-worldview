@@ -17,3 +17,9 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/production-smoke.mjs
+        env:
+          WORLDVIEW_PRODUCTION_URL: >-
+            ${{ github.event_name == 'deployment_status' &&
+                (github.event.deployment_status.environment_url ||
+                 github.event.deployment_status.target_url) ||
+                'https://osint-worldview-cyan.vercel.app' }}
