@@ -267,7 +267,9 @@ export class EventHandlerManager implements AppModule {
         const contentBounds = mainContent.getBoundingClientRect();
         mainContent.scrollTo({
           top: Math.max(0, mainContent.scrollTop + targetBounds.top - contentBounds.top),
-          behavior: 'smooth',
+          // Consecutive section clicks must cancel any in-flight scroll so controls
+          // cannot pass underneath the fixed command bars.
+          behavior: 'auto',
         });
       } else {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
